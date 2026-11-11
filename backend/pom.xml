@@ -19,7 +19,7 @@
 
     <properties>
         <java.version>21</java.version>
-        <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>10.10</nimbus-jose-jwt.version>
         <!-- Set to "integration" (or use -Punit-only) to skip tests that need PostgreSQL -->
         <excludedTestGroups/>
     </properties>
