@@ -1,0 +1,19 @@
+# Integration-test profile. Needs a PostgreSQL database – see docs/LOCAL-DEVELOPMENT.md.
+# CI provides one as a service container with the defaults below. These are throwaway test credentials.
+spring:
+  datasource:
+    url: ${TEST_DATABASE_URL:jdbc:postgresql://localhost:5432/trafondart_test}
+    username: ${TEST_DATABASE_USERNAME:trafondart}
+    password: ${TEST_DATABASE_PASSWORD:${POSTGRES_PASSWORD:trafondart}}
+  flyway:
+    clean-disabled: false
+
+app:
+  cookie:
+    secure: false
+  websocket:
+    allowed-origins: "*"
+  bootstrap-admin:
+    username: admin
+    password: test-admin-password
+    real-name: Test Admin

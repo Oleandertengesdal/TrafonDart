@@ -1,0 +1,10 @@
+# Local development overrides. Activate with SPRING_PROFILES_ACTIVE=dev (run-dev.sh does this for you).
+# Still no secrets here: JWT_SECRET falls back to a random per-run secret in this profile only.
+
+app:
+  cookie:
+    secure: ${COOKIE_SECURE:false}   # localhost is plain http
+
+logging:
+  level:
+    no.trafondart: DEBUG

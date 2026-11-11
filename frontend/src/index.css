@@ -1,0 +1,107 @@
+@import "@fontsource-variable/big-shoulders-display";
+@import "@fontsource-variable/schibsted-grotesk";
+@import "tailwindcss";
+
+/*
+ * "Trafon after dark" – a red-brick transformer station lit up at night.
+ * Tokens are documented in docs/DESIGN.md.
+ */
+@theme {
+  --color-night: #170d0c;        /* page: warm near-black brick in shadow */
+  --color-masonry: #24140f;      /* raised surfaces */
+  --color-masonry-2: #321c17;    /* hover / second level */
+  --color-mortar: #4a2c25;       /* hairlines and borders */
+  --color-trafon: #c8231f;       /* the facade red – brand and primary actions */
+  --color-trafon-bright: #e0392c;
+  --color-trafon-deep: #8e1b1f;
+  --color-salmon: #e58a73;       /* the building's old colour – secondary data */
+  --color-trim: #f3e9dc;         /* window trim – main text, big numbers */
+  --color-trim-dim: #bfaea3;     /* secondary text */
+  --color-trim-faint: #8c7a70;   /* tertiary text, never for body copy */
+  --color-board: #1f8a5b;        /* dartboard green – wins, success */
+  --color-board-bright: #34b97f;
+  --color-brass: #cda349;        /* achievements – 180s, high finishes, champions */
+
+  --font-display: "Big Shoulders Display Variable", "Arial Narrow", sans-serif;
+  --font-sans: "Schibsted Grotesk Variable", system-ui, sans-serif;
+
+  --radius-arch: 999px;
+
+  --animate-shake: shake 0.4s ease-in-out;
+  --animate-pop: pop 0.18s ease-out;
+  --animate-flash: flash 1.6s ease-out forwards;
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+  }
+  @keyframes pop {
+    0% { transform: scale(0.92); opacity: 0.4; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes flash {
+    0% { opacity: 0; transform: scale(0.85); }
+    15% { opacity: 1; transform: scale(1.04); }
+    70% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1); }
+  }
+}
+
+@layer base {
+  html {
+    background: var(--color-night);
+    color: var(--color-trim);
+    font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
+    font-feature-settings: "ss01";
+  }
+  body {
+    min-height: 100dvh;
+    /* Faint brick courses: 1px mortar lines every 26px, staggered joints every other course. */
+    background-image:
+      linear-gradient(to bottom, rgb(74 44 37 / 0.18) 1px, transparent 1px),
+      linear-gradient(to right, rgb(74 44 37 / 0.10) 1px, transparent 1px);
+    background-size: 100% 26px, 78px 52px;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brass);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--color-trafon);
+    color: var(--color-trim);
+  }
+}
+
+@layer components {
+  /* The signature element: an arched window, rounded on top, square at the sill. */
+  .arch {
+    border-top-left-radius: 50% 34%;
+    border-top-right-radius: 50% 34%;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+  }
+  .numerals {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.01em;
+  }
+  /* Small numbers stay in the body face with tabular figures – the condensed display face is for big type. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  .panel {
+    background: var(--color-masonry);
+    border: 1px solid var(--color-mortar);
+    border-radius: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
