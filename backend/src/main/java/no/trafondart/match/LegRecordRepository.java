@@ -15,4 +15,6 @@ import java.util.UUID;
 
 public interface LegRecordRepository extends JpaRepository<MatchRecords.LegRecord, Long> {
     List<MatchRecords.LegRecord> findAllByMatchIdOrderByLegNoAsc(UUID matchId);
+
+    List<MatchRecords.LegRecord> findAllByMatchIdIn(Collection<UUID> matchIds);
 }

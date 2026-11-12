@@ -19,4 +19,7 @@ public interface CommentRepository extends JpaRepository<SocialEntities.Comment,
     /** [matchId, count] of visible comments for list views. */
     @Query("select c.matchId, count(c) from MatchComment c where c.matchId in :ids and c.deleted = false group by c.matchId")
     List<Object[]> countByMatchIds(@Param("ids") Collection<UUID> ids);
+
+    @Query("select c from MatchComment c where c.authorId = :authorId order by c.createdAt, c.id")
+    List<SocialEntities.Comment> findByAuthor(@Param("authorId") Long authorId);
 }

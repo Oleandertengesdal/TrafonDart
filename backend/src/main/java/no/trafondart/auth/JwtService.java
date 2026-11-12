@@ -110,7 +110,7 @@ public class JwtService {
         }
     }
 
-    public record Verified(Long userId, int tokenVersion) {
+    public record Verified(Long userId, int tokenVersion, String tokenId) {
     }
 
     /** Verifies signature, algorithm, issuer, audience and expiry. Empty on any failure. */
@@ -128,7 +128,7 @@ public class JwtService {
             if (exp == null || exp.toInstant().isBefore(Instant.now())) return Optional.empty();
             Long userId = Long.valueOf(c.getSubject());
             Long tv = c.getLongClaim("tv");
-            return Optional.of(new Verified(userId, tv == null ? -1 : tv.intValue()));
+            return Optional.of(new Verified(userId, tv == null ? -1 : tv.intValue(), c.getJWTID()));
         } catch (ParseException | JOSEException | NumberFormatException e) {
             return Optional.empty();
         }

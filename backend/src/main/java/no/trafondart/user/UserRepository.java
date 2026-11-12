@@ -11,8 +11,11 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    /** Case-insensitive lookup that uses the {@code lower(username)} unique index. */
-    @Query("select u from User u where lower(u.username) = lower(:username)")
+    /**
+     * Case-insensitive lookup that uses the {@code lower(username)} unique index. Deleted accounts are never found
+     * by name, so their profile, stats and recap are gone (their matches stay, shown as "Deleted player").
+     */
+    @Query("select u from User u where lower(u.username) = lower(:username) and u.deletedAt is null")
     Optional<User> findByUsernameIgnoreCase(@Param("username") String username);
 
     @Query("select count(u) > 0 from User u where lower(u.username) = lower(:username)")

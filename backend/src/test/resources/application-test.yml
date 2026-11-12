@@ -12,7 +12,13 @@ app:
   cookie:
     secure: false
   websocket:
-    allowed-origins: "*"
+    allowed-origins: "http://localhost:5173"
+  security:
+    # Like production (browser → Vercel → Render). Test clients send their own X-Forwarded-For chain.
+    trusted-proxy-hops: 2
+  awards:
+    min-matches: 1
+    min-matches-year: 1
   bootstrap-admin:
     username: admin
     password: test-admin-password

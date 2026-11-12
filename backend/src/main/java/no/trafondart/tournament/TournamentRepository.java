@@ -14,6 +14,8 @@ public interface TournamentRepository extends JpaRepository<Tournament, UUID> {
 
     List<Tournament> findAllByOrderByCreatedAtDesc();
 
+    List<Tournament> findAllByWinnerId(Long winnerId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select t from Tournament t where t.id = :id")
     Optional<Tournament> findByIdForUpdate(@Param("id") UUID id);

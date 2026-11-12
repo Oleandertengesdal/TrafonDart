@@ -4,7 +4,10 @@ The base path is `/api`. All bodies are JSON and all timestamps are ISO-8601 UTC
 
 - **Auth:** the `td_session` HttpOnly cookie, set by login or register.
 - **CSRF:** every `POST`, `PUT`, `PATCH` and `DELETE` needs the `X-XSRF-TOKEN` header, equal to the `XSRF-TOKEN` cookie. Call `GET /api/auth/csrf` once to get the cookie.
-- **Errors:** `{"code": "INVITE_EXPIRED", "status": 400, "fieldErrors": [{"field": "username", "code": "FORMAT"}], "details": …}`. Codes are listed in `common/ErrorCode.java` and translated in the frontend.
+- **Errors:** `{"code": "INVITE_EXPIRED", "status": 400, "fieldErrors": [{"field": "username", "code": "FORMAT"}], "details": …}`. Codes are listed in `common/ErrorCode.java` and translated in the frontend. A few come from the framework instead: `METHOD_NOT_ALLOWED` (405), `NOT_ACCEPTABLE` (406) and `UNSUPPORTED_MEDIA_TYPE` (415). Two requests that race (the same username, the last use of an invite or reset link) never give a 500: the loser gets the matching error or `409 CONFLICT`.
+- **Free text** (comments, dispute reasons, notes, tournament names) is trimmed and must not contain control characters, bidirectional overrides or NUL bytes (`VALIDATION_FAILED` otherwise).
+- **Passwords** are 10–72 bytes. A login attempt with a longer password is a wrong password.
+- **`PlayerSummary`** is `{id, username, realName, rating, rd, provisional, deleted}`. `deleted: true` is an account its owner deleted: it is shown as "Deleted player", its `username` is `deleted~<id>` and it has no profile (every `/api/users/{username}/…` call answers 404).
 
 ## Auth: `/api/auth`
 
@@ -12,7 +15,7 @@ The base path is `/api`. All bodies are JSON and all timestamps are ISO-8601 UTC
 |---|---|---|---|
 | GET | `/csrf` | – | → 204, sets `XSRF-TOKEN` |
 | POST | `/login` | – | `{username, password}` → `Me`, sets session |
-| POST | `/register` | – | `{inviteCode, username, realName, password, preferredLocale?}` → `Me`, sets session |
+| POST | `/register` | – | `{inviteCode, username, realName, password, preferredLocale?}` → `Me`, sets session. Spaces around the username and name are trimmed; `preferredLocale` defaults to `nb` |
 | GET | `/invites/{code}` | – | → `{valid, reason, expiresAt}` (rate-limited) |
 | POST | `/logout` | – | → 204, clears the cookie |
 | POST | `/logout-all` | user | → 204, revokes every session |
@@ -28,9 +31,14 @@ The base path is `/api`. All bodies are JSON and all timestamps are ISO-8601 UTC
 | GET | `/` | active players `PlayerSummary[]` (for pickers) |
 | GET | `/leaderboard` | `LeaderboardRow[]` by rating |
 | PATCH | `/me` | `{realName?, preferredLocale?}` → `Me` |
+| GET | `/me/export` | everything stored about you as a JSON download (`Content-Disposition: attachment`, `Cache-Control: no-store`): `{format, exportedAt, profile, matches (with your darts), games, comments, kudosGiven, commentLikes, ratingHistory, awards, achievements, challenges}`. 5 per hour |
+| DELETE | `/me` | `{password}` → 204, clears the cookie. Deletes the account for good (see [PRIVACY.md](PRIVACY.md)). `PASSWORD_INCORRECT`; `LAST_ADMIN` for the only admin |
 | GET | `/{username}/stats` | `ProfileStats` (record, averages, 180s, checkout %, form, rating history, average trend) |
 | GET | `/{username}/head-to-head` | `HeadToHeadRow[]`, one per opponent |
 | GET | `/{username}/head-to-head/{other}` | `HeadToHeadRow` |
+| GET | `/{username}/achievements` | `{unlocked, total, items: [{code, unlocked, unlockedAt, matchId, gameId, progress, target}]}`. Codes and rules: [ACHIEVEMENTS.md](ACHIEVEMENTS.md) |
+| GET | `/{username}/recap?year=` | the year recap (default: this year; 2000 up to this year, else `VALIDATION_FAILED`): `{year, soFar, player, matches: {played, won, lost}, legsWon, legsPlayed, dartsThrown, average, count180, count140, count100, highestCheckout, highestTurn, bestMatch, biggestWin, nemesis, favouriteVictim, favouriteFinish: {label, count}, favouriteNumber, longestWinStreak, busiestWeekday (1 = Monday), bestMonth: {period, points, rank}, monthsWon, yearRank, yearPoints, playerOfTheYear, games: {played, won, byType}, achievements: [code]}`. Empty years give zeros and `null`s |
+| GET | `/{username}/game-stats` | `{player, types: [{type, played, won, darts, average, best}]}` for party games |
 
 ## Matches: `/api/matches`
 
@@ -92,6 +100,100 @@ Every mutation returns the full `SocialView {matchId, kudos: {count, mine, canGi
 
 `CommentView`: `{id, author, body, deleted, createdAt, editedAt, likes, likedByMe, likedBy, canEdit, canDelete, replies}`.
 
+## Monthly awards: `/api/awards`
+
+How the points are calculated is explained in [AWARDS.md](AWARDS.md). All periods are `YYYY-MM` in the awards time zone (`AWARDS_ZONE`, default `Europe/Oslo`).
+
+| Method | Path | → |
+|---|---|---|
+| GET | `/api/awards/current` | `AwardRace` for the month in progress (see below). Only rated matches count |
+| GET | `/api/awards?limit=24` | `MonthResult[]`, decided months newest first (`limit` 1–120) |
+| GET | `/api/users/{username}/awards` | `AwardView[]`, every award that player has won (the trophy cabinet) |
+
+Finished months are decided lazily: any of these calls first finalises months that have ended but aren't stored yet. A scheduled job does the same at 00:05 on the 1st.
+
+```jsonc
+// AwardRace
+{
+  "period": "2026-11", "startsAt": "2026-10-31T23:00:00Z", "endsAt": "2026-11-30T23:00:00Z",
+  "minMatches": 3,
+  "standings": [{
+    "rank": 1, "player": PlayerSummary, "eligible": true,
+    "stats":  {"matches": 7, "wins": 2, "ratingChange": 74.1, "monthAverage": 78.2, "priorAverage": 71.3,
+               "count180": 2, "tonCheckouts": 0, "highestCheckout": 96, "kudos": 3},
+    "points": {"rating": 60, "activity": 28, "wins": 12, "improvement": 13.8, "highlights": 6, "kudos": 3, "total": 122.8}
+  }],
+  "leaders": [{"award": "PLAYER_OF_MONTH", "player": PlayerSummary, "value": 122.8}],
+  "reigning": AwardView | null            // last month's Player of the Month
+}
+// AwardView
+{"period": "2026-10", "award": "PLAYER_OF_MONTH|MOST_IMPROVED|MOST_ACTIVE|MOST_180S|HIGHEST_CHECKOUT", "player": PlayerSummary | null, "value": 149.4}
+// MonthResult
+{"period": "2026-10", "awards": [AwardView]}
+```
+
+## Player of the Year
+
+| Method | Path | → |
+|---|---|---|
+| GET | `/api/awards/year/current` | `{year, minMatches, standings: [{rank, player, eligible, matches, points, monthsPlayed, monthsWon}], reigning: AwardView \| null}`. `points` is the sum of the year's month points; `minMatches` is `AWARDS_MIN_MATCHES_YEAR` |
+| GET | `/api/awards/years` | `[{year, award: AwardView}]`, decided years newest first |
+
+A Player of the Year award is an `AwardView` with `award: "PLAYER_OF_YEAR"` and `period: "YYYY"`; it also appears in `/api/users/{username}/awards`. Years are decided on 1 January (and lazily, like months).
+
+## Party games: `/api/games`
+
+X01 for 3–4 players or 2 v 2, Cricket, Killer and Around the Clock. Never rated. Rules: [GAME-RULES.md](GAME-RULES.md).
+
+| Method | Path | Body → Response |
+|---|---|---|
+| POST | `/` | `{type: X01\|CRICKET\|KILLER\|AROUND_THE_CLOCK, playerIds, teams, settings?}` → 201 `GameView`. For doubles send `[a1, a2, b1, b2]`; the throwing order becomes A1, B1, A2, B2. The creator must play (admins excepted). `settings` (all optional): X01 `{startScore, inRule, outRule, legsToWin}`, Cricket `{roundLimit: 0\|10–30}`, Killer `{lives: 1–5}` (numbers are drawn by the server), Around the Clock `{multiplierSkips}` |
+| GET | `/live` | `GameSummary[]` in progress |
+| GET | `/recent?user=&limit=` | `GameSummary[]` finished, newest first |
+| GET | `/{id}` | `GameView` |
+| POST | `/{id}/throws` | `{segment, multiplier, expectedDartCount}` → `GameView` (players, the creator or an admin) |
+| POST | `/{id}/undo` | `{expectedDartCount}` → `GameView` |
+| POST | `/{id}/abandon` | → `GameView` |
+
+The `MATCH_*` error codes are reused (`MATCH_OUT_OF_SYNC` with the current `GameView` in `details`, `MATCH_NOT_SCORER`, `MATCH_NOT_IN_PROGRESS`).
+
+```jsonc
+// GameView (also pushed on /topic/games/{id})
+{
+  "id": "uuid", "type": "CRICKET", "teams": false, "rated": false, "status": "IN_PROGRESS",
+  "settings": {"startScore": null, "inRule": null, "outRule": null, "legsToWin": 1, "lives": null, "multiplierSkips": null, "roundLimit": 20, "killerNumbers": null},
+  "players": [{"slot": 0, "side": 0, "player": PlayerSummary}],
+  "sides": [{"side": 0, "legsWon": 0, "remaining": null, "opened": null, "marks": {"20": 3, "19": 1}, "points": 40,
+             "number": null, "lives": null, "killer": null, "out": null, "target": null, "finished": null}],
+  "slots": [{"slot": 0, "side": 0, "darts": 9, "score": 6, "count180": 0, "highestCheckout": 0, "placement": 0}],
+  "currentSlot": 1, "leg": 1, "round": 4, "turnDarts": ["T20"], "checkout": null, "lastDart": "T20",
+  "winnerSide": null, "dartCount": 10, "createdBy": 1, "createdAt": "…", "completedAt": null
+}
+```
+
+Fields a game type doesn't use are `null`. `score` means X01 points, Cricket marks, Killer lives taken and Around the Clock targets hit.
+
+## Challenges: `/api/challenges`
+
+| Method | Path | Body → Response |
+|---|---|---|
+| GET | `/` | `{incoming: [ChallengeView], outgoing: [ChallengeView]}`, open ones only (pending or accepted) |
+| POST | `/` | `{opponentId, startScore, inRule, outRule, legsToWin, rated?, message? (≤ 200)}` → 201 `ChallengeView` |
+| POST | `/{id}/accept` | opponent only, pending only |
+| POST | `/{id}/decline` | opponent only, pending only |
+| POST | `/{id}/cancel` | the challenger (pending), either player (accepted) |
+| POST | `/{id}/start` | either player, accepted only: creates the match → `ChallengeView` with `matchId` |
+
+`ChallengeView`: `{id, challenger, opponent, startScore, inRule, outRule, legsToWin, rated, message, status: PENDING|ACCEPTED|DECLINED|CANCELLED|EXPIRED|STARTED, matchId, createdAt, expiresAt, respondedAt}`. A pending challenge expires after 48 hours, an accepted one 48 hours after it was accepted. Errors: `CHALLENGE_NOT_OPEN` (409, answered, expired or already started), `CHALLENGE_EXISTS` (409, the two of you already have an open one), `CHALLENGE_LIMIT` (409, five open challenges sent), `MATCH_PLAYERS_SAME`, and 404 for anyone who isn't one of the two players.
+
+## Error reports: `/api/client-errors`
+
+| Method | Path | Auth | Body → Response |
+|---|---|---|---|
+| POST | `/api/client-errors` | – (CSRF required) | `{kind: error\|unhandledrejection\|boundary, message (≤ 500), stack? (≤ 8000), path? (≤ 300), release? (≤ 40)}` → 202. 10 per minute per client |
+
+The frontend reports its own crashes here. With `SENTRY_DSN` set the backend forwards them to Sentry, scrubbed (see [OPERATIONS.md](OPERATIONS.md)); without it they are only logged.
+
 ## Tournaments: `/api/tournaments`
 
 | Method | Path | Body → Response |
@@ -101,21 +203,22 @@ Every mutation returns the full `SocialView {matchId, kudos: {count, mine, canGi
 | GET | `/{id}` | `TournamentDetail {summary, organiserId, participants, fixtures, standings, rounds}` |
 | PUT | `/{id}/participants` | `{participantIds}` (DRAFT only, organiser/admin) |
 | POST | `/{id}/start` | seeds by rating, generates fixtures and byes (organiser/admin) |
-| POST | `/{id}/fixtures/{fixtureId}/start` | creates the match for a READY fixture → `{matchId}` (fixture players, organiser, admin) |
+| POST | `/{id}/fixtures/{fixtureId}/start` | creates the match for a READY fixture → `{matchId}`. Rated tournaments: the fixture's players or an admin. Casual ones: also the organiser |
 | POST | `/{id}/cancel` | organiser/admin |
 
 ## Live socket: `/ws` (STOMP 1.2)
 
 1. `POST /api/ws/ticket` → `{ticket, expiresInSeconds: 60}`
-2. Open a WebSocket to `/ws` and send `CONNECT` with the header `ticket:<ticket>`.
+2. Open a WebSocket to `/ws` and send `CONNECT` with the header `ticket:<ticket>`. A ticket opens **one** connection; get a new one to reconnect.
 3. `SUBSCRIBE` to:
 
 | Topic | Payload |
 |---|---|
 | `/topic/matches/{id}` | the full `LiveMatch` after every dart, undo or abandon |
 | `/topic/matches/{id}/social` | `{matchId}` whenever kudos, comments or likes change (refetch) |
-| `/topic/live` | `{matchId}` whenever a match starts or ends (refetch the lists) |
+| `/topic/live` | `{matchId}` whenever a match or party game starts or ends (refetch the lists) |
 | `/topic/tournaments/{id}` | `{tournamentId}` whenever the tournament changes (refetch it) |
+| `/topic/games/{id}` | the full `GameView` after every dart, undo or abandon |
 
 `SEND` frames and other destinations are rejected.
 
@@ -123,15 +226,16 @@ Every mutation returns the full `SocialView {matchId, kudos: {count, mine, canGi
 
 | Method | Path | Body → Response |
 |---|---|---|
-| GET | `/users` | `AdminUserView[]` |
-| PATCH | `/users/{id}` | `{role?: USER\|ADMIN, enabled?}` (not yourself; the last admin is kept) |
-| POST | `/users/{id}/password-reset` | → 201 `{token, username, expiresAt}`. The frontend builds `/reset-password?token=…`. The token is only returned here |
+| GET | `/users` | `AdminUserView[]` `{id, username, realName, role, enabled, rating, createdAt, deleted}` |
+| PATCH | `/users/{id}` | `{role?: USER\|ADMIN, enabled?}` (not yourself; the last admin is kept; `ACCOUNT_DELETED` for a deleted account) |
+| POST | `/users/{id}/password-reset` | → 201 `{token, username, expiresAt}`. The frontend builds `/reset-password?token=…`. The token is only returned here. `ACCOUNT_DELETED` for a deleted account |
 | GET | `/invites` | `InviteView[]` (hint, uses, status, usedBy) |
 | POST | `/invites` | `{maxUses: 1–100, validHours: 1–2160, note?}` → 201 `{code, invite}`. **The code is only returned here.** |
 | POST | `/invites/{id}/revoke` | → 204 |
 | GET | `/disputes` | `DisputeView[]` |
 | POST | `/disputes/{id}/resolve` | `{outcome: REJECT\|VOID_MATCH, note?}` |
-| POST | `/ratings/recompute` | → `{matches}` |
+| POST | `/ratings/recompute` | → `{matches}`. Also re-decides the monthly awards |
+| POST | `/awards/recompute` | → `{months, years}`. Forgets every decided month and year and decides them again from the matches |
 
 ## Health
 

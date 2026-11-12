@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { keys, useMe } from "../api/queries";
 import type { Me } from "../api/types";
 import { Spinner } from "../components/ui";
+import { WakingScreen } from "../components/WakingScreen";
 import i18n, { currentLanguage } from "../i18n";
 import { live } from "../realtime/stomp";
 
@@ -47,7 +48,7 @@ export function useAccountLanguage(me: Me | null) {
 export function RequireAuth() {
   const { me, loading } = useCurrentUser();
   const location = useLocation();
-  if (loading) return <Spinner />;
+  if (loading) return <WakingScreen />;
   if (!me) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   return <Outlet />;
 }

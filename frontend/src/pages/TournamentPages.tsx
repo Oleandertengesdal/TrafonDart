@@ -3,7 +3,7 @@ import { Crown, Trophy } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router";
-import { api } from "../api/client";
+import { api, apiPath } from "../api/client";
 import { keys, usePlayers, useTournament, useTournaments } from "../api/queries";
 import type { FixtureView, InRule, OutRule, TournamentDetail, TournamentFormat } from "../api/types";
 import { useCurrentUser } from "../auth/auth";
@@ -202,7 +202,7 @@ export function TournamentPage() {
 
   const play = (f: FixtureView) =>
     run(async () => {
-      const res = await api.post<{ matchId: string }>(`/api/tournaments/${id}/fixtures/${f.id}/start`);
+      const res = await api.post<{ matchId: string }>(apiPath`/api/tournaments/${id}/fixtures/${f.id}/start`);
       navigate(`/matches/${res.matchId}`);
     });
 
@@ -244,7 +244,7 @@ export function TournamentPage() {
           </ul>
           {canManage && (
             <div className="flex flex-wrap items-center gap-3 border-t border-mortar pt-4">
-              <Button busy={busy} onClick={() => run(() => api.post(`/api/tournaments/${id}/start`))} disabled={d.participants.length < 2}>
+              <Button busy={busy} onClick={() => run(() => api.post(apiPath`/api/tournaments/${id}/start`))} disabled={d.participants.length < 2}>
                 {t("tournament.start")}
               </Button>
               <p className="text-sm text-trim-faint">{t("tournament.startHint")}</p>
@@ -259,7 +259,7 @@ export function TournamentPage() {
 
       {canManage && (s.status === "DRAFT" || s.status === "IN_PROGRESS") && (
         <div className="flex justify-end">
-          <ConfirmButton label={t("tournament.cancel")} message={t("tournament.cancelConfirm")} onConfirm={() => run(() => api.post(`/api/tournaments/${id}/cancel`))} />
+          <ConfirmButton label={t("tournament.cancel")} message={t("tournament.cancelConfirm")} onConfirm={() => run(() => api.post(apiPath`/api/tournaments/${id}/cancel`))} />
         </div>
       )}
     </div>

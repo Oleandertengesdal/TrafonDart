@@ -1,9 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Eye, Flag, Link2, Radio, Target, Trophy } from "lucide-react";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router";
-import { api } from "../api/client";
+import { api, apiPath } from "../api/client";
 import { keys, useMatch } from "../api/queries";
 import type { LiveMatch } from "../api/types";
 import { useCurrentUser } from "../auth/auth";
@@ -14,12 +14,19 @@ import { ArchScore } from "../features/match/ArchScore";
 import { CelebrationOverlay, useMoments } from "../features/match/Celebration";
 import { Keypad } from "../features/match/Keypad";
 import { MatchStatsTable } from "../features/match/MatchStatsTable";
-import { AnalysisTabs, MatchAnalysisPanel, MatchHeadToHead, TurnByTurn, type AnalysisTab } from "../features/match/MatchAnalysis";
+import { AnalysisTabs, type AnalysisTab } from "../features/match/AnalysisTabs";
+
+// The analysis panels pull in the chart library, so they load only when a tab is opened.
+const TurnByTurn = lazy(() => import("../features/match/MatchAnalysis").then((m) => ({ default: m.TurnByTurn })));
+const MatchAnalysisPanel = lazy(() => import("../features/match/MatchAnalysis").then((m) => ({ default: m.MatchAnalysisPanel })));
+const MatchHeadToHead = lazy(() => import("../features/match/MatchAnalysis").then((m) => ({ default: m.MatchHeadToHead })));
 import { MatchSocial } from "../features/social/MatchSocial";
 import { CheckoutHint, TurnStrip } from "../features/match/TurnStrip";
 import { useScorer } from "../features/match/useScorer";
 import { num, rulesSummary } from "../lib/format";
 import { useLiveStatus, useTopic } from "../realtime/useTopic";
+import { OfflineNotice } from "../features/scoring/OfflineNotice";
+import { useWakeLock } from "../lib/wakeLock";
 
 export function MatchPage() {
   const { id = "" } = useParams();
@@ -36,6 +43,8 @@ export function MatchPage() {
 
   const match = q.data;
   const moment = useMoments(match);
+  // Keep the tablet awake while the match is on.
+  useWakeLock(match?.status === "IN_PROGRESS");
 
   if (q.isLoading) return <Spinner />;
   if (q.error || !match) {
@@ -164,6 +173,7 @@ function ScorerView({ match, scorer }: { match: LiveMatch; scorer: ReturnType<ty
           ))}
         </div>
         <TurnStrip match={match} pending={scorer.pending} />
+        <OfflineNotice offline={scorer.offline} count={scorer.pending.length} />
         <CheckoutHint match={match} />
         {scorer.error !== null && (
           <div role="alert" className="rounded-md border border-trafon-deep bg-trafon-deep/20 px-3 py-2 text-sm">
@@ -176,7 +186,7 @@ function ScorerView({ match, scorer }: { match: LiveMatch; scorer: ReturnType<ty
             label={t("match.abandon")}
             message={t("match.abandonConfirm")}
             onConfirm={async () => {
-              await api.post(`/api/matches/${match.id}/abandon`);
+              await api.post(apiPath`/api/matches/${match.id}/abandon`);
               navigate("/");
             }}
           />
@@ -190,7 +200,7 @@ function ScorerView({ match, scorer }: { match: LiveMatch; scorer: ReturnType<ty
           label={t("match.abandon")}
           message={t("match.abandonConfirm")}
           onConfirm={async () => {
-            await api.post(`/api/matches/${match.id}/abandon`);
+            await api.post(apiPath`/api/matches/${match.id}/abandon`);
             navigate("/");
           }}
         />
@@ -232,9 +242,11 @@ function WatchView({ match }: { match: LiveMatch }) {
         </div>
       )}
       <AnalysisTabs value={tab} onChange={setTab} />
-      {tab === "turns" && <TurnByTurn match={match} />}
-      {tab === "analysis" && <MatchAnalysisPanel match={match} />}
-      {tab === "h2h" && <MatchHeadToHead match={match} />}
+      <Suspense fallback={tab === "overview" ? null : <Spinner />}>
+        {tab === "turns" && <TurnByTurn match={match} />}
+        {tab === "analysis" && <MatchAnalysisPanel match={match} />}
+        {tab === "h2h" && <MatchHeadToHead match={match} />}
+      </Suspense>
       {tab === "overview" && (
       <div className={`mt-6 grid gap-6 ${finishedLegs.length > 0 ? "lg:grid-cols-[1.4fr_1fr]" : ""}`}>
         <section className="panel p-4">
@@ -343,7 +355,7 @@ function DisputeAndRematch({ match }: { match: LiveMatch }) {
               setBusy(true);
               setError(null);
               try {
-                await api.post(`/api/matches/${match.id}/disputes`, { reason: reason.trim() });
+                await api.post(apiPath`/api/matches/${match.id}/disputes`, { reason: reason.trim() });
                 setSent(true);
                 setOpen(false);
                 void qc.invalidateQueries({ queryKey: keys.match(match.id) });

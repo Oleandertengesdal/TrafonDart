@@ -3,7 +3,7 @@ import { Copy, KeyRound, Link2, LockKeyhole } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import { api } from "../api/client";
+import { api, apiPath } from "../api/client";
 import { keys, useAdminUsers, useDisputes, useInvites } from "../api/queries";
 import type { InviteView } from "../api/types";
 import { useCurrentUser } from "../auth/auth";
@@ -166,7 +166,7 @@ function Invites() {
                       label={t("admin.revoke")}
                       message={t("admin.revokeConfirm")}
                       onConfirm={async () => {
-                        await api.post(`/api/admin/invites/${inv.id}/revoke`);
+                        await api.post(apiPath`/api/admin/invites/${inv.id}/revoke`);
                         void qc.invalidateQueries({ queryKey: keys.invites });
                       }}
                     />
@@ -188,12 +188,13 @@ function Users() {
   const q = useAdminUsers();
   const [error, setError] = useState<unknown>(null);
   const [recomputed, setRecomputed] = useState<number | null>(null);
+  const [awardMonths, setAwardMonths] = useState<number | null>(null);
   const [resetLink, setResetLink] = useState<{ username: string; url: string; expiresAt: string } | null>(null);
 
   const createResetLink = async (id: number) => {
     setError(null);
     try {
-      const res = await api.post<{ token: string; username: string; expiresAt: string }>(`/api/admin/users/${id}/password-reset`);
+      const res = await api.post<{ token: string; username: string; expiresAt: string }>(apiPath`/api/admin/users/${id}/password-reset`);
       setResetLink({
         username: res.username,
         url: `${window.location.origin}/reset-password?token=${encodeURIComponent(res.token)}`,
@@ -207,7 +208,7 @@ function Users() {
   const update = async (id: number, body: Record<string, unknown>) => {
     setError(null);
     try {
-      await api.patch(`/api/admin/users/${id}`, body);
+      await api.patch(apiPath`/api/admin/users/${id}`, body);
       void qc.invalidateQueries({ queryKey: keys.adminUsers });
       void qc.invalidateQueries({ queryKey: keys.players });
     } catch (err) {
@@ -234,11 +235,21 @@ function Users() {
             {(q.data ?? []).map((u) => (
               <tr key={u.id} className={`border-t border-mortar/60 ${u.enabled ? "" : "opacity-50"}`}>
                 <td className="px-4 py-2.5">
-                  <Link to={`/players/${u.username}`} className="font-semibold hover:underline">
-                    {u.realName}
-                  </Link>
-                  <span className="ml-2 text-trim-faint">@{u.username}</span>
-                  {!u.enabled && <span className="ml-2 text-xs font-bold uppercase text-salmon">{t("admin.disabled")}</span>}
+                  {u.deleted ? (
+                    <span className="font-semibold italic text-trim-dim">{u.realName}</span>
+                  ) : (
+                    <>
+                      <Link to={`/players/${u.username}`} className="font-semibold hover:underline">
+                        {u.realName}
+                      </Link>
+                      <span className="ml-2 text-trim-faint">@{u.username}</span>
+                    </>
+                  )}
+                  {u.deleted ? (
+                    <span className="ml-2 text-xs font-bold uppercase text-trim-faint">{t("admin.deleted")}</span>
+                  ) : (
+                    !u.enabled && <span className="ml-2 text-xs font-bold uppercase text-salmon">{t("admin.disabled")}</span>
+                  )}
                 </td>
                 <td className="px-2">
                   <span className={u.role === "ADMIN" ? "font-bold text-brass" : "text-trim-dim"}>{t(`admin.roles.${u.role}`)}</span>
@@ -246,6 +257,7 @@ function Users() {
                 <td className="tnum px-2 text-right">{u.rating}</td>
                 <td className="px-2 text-trim-faint">{relative(u.createdAt)}</td>
                 <td className="px-4 py-2 text-right">
+                  {!u.deleted && (
                   <span className="inline-flex gap-2">
                     <Button size="sm" variant="secondary" onClick={() => createResetLink(u.id)}>
                       <LockKeyhole className="size-3.5" aria-hidden />
@@ -262,6 +274,7 @@ function Users() {
                     </>
                   )}
                   </span>
+                  )}
                 </td>
               </tr>
             ))}
@@ -292,6 +305,17 @@ function Users() {
           }}
         />
         {recomputed !== null && <span className="text-sm text-board-bright">{t("admin.recomputeDone", { count: recomputed })}</span>}
+        <ConfirmButton
+          variant="secondary"
+          label={t("admin.recomputeAwards")}
+          message={t("admin.recomputeAwards")}
+          onConfirm={async () => {
+            const res = await api.post<{ months: number }>("/api/admin/awards/recompute");
+            setAwardMonths(res.months);
+            void qc.invalidateQueries({ queryKey: ["awards"] });
+          }}
+        />
+        {awardMonths !== null && <span className="text-sm text-board-bright">{t("admin.recomputeAwardsDone", { count: awardMonths })}</span>}
       </div>
     </div>
   );
@@ -307,7 +331,7 @@ function Disputes() {
   const resolve = async (id: number, outcome: "REJECT" | "VOID_MATCH") => {
     setError(null);
     try {
-      await api.post(`/api/admin/disputes/${id}/resolve`, { outcome, note: notes[id]?.trim() || null });
+      await api.post(apiPath`/api/admin/disputes/${id}/resolve`, { outcome, note: notes[id]?.trim() || null });
       void qc.invalidateQueries();
     } catch (err) {
       setError(err);

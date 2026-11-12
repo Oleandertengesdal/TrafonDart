@@ -19,7 +19,7 @@ public interface InviteCodeRepository extends JpaRepository<InviteCode, Long> {
      * Atomically claims one use of a code. Returns 1 if a use was claimed, 0 if the code was used up, expired or
      * revoked in the meantime. The single UPDATE makes concurrent registrations unable to exceed {@code max_uses}.
      */
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Modifying(flushAutomatically = true)
     @Query("""
             update InviteCode i set i.uses = i.uses + 1
             where i.id = :id and i.uses < i.maxUses and i.revoked = false and i.expiresAt > :now

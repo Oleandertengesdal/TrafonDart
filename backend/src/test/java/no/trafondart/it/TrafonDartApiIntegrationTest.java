@@ -355,6 +355,40 @@ class TrafonDartApiIntegrationTest {
         assertThat(phone.post("/api/auth/password-reset/check", Map.of("token", token)).body().get("valid").asBoolean()).isFalse();
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
+    no.trafondart.awards.AwardService awardService;
+
+    @Test
+    @Order(12)
+    void playerOfTheMonthRaceAndBadges() {
+        JsonNode race = admin.get("/api/awards/current").body();
+        assertThat(race.get("period").asString()).matches("\\d{4}-\\d{2}");
+        assertThat(race.get("standings").size()).isGreaterThanOrEqualTo(2);
+        JsonNode leader = race.get("standings").get(0);
+        assertThat(leader.get("eligible").asBoolean()).isTrue();
+        assertThat(leader.get("points").get("total").asDouble()).isGreaterThan(0);
+        boolean hasPotm = false;
+        for (JsonNode l : race.get("leaders")) hasPotm |= l.get("award").asString().equals("PLAYER_OF_MONTH");
+        assertThat(hasPotm).isTrue();
+
+        // Decide this month as if it had ended, and the winner gets a badge.
+        java.time.YearMonth now = awardService.currentMonth();
+        awardService.finalizeMonth(now);
+        String winner = leader.get("player").get("username").asString();
+        JsonNode badges = admin.get("/api/users/" + winner + "/awards").body();
+        boolean potm = false;
+        for (JsonNode b : badges) potm |= b.get("award").asString().equals("PLAYER_OF_MONTH");
+        assertThat(potm).isTrue();
+        JsonNode hall = admin.get("/api/awards").body();
+        assertThat(hall.get(0).get("period").asString()).isEqualTo(now.toString());
+
+        ApiClient member = new ApiClient(port);
+        member.login("alice", "brand-new-pass-42"); // alice's old session was revoked by the reset test
+        assertThat(member.post("/api/admin/awards/recompute", null).status()).isEqualTo(403);
+        awardService.invalidateFrom(now);
+        assertThat(admin.get("/api/users/" + winner + "/awards").body().size()).isZero();
+    }
+
     // ------------------------------------------------------------------ minimal STOMP client
 
     static final class StompProbe implements WebSocket.Listener {

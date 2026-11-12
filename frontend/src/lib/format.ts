@@ -67,3 +67,21 @@ export function rulesSummary(cfg: { startScore: number; inRule: string; outRule:
   parts.push(`${i18n.t("match.legsToWin")} ${i18n.t("match.legsCount", { count: cfg.legsToWin })}`);
   return parts.join(", ");
 }
+
+/** "2026-11" → "november 2026" (nb) / "November 2026" (en). */
+export function monthName(period: string | null | undefined): string {
+  if (!period) return "–";
+  // Player of the Year is awarded for a whole year: "2025".
+  if (/^\d{4}$/.test(period)) return period;
+  if (!/^\d{4}-\d{2}$/.test(period)) return "–";
+  const [y, m] = period.split("-").map(Number);
+  return new Intl.DateTimeFormat(intlLocale(), { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, 15)));
+}
+
+/** Signed number: +12 / −4 (true minus sign). */
+export function signed(value: number, decimals = 0): string {
+  const factor = 10 ** decimals;
+  const rounded = Math.round(value * factor) / factor; // −0.04 shown with one decimal is 0.0, not −0.0
+  const s = num(Math.abs(rounded), decimals);
+  return rounded > 0 ? `+${s}` : rounded < 0 ? `−${s}` : s;
+}

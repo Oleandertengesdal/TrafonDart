@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react-router";
 import { CheckCircle2 } from "lucide-react";
-import { ApiError, api } from "../api/client";
+import { ApiError, api, apiPath } from "../api/client";
 import type { Me } from "../api/types";
 import { useAuthActions, useCurrentUser } from "../auth/auth";
 import { Facade } from "../components/Facade";
@@ -44,6 +44,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? "/";
+  const justDeleted = (location.state as { deleted?: boolean } | null)?.deleted === true;
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -67,6 +68,11 @@ export function LoginPage() {
 
   return (
     <AuthShell title={t("auth.loginTitle")} lead={t("auth.loginLead")}>
+      {justDeleted && (
+        <p role="status" className="mb-4 rounded-md border border-mortar bg-masonry px-4 py-3 text-sm text-trim-dim">
+          {t("settings.deletedDone")}
+        </p>
+      )}
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
         <Field label={t("auth.username")} autoComplete="username" autoCapitalize="none" value={username} onChange={(e) => setUsername(e.target.value)} required />
         <Field label={t("auth.password")} type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
@@ -112,7 +118,7 @@ export function RegisterPage() {
     setInvite({ state: "checking" });
     const handle = setTimeout(async () => {
       try {
-        const res = await api.get<{ valid: boolean; reason: string | null }>(`/api/auth/invites/${encodeURIComponent(normalised)}`);
+        const res = await api.get<{ valid: boolean; reason: string | null }>(apiPath`/api/auth/invites/${normalised}`);
         setInvite(res.valid ? { state: "ok" } : { state: "bad", reason: res.reason ?? "INVITE_INVALID" });
       } catch (err) {
         setInvite({ state: "bad", reason: err instanceof ApiError ? err.code : "UNKNOWN" });

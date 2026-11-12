@@ -32,6 +32,7 @@ public enum ErrorCode {
     // users / admin
     LAST_ADMIN(HttpStatus.CONFLICT),
     CANNOT_CHANGE_SELF(HttpStatus.CONFLICT),
+    ACCOUNT_DELETED(HttpStatus.CONFLICT),
 
     // matches
     MATCH_PLAYERS_SAME(HttpStatus.BAD_REQUEST),
@@ -52,6 +53,11 @@ public enum ErrorCode {
 
     // social
     KUDOS_OWN_MATCH(HttpStatus.BAD_REQUEST),
+
+    // challenges
+    CHALLENGE_NOT_OPEN(HttpStatus.CONFLICT),
+    CHALLENGE_EXISTS(HttpStatus.CONFLICT),
+    CHALLENGE_LIMIT(HttpStatus.CONFLICT),
 
     // password reset
     RESET_LINK_INVALID(HttpStatus.BAD_REQUEST);

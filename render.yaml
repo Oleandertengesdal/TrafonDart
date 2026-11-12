@@ -34,3 +34,7 @@ services:
         value: "2"                   # browser → Vercel rewrite → Render → app
       - key: DB_POOL_SIZE
         value: "5"
+      # Optional, add under Environment in the dashboard (see docs/OPERATIONS.md and docs/AWARDS.md):
+      #   SENTRY_DSN               error alerts to Sentry (off when unset)
+      #   SENTRY_ENVIRONMENT       default "production"
+      #   AWARDS_ZONE, AWARDS_MIN_MATCHES, AWARDS_MIN_MATCHES_YEAR

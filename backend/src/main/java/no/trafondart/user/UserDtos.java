@@ -18,11 +18,12 @@ public final class UserDtos {
     public static final String REAL_NAME_PATTERN = "^[\\p{L}][\\p{L} .'-]{0,59}$";
 
     /** Public view of a player, safe to show to any logged-in member. */
-    public record PlayerSummary(Long id, String username, String realName, int rating, int rd, boolean provisional) {
+    /** @param deleted the member deleted their account: show "Deleted player" and don't link to a profile */
+    public record PlayerSummary(Long id, String username, String realName, int rating, int rd, boolean provisional, boolean deleted) {
         public static PlayerSummary of(User u) {
             return new PlayerSummary(u.getId(), u.getUsername(), u.getRealName(),
                     (int) Math.round(u.getRating()), (int) Math.round(u.getRatingDeviation()),
-                    u.getRatingDeviation() > Glicko2.PROVISIONAL_RD);
+                    u.getRatingDeviation() > Glicko2.PROVISIONAL_RD, u.isDeleted());
         }
     }
 
@@ -39,14 +40,17 @@ public final class UserDtos {
     public record UpdateProfileRequest(
             @Size(min = 1, max = 60) @Pattern(regexp = REAL_NAME_PATTERN) String realName,
             @Pattern(regexp = "^(nb|en)$") String preferredLocale) {
+        public UpdateProfileRequest {
+            realName = realName == null ? null : realName.strip();
+        }
     }
 
     /** Admin view of a user. */
     public record AdminUserView(Long id, String username, String realName, String role, boolean enabled,
-                                int rating, Instant createdAt) {
+                                int rating, Instant createdAt, boolean deleted) {
         public static AdminUserView of(User u) {
             return new AdminUserView(u.getId(), u.getUsername(), u.getRealName(), u.getRole().name(), u.isEnabled(),
-                    (int) Math.round(u.getRating()), u.getCreatedAt());
+                    (int) Math.round(u.getRating()), u.getCreatedAt(), u.isDeleted());
         }
     }
 

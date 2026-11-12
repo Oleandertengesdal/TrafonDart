@@ -2,6 +2,7 @@ package no.trafondart.user;
 
 import jakarta.validation.Valid;
 import no.trafondart.auth.AuthUser;
+import no.trafondart.awards.AwardService;
 import no.trafondart.auth.InviteService;
 import no.trafondart.auth.PasswordResetService;
 import no.trafondart.common.ApiException;
@@ -34,9 +35,11 @@ public class AdminController {
     private final MatchService matches;
     private final RatingService ratings;
     private final PasswordResetService resets;
+    private final AwardService awards;
 
     public AdminController(UserRepository users, InviteService invites, MatchService matches, RatingService ratings,
-                           PasswordResetService resets) {
+                           PasswordResetService resets, AwardService awards) {
+        this.awards = awards;
         this.resets = resets;
         this.users = users;
         this.invites = invites;
@@ -62,6 +65,7 @@ public class AdminController {
             // Prevent admins from locking themselves out.
             throw new ApiException(ErrorCode.CANNOT_CHANGE_SELF);
         }
+        if (user.isDeleted()) throw new ApiException(ErrorCode.ACCOUNT_DELETED);
         boolean wasActiveAdmin = user.isAdmin() && user.isEnabled();
         if (req.role() != null) user.setRole(User.Role.valueOf(req.role()));
         if (req.enabled() != null) user.setEnabled(req.enabled());
@@ -115,8 +119,11 @@ public class AdminController {
         return matches.resolveDispute(id, AuthUser.current(), req);
     }
 
+    /** Rebuilds every rating from scratch. Monthly awards depend on rating gains, so they are re-decided too. */
     @PostMapping("/ratings/recompute")
     public Map<String, Integer> recompute() {
-        return Map.of("matches", ratings.recomputeAll());
+        int n = ratings.recomputeAll();
+        awards.recomputeAll();
+        return Map.of("matches", n);
     }
 }

@@ -29,14 +29,21 @@ import java.util.regex.Pattern;
 public class StompAuthInterceptor implements ChannelInterceptor {
 
     private static final Pattern ALLOWED_TOPICS = Pattern.compile(
-            "^/topic/(live|matches/[0-9a-fA-F-]{36}(/social)?|tournaments/[0-9a-fA-F-]{36})$");
+            "^/topic/(live|matches/[0-9a-fA-F-]{36}(/social)?|tournaments/[0-9a-fA-F-]{36}|games/[0-9a-fA-F-]{36})$");
 
     private final JwtService jwt;
     private final UserRepository users;
+    private final UsedTickets usedTickets;
 
-    public StompAuthInterceptor(JwtService jwt, UserRepository users) {
+    public StompAuthInterceptor(JwtService jwt, UserRepository users, UsedTickets usedTickets) {
         this.jwt = jwt;
         this.users = users;
+        this.usedTickets = usedTickets;
+    }
+
+    /** True for the topics a client may subscribe to. */
+    static boolean isAllowedTopic(String destination) {
+        return destination != null && ALLOWED_TOPICS.matcher(destination).matches();
     }
 
     @Override
@@ -49,6 +56,7 @@ public class StompAuthInterceptor implements ChannelInterceptor {
             case CONNECT, STOMP -> {
                 String ticket = accessor.getFirstNativeHeader("ticket");
                 User user = jwt.verify(ticket, JwtService.AUD_WS)
+                        .filter(v -> usedTickets.markUsed(v.tokenId())) // one connection per ticket
                         .flatMap(v -> users.findById(v.userId())
                                 .filter(User::isEnabled)
                                 .filter(u -> u.getTokenVersion() == v.tokenVersion()))
@@ -59,7 +67,7 @@ public class StompAuthInterceptor implements ChannelInterceptor {
             case SUBSCRIBE -> {
                 if (accessor.getUser() == null) throw new MessageDeliveryException("AUTH_REQUIRED");
                 String dest = accessor.getDestination();
-                if (dest == null || !ALLOWED_TOPICS.matcher(dest).matches()) {
+                if (!isAllowedTopic(dest)) {
                     throw new MessageDeliveryException("FORBIDDEN");
                 }
             }

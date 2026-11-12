@@ -3,11 +3,13 @@ import { Link } from "react-router";
 import { useLeaderboard } from "../api/queries";
 import { RatingBadge } from "../components/PlayerName";
 import { ErrorNotice, PageHeader, Spinner } from "../components/ui";
+import { CrownMark, useReigning } from "../features/awards/Medal";
 import { num, pct } from "../lib/format";
 
 export function PlayersPage() {
   const { t } = useTranslation();
   const board = useLeaderboard();
+  const reigning = useReigning();
   return (
     <>
       <PageHeader title={t("players.title")} lead={t("players.lead")} />
@@ -36,7 +38,10 @@ export function PlayersPage() {
                   <td className={`numerals px-4 py-3 text-2xl font-bold ${r.rank === 1 ? "text-brass" : "text-trim-faint"}`}>{r.rank}</td>
                   <td className="px-2 py-3">
                     <Link to={`/players/${r.player.username}`} className="flex flex-col leading-tight hover:underline">
-                      <span className="font-semibold">{r.player.realName}</span>
+                      <span className="flex items-center gap-1.5 font-semibold">
+                        {r.player.realName}
+                        {reigning?.id === r.player.id && <CrownMark period={reigning.period} />}
+                      </span>
                       <span className="text-xs text-trim-faint">@{r.player.username}</span>
                     </Link>
                   </td>

@@ -18,6 +18,7 @@ hs_err_pid*
 replay_pid*
 
 # ---------------------------------------------------------------- frontend (Node / Vite)
+node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
@@ -30,6 +31,13 @@ pnpm-debug.log*
 # ---------------------------------------------------------------- deployment tooling
 .vercel/
 .render/
+# Neon CLI scaffolding (`neon init`): local project link and config. The app reaches Neon only through
+# DATABASE_URL (Render), so none of this belongs in the repository. .env.local (the connection string) is
+# already ignored by `.env.*` above.
+/.neon
+/neon.ts
+/package.json
+/package-lock.json
 
 # ---------------------------------------------------------------- editors & OS
 .idea/
@@ -41,7 +49,13 @@ Thumbs.db
 *.swp
 
 # ---------------------------------------------------------------- local scratch
+Claude outputs/
 *.log
 tmp/
 .cache/
 __pycache__/
+
+# Database backups (contain personal data)
+backups/
+*.dump
+*.sql.gz

@@ -5,6 +5,8 @@ import type { PlayerSummary } from "../api/types";
 export function PlayerLink({ player, showUsername = true, className = "" }: { player: PlayerSummary | null; showUsername?: boolean; className?: string }) {
   const { t } = useTranslation();
   if (!player) return <span className="text-trim-faint">{t("tournament.tbd")}</span>;
+  // A deleted account has no profile to link to.
+  if (player.deleted) return <span className={`truncate italic text-trim-dim ${className}`}>{player.realName}</span>;
   return (
     <Link to={`/players/${player.username}`} className={`group inline-flex min-w-0 flex-col leading-tight ${className}`}>
       <span className="truncate font-semibold text-trim group-hover:underline">{player.realName}</span>

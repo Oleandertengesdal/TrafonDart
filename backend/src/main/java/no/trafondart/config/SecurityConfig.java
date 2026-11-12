@@ -74,7 +74,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register", "/api/auth/logout",
-                                "/api/auth/password-reset", "/api/auth/password-reset/check").permitAll()
+                                "/api/auth/password-reset", "/api/auth/password-reset/check", "/api/client-errors").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/invites/*").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/ws", "/ws/**").permitAll()

@@ -3,7 +3,7 @@ import { Heart, MessageCircle, PartyPopper, Pencil, Reply, Trash2 } from "lucide
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import { api } from "../../api/client";
+import { api, apiPath } from "../../api/client";
 import { keys, useSocial } from "../../api/queries";
 import type { CommentView, SocialView } from "../../api/types";
 import { Button, ErrorNotice, Modal, Spinner, useErrorText } from "../../components/ui";
@@ -39,7 +39,7 @@ export function MatchSocial({ matchId }: { matchId: string }) {
 
   return (
     <section className="mt-10 flex flex-col gap-6" aria-label={t("social.comments")}>
-      <KudosBar s={s} onToggle={() => mutate(() => (s.kudos.mine ? api.del<SocialView>(`/api/matches/${matchId}/kudos`) : api.put<SocialView>(`/api/matches/${matchId}/kudos`)))} />
+      <KudosBar s={s} onToggle={() => mutate(() => (s.kudos.mine ? api.del<SocialView>(apiPath`/api/matches/${matchId}/kudos`) : api.put<SocialView>(apiPath`/api/matches/${matchId}/kudos`)))} />
 
       <div className="panel p-5">
         <h2 className="mb-4 flex items-center gap-2 font-display text-2xl font-bold uppercase">
@@ -47,7 +47,7 @@ export function MatchSocial({ matchId }: { matchId: string }) {
           {t("social.comments")}
           {s.commentCount > 0 && <span className="text-base text-trim-faint">({s.commentCount})</span>}
         </h2>
-        <Composer placeholder={t("social.placeholder")} onSend={(body) => mutate(() => api.post<SocialView>(`/api/matches/${matchId}/comments`, { body }))} />
+        <Composer placeholder={t("social.placeholder")} onSend={(body) => mutate(() => api.post<SocialView>(apiPath`/api/matches/${matchId}/comments`, { body }))} />
         {error !== null && <p className="mt-3 text-sm text-salmon" role="alert">{errorText(error)}</p>}
 
         {s.comments.length === 0 ? (
@@ -214,7 +214,7 @@ function Comment({ c, matchId, mutate, replyTo }: {
               submitLabel={t("social.save")}
               onCancel={() => setEditing(false)}
               onSend={async (body) => {
-                await mutate(() => api.patch<SocialView>(`/api/comments/${c.id}`, { body }));
+                await mutate(() => api.patch<SocialView>(apiPath`/api/comments/${c.id}`, { body }));
                 setEditing(false);
               }}
             />
@@ -224,7 +224,7 @@ function Comment({ c, matchId, mutate, replyTo }: {
         )}
         <div className="mt-1.5 flex flex-wrap items-center gap-1 text-xs">
           <button
-            onClick={() => mutate(() => (c.likedByMe ? api.del<SocialView>(`/api/comments/${c.id}/like`) : api.put<SocialView>(`/api/comments/${c.id}/like`)))}
+            onClick={() => mutate(() => (c.likedByMe ? api.del<SocialView>(apiPath`/api/comments/${c.id}/like`) : api.put<SocialView>(apiPath`/api/comments/${c.id}/like`)))}
             aria-pressed={c.likedByMe}
             title={c.likedBy.length ? t("social.likedBy", { names: names(c.likedBy) }) : undefined}
             className={`flex items-center gap-1 rounded px-2 py-1 font-semibold transition-colors ${c.likedByMe ? "text-trafon-bright" : "text-trim-faint hover:text-trim"}`}
@@ -257,7 +257,7 @@ function Comment({ c, matchId, mutate, replyTo }: {
               initial={replyTo && c.author ? `@${c.author.username} ` : ""}
               onCancel={() => setReplying(false)}
               onSend={async (body) => {
-                await mutate(() => api.post<SocialView>(`/api/matches/${matchId}/comments`, { body, parentId: replyTo ?? c.id }));
+                await mutate(() => api.post<SocialView>(apiPath`/api/matches/${matchId}/comments`, { body, parentId: replyTo ?? c.id }));
                 setReplying(false);
               }}
             />
@@ -273,7 +273,7 @@ function Comment({ c, matchId, mutate, replyTo }: {
           <Button
             onClick={() => {
               setConfirmDelete(false);
-              void mutate(() => api.del<SocialView>(`/api/comments/${c.id}`));
+              void mutate(() => api.del<SocialView>(apiPath`/api/comments/${c.id}`));
             }}
           >
             {t("social.delete")}

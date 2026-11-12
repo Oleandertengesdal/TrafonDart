@@ -1,5 +1,6 @@
 package no.trafondart.match;
 
+import no.trafondart.common.TextInput;
 import no.trafondart.auth.AuthUser;
 import no.trafondart.common.ApiException;
 import no.trafondart.common.ErrorCode;
@@ -200,7 +201,7 @@ public class MatchService {
         if (disputes.existsByMatchIdAndStatus(id, MatchRecords.Dispute.Status.OPEN)) {
             throw new ApiException(ErrorCode.DISPUTE_ALREADY_OPEN);
         }
-        MatchRecords.Dispute d = disputes.save(new MatchRecords.Dispute(id, actor.id(), req.reason().trim()));
+        MatchRecords.Dispute d = disputes.save(new MatchRecords.Dispute(id, actor.id(), TextInput.multiLine(req.reason(), 500)));
         return disputeView(d);
     }
 
@@ -213,16 +214,19 @@ public class MatchService {
     public MatchViews.DisputeView resolveDispute(Long disputeId, AuthUser admin, MatchViews.ResolveDisputeRequest req) {
         MatchRecords.Dispute d = disputes.findById(disputeId).orElseThrow(ApiException::notFound);
         if (d.getStatus() != MatchRecords.Dispute.Status.OPEN) throw new ApiException(ErrorCode.CONFLICT);
-        String note = req.note() == null ? null : req.note().trim();
+        String note = TextInput.optionalMultiLine(req.note(), 500);
         if (req.outcome() == MatchViews.ResolveDisputeRequest.Outcome.REJECT) {
             d.resolve(MatchRecords.Dispute.Status.REJECTED, admin.id(), note);
         } else {
             Match match = matches.findByIdForUpdate(d.getMatchId()).orElseThrow(ApiException::notFound);
+            // Record the decision first and flush it: listeners below run bulk queries, and nothing they do may
+            // lose this change (an upheld dispute that stays OPEN could be resolved a second time).
+            d.resolve(MatchRecords.Dispute.Status.UPHELD, admin.id(), note);
             match.setStatus(Match.Status.VOIDED);
+            disputes.flush();
+            matches.flush();
             // Tournaments may refuse (e.g. the winner already played the next round) – that rolls everything back.
             events.publishEvent(new MatchEvents.MatchVoided(match));
-            d.resolve(MatchRecords.Dispute.Status.UPHELD, admin.id(), note);
-            matches.flush();
             if (match.isRated()) ratings.recomputeAll();
             events.publishEvent(new MatchEvents.MatchUpdated(mapper.live(match)));
             events.publishEvent(new MatchEvents.FeedChanged(match.getId()));

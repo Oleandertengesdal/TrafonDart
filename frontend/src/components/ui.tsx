@@ -138,7 +138,7 @@ export function Toggle({ label, hint, checked, onChange }: { label: string; hint
         onClick={() => onChange(!checked)}
         className={`relative h-7 w-12 shrink-0 rounded-full border transition-colors ${checked ? "border-trafon bg-trafon" : "border-mortar bg-night"}`}
       >
-        <span className={`absolute top-0.5 size-5.5 rounded-full bg-trim transition-transform ${checked ? "translate-x-5.5" : "translate-x-0.5"}`} />
+        <span className={`absolute left-0 top-0.5 size-5.5 rounded-full bg-trim transition-transform ${checked ? "translate-x-5.5" : "translate-x-0.5"}`} />
       </button>
     </div>
   );

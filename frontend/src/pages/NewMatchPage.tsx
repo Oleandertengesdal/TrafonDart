@@ -1,12 +1,12 @@
 import { useId, useMemo, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, Users } from "lucide-react";
 import { api } from "../api/client";
 import { usePlayers } from "../api/queries";
 import type { InRule, LiveMatch, OutRule, PlayerSummary } from "../api/types";
 import { useCurrentUser } from "../auth/auth";
-import { Button, ErrorNotice, PageHeader, Segmented, Spinner, Toggle } from "../components/ui";
+import { Button, ErrorNotice, LinkButton, PageHeader, Segmented, Spinner, Toggle } from "../components/ui";
 
 export function PlayerSelect({
   label,
@@ -32,7 +32,7 @@ export function PlayerSelect({
         id={id}
         value={value ?? ""}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-12 rounded-md border border-mortar bg-night px-3 text-base font-semibold text-trim focus:border-trafon focus:outline-none"
+        className="h-12 w-full min-w-0 rounded-md border border-mortar bg-night px-3 text-base font-semibold text-trim focus:border-trafon focus:outline-none"
       >
         <option value="" disabled>
           {t("match.choosePlayer")}
@@ -113,10 +113,19 @@ export function NewMatchPage() {
 
   return (
     <>
-      <PageHeader title={t("match.newTitle")} lead={t("match.newLead")} />
-      <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1fr_1fr]">
+      <PageHeader
+        title={t("match.newTitle")}
+        lead={t("match.newLead")}
+        action={
+          <LinkButton to="/games/new" variant="secondary">
+            <Users className="size-4" aria-hidden />
+            {t("games.moreThanTwo")}
+          </LinkButton>
+        }
+      />
+      <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1fr_1fr] [&>*]:min-w-0">
         <section className="panel flex flex-col gap-5 p-5">
-          <div className="grid items-end gap-3 sm:grid-cols-[1fr_auto_1fr]">
+          <div className="grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
             <PlayerSelect label={t("match.player1")} value={p1} onChange={setP1} players={list} exclude={p2} />
             <button
               type="button"

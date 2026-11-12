@@ -13,6 +13,8 @@ export interface PlayerSummary {
   rating: number;
   rd: number;
   provisional: boolean;
+  /** The member deleted their account: shown as "Deleted player", never linked. */
+  deleted?: boolean;
 }
 
 export interface Me extends Omit<PlayerSummary, "rd"> {
@@ -262,6 +264,7 @@ export interface AdminUserView {
   enabled: boolean;
   rating: number;
   createdAt: string;
+  deleted: boolean;
 }
 
 export interface DisputeView {
@@ -386,4 +389,259 @@ export interface DartStats {
   finishes: LabelCount[];
   topCheckouts: { score: number; finisher: string; matchId: string; at: string }[];
   kudosReceived: number;
+}
+
+// ------------------------------------------------------------------ monthly awards
+
+export type AwardType = "PLAYER_OF_MONTH" | "MOST_IMPROVED" | "MOST_ACTIVE" | "MOST_180S" | "HIGHEST_CHECKOUT" | "PLAYER_OF_YEAR";
+
+export interface AwardView {
+  period: string; // YYYY-MM, or YYYY for Player of the Year
+  award: AwardType;
+  player: PlayerSummary | null;
+  value: number;
+}
+
+export interface Standing {
+  rank: number;
+  player: PlayerSummary;
+  eligible: boolean;
+  stats: {
+    matches: number;
+    wins: number;
+    ratingChange: number | null;
+    monthAverage: number;
+    priorAverage: number | null;
+    count180: number;
+    tonCheckouts: number;
+    highestCheckout: number;
+    kudos: number;
+  };
+  points: { rating: number; activity: number; wins: number; improvement: number; highlights: number; kudos: number; total: number };
+}
+
+export interface AwardRace {
+  period: string;
+  startsAt: string;
+  endsAt: string;
+  minMatches: number;
+  standings: Standing[];
+  leaders: { award: AwardType; player: PlayerSummary; value: number }[];
+  reigning: AwardView | null;
+}
+
+export interface MonthResult {
+  period: string;
+  awards: AwardView[];
+}
+
+// ---------------------------------------------------------------------------------------------- 1.4.0
+
+export interface YearStanding {
+  rank: number;
+  player: PlayerSummary;
+  eligible: boolean;
+  matches: number;
+  points: number;
+  monthsPlayed: number;
+  monthsWon: number;
+}
+
+export interface YearRace {
+  year: number;
+  minMatches: number;
+  standings: YearStanding[];
+  reigning: AwardView | null;
+}
+
+export interface YearResult {
+  year: number;
+  award: AwardView | null;
+}
+
+export type GameType = "X01" | "CRICKET" | "KILLER" | "AROUND_THE_CLOCK";
+export type GameStatus = "IN_PROGRESS" | "COMPLETED" | "ABANDONED";
+
+export interface PartySettings {
+  startScore: number | null;
+  inRule: "STRAIGHT" | "DOUBLE" | null;
+  outRule: "STRAIGHT" | "DOUBLE" | "MASTER" | null;
+  legsToWin: number | null;
+  lives: number | null;
+  multiplierSkips: boolean | null;
+  roundLimit: number | null;
+  killerNumbers: number[] | null;
+}
+
+export interface PlayerSlot {
+  slot: number;
+  side: number;
+  player: PlayerSummary;
+}
+
+export interface SideState {
+  side: number;
+  legsWon: number;
+  remaining: number | null;
+  opened: boolean | null;
+  marks: Record<string, number> | null;
+  points: number | null;
+  number: number | null;
+  lives: number | null;
+  killer: boolean | null;
+  out: boolean | null;
+  target: number | null;
+  finished: boolean | null;
+}
+
+export interface SlotStats {
+  slot: number;
+  side: number;
+  darts: number;
+  /** X01 points, Cricket marks, Killer lives taken, Around the Clock targets hit */
+  score: number;
+  count180: number;
+  highestCheckout: number;
+  placement: number;
+}
+
+export interface GameView {
+  id: string;
+  type: GameType;
+  teams: boolean;
+  rated: false;
+  status: GameStatus;
+  settings: PartySettings;
+  players: PlayerSlot[];
+  sides: SideState[];
+  slots: SlotStats[];
+  currentSlot: number;
+  leg: number;
+  round: number;
+  turnDarts: string[];
+  checkout: string[] | null;
+  lastDart: string | null;
+  winnerSide: number | null;
+  dartCount: number;
+  createdBy: number;
+  createdAt: string;
+  completedAt: string | null;
+}
+
+export interface GameSummary {
+  id: string;
+  type: GameType;
+  teams: boolean;
+  status: GameStatus;
+  players: PlayerSlot[];
+  winnerSide: number | null;
+  createdAt: string;
+  completedAt: string | null;
+}
+
+export interface TypeStats {
+  type: GameType;
+  played: number;
+  won: number;
+  darts: number;
+  average: number | null;
+  best: number | null;
+}
+
+export interface GameStats {
+  player: PlayerSummary;
+  types: TypeStats[];
+}
+
+export type AchievementCode =
+  | "FIRST_WIN" | "MATCHES_10" | "MATCHES_50" | "MATCHES_100" | "WINS_25" | "STREAK_5" | "FIRST_180" | "MAX_COLLECTOR"
+  | "TON_PLUS_CHECKOUT" | "BIG_FISH" | "BULL_FINISH" | "SHORT_LEG" | "NINE_DARTER" | "AVERAGE_50" | "AVERAGE_70"
+  | "GIANT_KILLER" | "TOURNAMENT_WIN" | "PLAYER_OF_MONTH" | "PLAYER_OF_YEAR" | "CRICKET_WIN" | "KILLER_WIN"
+  | "CLOCK_UNDER_40" | "DARTS_10K";
+
+export interface Achievement {
+  code: AchievementCode;
+  unlocked: boolean;
+  unlockedAt: string | null;
+  matchId: string | null;
+  gameId: string | null;
+  progress: number | null;
+  target: number | null;
+}
+
+export interface Cabinet {
+  unlocked: number;
+  total: number;
+  items: Achievement[];
+}
+
+export interface MatchHighlight {
+  matchId: string;
+  opponent: PlayerSummary | null;
+  won: boolean;
+  average: number;
+  opponentRating: number | null;
+  at: string;
+}
+
+export interface Rival {
+  player: PlayerSummary;
+  played: number;
+  won: number;
+  lost: number;
+}
+
+export interface Recap {
+  year: number;
+  soFar: boolean;
+  player: PlayerSummary;
+  matches: { played: number; won: number; lost: number };
+  legsWon: number;
+  legsPlayed: number;
+  dartsThrown: number;
+  average: number;
+  count180: number;
+  count140: number;
+  count100: number;
+  highestCheckout: number;
+  highestTurn: number;
+  bestMatch: MatchHighlight | null;
+  biggestWin: MatchHighlight | null;
+  nemesis: Rival | null;
+  favouriteVictim: Rival | null;
+  favouriteFinish: { label: string; count: number } | null;
+  favouriteNumber: { label: string; count: number } | null;
+  longestWinStreak: number;
+  busiestWeekday: number | null;
+  bestMonth: { period: string; points: number; rank: number } | null;
+  monthsWon: number;
+  yearRank: number | null;
+  yearPoints: number | null;
+  playerOfTheYear: boolean;
+  games: { played: number; won: number; byType: { type: GameType; played: number; won: number }[] };
+  achievements: AchievementCode[];
+}
+
+export type ChallengeStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "CANCELLED" | "EXPIRED" | "STARTED";
+
+export interface ChallengeView {
+  id: number;
+  challenger: PlayerSummary;
+  opponent: PlayerSummary;
+  startScore: number;
+  inRule: "STRAIGHT" | "DOUBLE";
+  outRule: "STRAIGHT" | "DOUBLE" | "MASTER";
+  legsToWin: number;
+  rated: boolean;
+  message: string | null;
+  status: ChallengeStatus;
+  matchId: string | null;
+  createdAt: string;
+  expiresAt: string;
+  respondedAt: string | null;
+}
+
+export interface ChallengeList {
+  incoming: ChallengeView[];
+  outgoing: ChallengeView[];
 }

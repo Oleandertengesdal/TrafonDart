@@ -1,5 +1,6 @@
 package no.trafondart.social;
 
+import no.trafondart.common.TextInput;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import no.trafondart.auth.AuthUser;
@@ -230,8 +231,6 @@ public class SocialService {
     }
 
     private static String clean(String body) {
-        String trimmed = body == null ? "" : body.strip();
-        if (trimmed.isEmpty() || trimmed.length() > MAX_COMMENT_LENGTH) throw new ApiException(ErrorCode.VALIDATION_FAILED);
-        return trimmed;
+        return TextInput.multiLine(body, MAX_COMMENT_LENGTH);
     }
 }

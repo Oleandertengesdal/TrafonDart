@@ -42,7 +42,7 @@ public class UserController {
     @Transactional
     public UserDtos.Me updateMe(@Valid @RequestBody UserDtos.UpdateProfileRequest req) {
         User user = users.findById(AuthUser.current().id()).orElseThrow(ApiException::notFound);
-        if (req.realName() != null) user.setRealName(req.realName().trim());
+        if (req.realName() != null) user.setRealName(req.realName());
         if (req.preferredLocale() != null) user.setPreferredLocale(req.preferredLocale());
         return UserDtos.Me.of(user);
     }

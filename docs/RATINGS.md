@@ -21,7 +21,7 @@ New and returning players have a high RD, so their rating moves quickly. Regular
 - **System constant τ = 0.5.**
 - **Provisional:** the UI marks a rating as provisional (`~`) while RD > 110.
 - Profiles show the rating ± 2·RD (roughly a 95% interval).
-- Casual (unrated) matches still count for statistics, but not for ratings.
+- Casual (unrated) matches still count for profile statistics, but not for ratings or Player of the Month.
 
 ## Corrections
 

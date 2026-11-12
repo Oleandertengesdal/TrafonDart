@@ -42,37 +42,36 @@ This creates five friends (password `demo-password-123`), 14 simulated matches w
 
 Run `npm run dev -- --host` and open `http://<your-laptop-ip>:5173` on the tablet (same Wi-Fi). Add that origin to `WS_ALLOWED_ORIGINS` in `.env` if you want live updates there too.
 
-## Tests
+### The installable app and offline scoring
 
-### Backend
+The service worker is registered in **production builds only** (in development it would serve stale code). To try installing, run `npm run build && npm run preview` and open `http://localhost:4173` (browsers allow service workers on `localhost` without HTTPS; on the tablet you need HTTPS, i.e. a deployed copy). Offline scoring works in development too: in Chrome DevTools → Network, set *Offline*, tap some darts, and set it back. The queue is in `localStorage` under `td.pending.*`. If a service worker from a preview build gets in the way later, remove it under DevTools → Application → Service workers.
+
+### Error alerts locally
+
+Leave `SENTRY_DSN` empty: errors (including browser errors posted to `/api/client-errors`) are then only logged. To try Sentry, put a DSN from a test project in `.env`.
+
+## Tests
 
 ```bash
 cd backend
 set -a; source ../.env; set +a      # so the tests can reach the Docker database
-mvn verify                          # all tests
+mvn verify                          # all 305 backend tests
 mvn verify -Punit-only              # skip the database tests
+
+cd ../frontend
+npm test                            # 94 unit, translation, service worker and static security tests
+npm run typecheck:test && npm run lint && npm run build
 ```
 
-| Suite | What it covers |
-|---|---|
-| `X01EngineTest` | turns, busts (below zero, dead 1, wrong finishing dart), double in, master out, first-9, undo |
-| `CheckoutCalculatorTest` | classic routes (170, 167, 120 …), bogey numbers, every route adds up and ends legally |
-| `Glicko2Test` | Glickman's worked example to 2 decimals, symmetry, inactivity |
-| `BracketGeneratorTest` | round-robin pairs everyone once, seeding order, byes |
-| `DartAnalyticsTest` | hold/break, best leg, finishing doubles, score ranges, hit rates |
-| `TrafonDartApiIntegrationTest` | real HTTP + PostgreSQL: CSRF, login, invites, admin guard, scoring, out-of-sync, undo, the live STOMP socket, ratings, stats, head-to-head, disputes, tournaments, kudos/comments/replies/likes, match breakdown, admin password reset links (lock-out lifted, sessions revoked, single use) |
+What each suite covers, how the integration tests are set up and how to add new ones: [TESTING.md](TESTING.md).
 
-The integration test wipes and re-migrates the **`trafondart_test`** database on every run. It never touches `trafondart`.
-
-### Frontend
+### Documentation
 
 ```bash
-cd frontend
-npm run i18n:check   # nb.json and en.json have identical keys, none empty
-npm test             # node:test unit tests for the scripts
-npm run lint         # ESLint (also forbids dangerouslySetInnerHTML)
-npm run build        # type-check + production build
+python3 scripts/check-docs.py   # every endpoint in API.md, every env var documented, no broken links/images, all error codes translated
 ```
+
+CI runs this too. If it fails after you add an endpoint or a setting, document it in the same pull request.
 
 ## Useful URLs
 
@@ -85,6 +84,18 @@ npm run build        # type-check + production build
 ## Project conventions
 
 - **Backend:** package by feature (`match`, `tournament`, `rating` …). Pure game logic (`game/`, `rating/Glicko2`, `tournament/BracketGenerator`) has no Spring dependencies and is unit-tested.
-- **Database changes:** always add a new Flyway migration (`V2__description.sql`). Hibernate only *validates* the schema.
+- **Database changes:** always add a new Flyway migration with the next free number (`V4__description.sql`). Hibernate only *validates* the schema.
 - **Errors:** throw `ApiException(ErrorCode.X)`. Add the code to `ErrorCode.java` and a translation under `errors.X` in **both** locale files.
 - **User-facing text:** never hard-code it. Add it to `nb.json` and `en.json` (see [I18N.md](I18N.md)).
+
+## Demo data across several months
+
+`seed_demo.py` plays every match "now", so the Player of the Month race only has the current month. To see the hall of fame and trophy cabinets locally, move some matches back in time and let the server recompute:
+
+```bash
+python3 scripts/seed_demo.py --admin <you> --password '<pw>' --matches 44
+psql "postgresql://trafondart:<pw>@localhost:5432/trafondart" -f scripts/backdate-demo.sql   # 32 oldest matches → two previous months
+# then, as admin: Admin → Members → "Recompute all ratings" and "Recompute the monthly awards"
+```
+
+Never run `backdate-demo.sql` against a real database: it rewrites match timestamps.

@@ -74,5 +74,17 @@ jobs:
       - name: Norwegian and English have the same keys
         run: npm run i18n:check
       - run: npm test
+      - run: npm run typecheck:test
       - run: npm run lint
       - run: npm run build
+
+  docs:
+    name: Docs match the code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Endpoints, env vars, links, images and error codes are documented
+        run: python3 scripts/check-docs.py

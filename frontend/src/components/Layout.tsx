@@ -1,4 +1,4 @@
-import { Home, LogOut, Settings, Shield, Swords, Trophy, Users, CircleUser, History } from "lucide-react";
+import { Crown, Home, LogOut, Settings, Shield, Swords, Trophy, Tv, Users, CircleUser, History } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import { api } from "../api/client";
@@ -46,6 +46,7 @@ export function Layout() {
     { to: "/matches", label: t("nav.matches"), icon: History },
     { to: "/players", label: t("nav.players"), icon: Users },
     { to: "/tournaments", label: t("nav.tournaments"), icon: Trophy },
+    { to: "/awards", label: t("nav.awards"), icon: Crown },
   ];
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
@@ -86,6 +87,9 @@ export function Layout() {
                   <CircleUser className="size-5" aria-hidden />
                   <span className="font-semibold">{me.username}</span>
                 </Link>
+                <Link to="/tv" className="hidden rounded-md p-2 text-trim-dim hover:text-trim sm:block" aria-label={t("tv.open")} title={t("tv.open")}>
+                  <Tv className="size-5" />
+                </Link>
                 <Link to="/settings" className="rounded-md p-2 text-trim-dim hover:text-trim" aria-label={t("nav.settings")} title={t("nav.settings")}>
                   <Settings className="size-5" />
                 </Link>
@@ -122,20 +126,20 @@ export function Layout() {
         className="fixed inset-x-0 bottom-0 z-30 border-t border-mortar bg-night/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
         aria-label={t("nav.menu")}
       >
-        <ul className="mx-auto flex max-w-xl justify-around">
+        <ul className="mx-auto flex max-w-xl">
           {[...links.filter((l) => l.to !== "/matches"), ...(me?.role === "ADMIN" ? [{ to: "/admin", label: t("nav.admin"), icon: Shield, end: false }] : [])].map((l) => (
-            <li key={l.to}>
+            <li key={l.to} className="min-w-0 flex-1">
               <NavLink
                 to={l.to}
                 end={l.end}
                 className={({ isActive }) =>
-                  `flex min-w-16 flex-col items-center gap-0.5 px-2 py-2 text-[11px] font-semibold ${isActive ? "text-trim" : "text-trim-faint"}`
+                  `flex flex-col items-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold ${isActive ? "text-trim" : "text-trim-faint"}`
                 }
               >
                 {({ isActive }) => (
                   <>
                     <l.icon className={`size-5 ${isActive ? "text-trafon-bright" : ""}`} aria-hidden />
-                    {l.label}
+                    <span className="max-w-full truncate">{l.label}</span>
                   </>
                 )}
               </NavLink>

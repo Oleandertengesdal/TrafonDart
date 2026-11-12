@@ -1,5 +1,6 @@
 package no.trafondart.tournament;
 
+import no.trafondart.common.TextInput;
 import no.trafondart.auth.AuthUser;
 import no.trafondart.common.ApiException;
 import no.trafondart.common.ErrorCode;
@@ -70,7 +71,7 @@ public class TournamentService {
     @Transactional
     public TournamentViews.TournamentDetail create(AuthUser actor, TournamentViews.CreateTournamentRequest req) {
         GameConfig config = new GameConfig(req.startScore(), req.inRule(), req.outRule(), req.legsToWin());
-        Tournament t = tournaments.save(new Tournament(req.name().trim(), req.format(), config,
+        Tournament t = tournaments.save(new Tournament(TextInput.singleLine(req.name(), 60), req.format(), config,
                 req.rated() == null || req.rated(), actor.id()));
         setParticipants(t, req.participantIds());
         return detail(t.getId());
@@ -166,9 +167,10 @@ public class TournamentService {
             return new TournamentViews.StartedFixture(f.getMatchId()); // idempotent: someone already started it
         }
         if (f.getStatus() != TournamentFixture.Status.READY) throw new ApiException(ErrorCode.FIXTURE_NOT_READY);
-        if (!(f.involves(actor.id()) || t.getCreatedBy().equals(actor.id()) || actor.isAdmin())) {
-            throw ApiException.forbidden();
-        }
+        // Same rule as MatchService.create: a rated result must involve the person scoring it (or an admin).
+        // Otherwise an organiser could start a fixture between two others and score it alone.
+        boolean allowed = f.involves(actor.id()) || actor.isAdmin() || (!t.isRated() && t.getCreatedBy().equals(actor.id()));
+        if (!allowed) throw ApiException.forbidden();
         Match m = matchService.createInternal(t.config(), f.getPlayer1Id(), f.getPlayer2Id(), null, t.isRated(),
                 actor.id(), t.getId());
         f.setMatchId(m.getId());

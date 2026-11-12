@@ -32,6 +32,21 @@ Defined once in `frontend/src/index.css` (`@theme`) and available as Tailwind cl
 - each player's remaining score (`ArchScore`). The active thrower's window is "lit", with a red frame and warm glow
 - live-match cards on the home page
 - the rating plaque on a profile and the champion plaque on a tournament
+- the reigning Player of the Month, in a brass window instead of a red one
+
+### Award medals
+
+Monthly awards reuse the window as a small medal (`features/awards/Medal.tsx`): a round-topped outline with one Lucide icon inside. Each award keeps one colour everywhere it appears (awards page, hall of fame, trophy cabinet):
+
+| Award | Icon | Colour |
+|---|---|---|
+| Player of the Month | Crown | brass, the only champion colour |
+| Climber of the Month | TrendingUp | board green |
+| Most active | Activity | salmon |
+| 180 master | Target | facade red |
+| Best finish | Zap | window trim |
+
+The medal colour is never the only cue: every medal has the award name next to it or as its accessible label. A crown after a name in a list always means "reigning Player of the Month" and nothing else.
 
 Everything around the arches stays quiet: flat panels, hairline borders, no gradients beyond the lit window.
 

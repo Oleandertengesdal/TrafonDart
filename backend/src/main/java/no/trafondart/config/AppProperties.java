@@ -16,8 +16,27 @@ public record AppProperties(
         Cookie cookie,
         Websocket websocket,
         Security security,
-        BootstrapAdmin bootstrapAdmin
+        BootstrapAdmin bootstrapAdmin,
+        Awards awards,
+        Errors errors
 ) {
+
+    /**
+     * Error alerts (see docs/OPERATIONS.md). Empty DSN = alerts off, errors are only logged.
+     *
+     * @param sentryDsn   the Sentry project's DSN ({@code SENTRY_DSN}); it is not a secret in the strict sense, but it
+     *                    stays in the environment so forks don't report into your project
+     * @param environment shown on each Sentry event ({@code SENTRY_ENVIRONMENT})
+     */
+    public record Errors(@DefaultValue("") String sentryDsn, @DefaultValue("production") String environment) {
+    }
+
+    /**
+     * @param zone       months are calendar months in this time zone
+     * @param minMatches finished matches needed in a month to be eligible for Player of the Month
+     */
+    public record Awards(@DefaultValue("Europe/Oslo") String zone, @DefaultValue("3") int minMatches, @DefaultValue("10") int minMatchesYear) {
+    }
 
     /**
      * @param secret base64 or plain string, at least 32 bytes. Required outside the dev profile.

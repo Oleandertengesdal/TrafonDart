@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import no.trafondart.common.ApiException;
+import no.trafondart.common.ClientIpResolver;
+import org.springframework.dao.DataIntegrityViolationException;
 import no.trafondart.common.ErrorCode;
 import no.trafondart.common.RateLimiter;
 import no.trafondart.user.User;
@@ -39,6 +41,9 @@ public class AuthService {
     }
 
     public record LoginRequest(@NotBlank @Size(max = 24) String username, @NotBlank @Size(max = 200) String password) {
+        public LoginRequest {
+            username = username == null ? null : username.strip();
+        }
     }
 
     public record RegisterRequest(
@@ -47,15 +52,27 @@ public class AuthService {
             @NotBlank @Size(max = 60) @Pattern(regexp = UserDtos.REAL_NAME_PATTERN) String realName,
             @NotBlank @Size(min = MIN_PASSWORD_LENGTH, max = MAX_PASSWORD_BYTES) String password,
             @Pattern(regexp = "^(nb|en)$") String preferredLocale) {
+        /** Forgive stray spaces around names (common when pasting); everything else is validated as typed. */
+        public RegisterRequest {
+            inviteCode = inviteCode == null ? null : inviteCode.strip();
+            username = username == null ? null : username.strip();
+            realName = realName == null ? null : realName.strip();
+        }
     }
 
     @Transactional(readOnly = true)
-    public User login(LoginRequest req, String clientIp) {
+    public User login(LoginRequest req, ClientIpResolver.ClientAddress client) {
         String usernameKey = req.username().toLowerCase(Locale.ROOT);
-        rateLimiter.check(RateLimiter.LOGIN_PER_IP, clientIp);
+        rateLimiter.check(RateLimiter.LOGIN_PER_IP, client);
         rateLimiter.check(RateLimiter.LOGIN_PER_USERNAME, usernameKey);
 
         User user = users.findByUsernameIgnoreCase(req.username()).orElse(null);
+        // BCrypt ignores everything after 72 bytes, so "<the real password>EXTRA" would otherwise log in.
+        // No account can have a longer password, so such an attempt is simply wrong.
+        if (tooLong(req.password())) {
+            encoder.matches("x", dummyHash);
+            throw new ApiException(ErrorCode.AUTH_INVALID_CREDENTIALS);
+        }
         if (user == null) {
             encoder.matches(req.password(), dummyHash);
             throw new ApiException(ErrorCode.AUTH_INVALID_CREDENTIALS);
@@ -71,16 +88,21 @@ public class AuthService {
     }
 
     @Transactional
-    public User register(RegisterRequest req, String clientIp) {
-        rateLimiter.check(RateLimiter.REGISTER_PER_IP, clientIp);
+    public User register(RegisterRequest req, ClientIpResolver.ClientAddress client) {
+        rateLimiter.check(RateLimiter.REGISTER_PER_IP, client);
         requirePasswordBytes(req.password());
         invites.findUsable(req.inviteCode());
         if (users.existsByUsernameIgnoreCase(req.username())) {
             throw new ApiException(ErrorCode.USERNAME_TAKEN);
         }
-        User user = new User(req.username(), req.realName().trim(), encoder.encode(req.password()), User.Role.USER);
-        user.setPreferredLocale(req.preferredLocale());
-        users.saveAndFlush(user);
+        User user = new User(req.username(), req.realName(), encoder.encode(req.password()), User.Role.USER);
+        user.setPreferredLocale(req.preferredLocale() == null ? "nb" : req.preferredLocale());
+        try {
+            users.saveAndFlush(user);
+        } catch (DataIntegrityViolationException e) {
+            // Someone registered the same name a moment ago (the unique index decides the race).
+            throw new ApiException(ErrorCode.USERNAME_TAKEN);
+        }
         invites.redeem(req.inviteCode(), user.getId());
         return user;
     }
@@ -90,7 +112,7 @@ public class AuthService {
         rateLimiter.check(RateLimiter.PASSWORD_CHANGE_PER_USER, String.valueOf(userId));
         requirePasswordBytes(req.newPassword());
         User user = users.findById(userId).orElseThrow(ApiException::notFound);
-        if (!encoder.matches(req.currentPassword(), user.getPasswordHash())) {
+        if (tooLong(req.currentPassword()) || !encoder.matches(req.currentPassword(), user.getPasswordHash())) {
             throw new ApiException(ErrorCode.PASSWORD_INCORRECT);
         }
         user.setPasswordHash(encoder.encode(req.newPassword()));
@@ -103,6 +125,10 @@ public class AuthService {
         User user = users.findById(userId).orElseThrow(ApiException::notFound);
         user.revokeSessions();
         return user;
+    }
+
+    private static boolean tooLong(String password) {
+        return password.getBytes(StandardCharsets.UTF_8).length > MAX_PASSWORD_BYTES;
     }
 
     private static void requirePasswordBytes(String password) {

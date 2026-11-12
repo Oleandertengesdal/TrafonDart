@@ -15,7 +15,8 @@
     "logout": "Logg ut",
     "language": "Språk",
     "menu": "Meny",
-    "skipToContent": "Hopp til innholdet"
+    "skipToContent": "Hopp til innholdet",
+    "awards": "Kåringer"
   },
   "common": {
     "loading": "Laster …",
@@ -360,7 +361,10 @@
     "resetTitle": "Passordlenke for @{{username}}",
     "resetHow": "Kopier lenken og send den, for eksempel på Messenger. Den virker én gang i 24 timer, og personen velger selv nytt passord og blir logget inn. Du ser aldri passordet. Alle andre innlogginger personen har blir avsluttet, og en eventuell utestengelse etter feil passord oppheves.",
     "resetExpires": "Utløper {{date}}",
-    "copyLink": "Kopier lenken"
+    "copyLink": "Kopier lenken",
+    "recomputeAwards": "Regn ut kåringene på nytt",
+    "recomputeAwardsDone": "Kåringene er regnet ut på nytt for {{count}} måneder.",
+    "deleted": "Slettet"
   },
   "settings": {
     "title": "Innstillinger",
@@ -379,7 +383,19 @@
     "passwordChanged": "Passordet er byttet. Andre enheter er logget ut.",
     "sessions": "Økter",
     "logoutAll": "Logg ut overalt",
-    "logoutAllHint": "Avslutter alle økter på alle enheter, også denne."
+    "logoutAllHint": "Avslutter alle økter på alle enheter, også denne.",
+    "dataTitle": "Dine data",
+    "exportHint": "Last ned alt TrafonDart lagrer om deg: profil, kamper med hver pil, spill, kommentarer, rating og kåringer.",
+    "export": "Last ned dataene mine",
+    "deleteHint": "Slett kontoen for godt. Kampene dine blir værende for motstanderne, vist som spilt av en slettet spiller.",
+    "delete": "Slett kontoen",
+    "deleteKeeps": "Kamper og resultater blir værende, men navnet ditt byttes ut med «Slettet spiller».",
+    "deleteRemoves": "Kommentarene, kudosene og likerklikkene dine fjernes, og åpne utfordringer avlyses.",
+    "deleteForever": "Du kan ikke logge inn igjen, og det kan ikke angres.",
+    "deleteType": "Skriv {{word}} for å bekrefte",
+    "deleteWord": "SLETT",
+    "deleteForeverButton": "Slett kontoen min",
+    "deletedDone": "Kontoen din er slettet. Takk for kampene."
   },
   "notFound": {
     "title": "Bom på skiva",
@@ -429,7 +445,12 @@
       "INVALID": "Ugyldig."
     },
     "KUDOS_OWN_MATCH": "Du kan ikke gi kudos til din egen kamp.",
-    "RESET_LINK_INVALID": "Lenken virker ikke lenger. Be en admin om en ny."
+    "RESET_LINK_INVALID": "Lenken virker ikke lenger. Be en admin om en ny.",
+    "BAD_PATH": "Lenken ser ikke riktig ut. Gå tilbake og prøv igjen.",
+    "ACCOUNT_DELETED": "Denne kontoen er slettet.",
+    "CHALLENGE_NOT_OPEN": "Den utfordringen er ikke åpen lenger.",
+    "CHALLENGE_EXISTS": "Dere har allerede en åpen utfordring.",
+    "CHALLENGE_LIMIT": "Du har allerede 5 åpne utfordringer. Vent på noen svar først."
   },
   "social": {
     "kudos": "Kudos",
@@ -550,5 +571,354 @@
   },
   "forgot": {
     "hint": "Glemt passordet? Be en admin om en lenke for å lage nytt."
+  },
+  "awards": {
+    "title": "Månedens spiller",
+    "lead": "Ikke bare for den beste: poengene kommer fra å bli bedre, spille mye og de store øyeblikkene. En ny vinner kåres den 1. hver måned.",
+    "reigning": "Månedens spiller, {{month}}",
+    "reigningPoints": "{{points}} månedspoeng",
+    "raceTitle": "Kampen om {{month}}",
+    "daysLeft_one": "{{count}} dag igjen",
+    "daysLeft_other": "{{count}} dager igjen",
+    "noRace": "Ingen har fullført en kamp denne måneden ennå. Første kamp setter deg på tavla.",
+    "points": "Poeng",
+    "player": "Spiller",
+    "matches": "Kamper",
+    "wins": "Seire",
+    "ratingChange": "Rating",
+    "avgChange": "Snitt mot vanlig",
+    "needsMore_one": "{{count}} kamp til for å kvalifisere",
+    "needsMore_other": "{{count}} kamper til for å kvalifisere",
+    "breakdown": {
+      "rating": "rating",
+      "activity": "aktivitet",
+      "wins": "seire",
+      "improvement": "fremgang",
+      "highlights": "høydepunkter",
+      "kudos": "kudos"
+    },
+    "leadersTitle": "Leder kategoriene",
+    "hallTitle": "Æresgalleri",
+    "noHall": "Ingen måneder er kåret ennå. De første vinnerne kåres den 1.",
+    "nobody": "Ingen kvalifiserte denne måneden.",
+    "types": {
+      "PLAYER_OF_MONTH": "Månedens spiller",
+      "MOST_IMPROVED": "Månedens klatrer",
+      "MOST_ACTIVE": "Flittigst",
+      "MOST_180S": "180-mester",
+      "HIGHEST_CHECKOUT": "Beste utgang",
+      "PLAYER_OF_YEAR": "Årets spiller"
+    },
+    "typeHints": {
+      "PLAYER_OF_MONTH": "Flest månedspoeng",
+      "MOST_IMPROVED": "Størst ratingøkning",
+      "MOST_ACTIVE": "Flest kamper spilt",
+      "MOST_180S": "Flest 180-ere",
+      "HIGHEST_CHECKOUT": "Høyeste utgang"
+    },
+    "values": {
+      "PLAYER_OF_MONTH": "{{value}} poeng",
+      "MOST_IMPROVED": "+{{value}} rating",
+      "MOST_ACTIVE": "{{value}} kamper",
+      "MOST_180S": "{{value}} × 180",
+      "HIGHEST_CHECKOUT": "{{value}} i utgang",
+      "PLAYER_OF_YEAR": "{{value}} poeng"
+    },
+    "howTitle": "Slik regnes månedspoengene",
+    "how": {
+      "rating": "1 poeng per ratingpoeng du øker denne måneden, opptil 60 (en dårlig måned koster maks 25)",
+      "activity": "4 poeng per ferdigspilt kamp, opptil 20 kamper",
+      "wins": "6 poeng per seier",
+      "improvement": "2 poeng per poeng 3-pilssnittet ditt er bedre enn ditt eget tidligere snitt (−20 til +40)",
+      "highlights": "3 poeng per 180 og 5 poeng per utgang på 100 eller mer",
+      "kudos": "1 poeng per kudos på kampene dine, opptil 10",
+      "eligible": "Du må ha minst {{count}} ferdigspilte kamper i måneden for å bli månedens spiller. 180-ere og utganger teller for alle."
+    },
+    "cabinet": "Troféskap",
+    "cabinetEmpty": "Ingen utmerkelser ennå. Hver måned er en ny sjanse.",
+    "seeRace": "Se kampen om tittelen",
+    "yearRaceTitle": "Årets spiller {{year}}",
+    "yearRaceLead_one": "Alle månedspoengene lagt sammen. Krever {{count}} rangert kamp i løpet av året; kåres 1. januar.",
+    "yearRaceLead_other": "Alle månedspoengene lagt sammen. Krever {{count}} rangerte kamper i løpet av året; kåres 1. januar.",
+    "yearMatches_one": "{{count}} kamp",
+    "yearMatches_other": "{{count}} kamper",
+    "monthsWon_one": "Månedens spiller én gang",
+    "monthsWon_other": "Månedens spiller {{count}} ganger",
+    "yearHallTitle": "Årets spillere",
+    "yearHallEmpty": "Den første kåres 1. januar."
+  },
+  "player": {
+    "deleted": "Slettet spiller"
+  },
+  "offline": {
+    "title": "Ingen forbindelse.",
+    "waiting_one": "{{count}} pil er lagret på nettbrettet og sendes når forbindelsen er tilbake.",
+    "waiting_other": "{{count}} piler er lagret på nettbrettet og sendes når forbindelsen er tilbake."
+  },
+  "crash": {
+    "title": "Noe gikk i stykker",
+    "lead": "Siden krasjet. Vi har fått beskjed. Last inn på nytt, så går det som regel bra.",
+    "reload": "Last inn på nytt"
+  },
+  "waking": {
+    "title": "Vekker serveren",
+    "lead": "Serveren tar seg en lur når ingen spiller. Den står opp nå – vanligvis på under ett minutt."
+  },
+  "games": {
+    "moreThanTwo": "Flere enn to? Selskapsspill",
+    "partyGame": "Selskapsspill",
+    "newTitle": "Selskapsspill",
+    "newLead": "X01 for tre eller fire, to mot to, Cricket, Killer eller Rundt klokka. Bare for moro skyld: selskapsspill teller aldri på rating eller kåringer.",
+    "type": "Spilltype",
+    "types": {
+      "X01": "X01",
+      "CRICKET": "Cricket",
+      "KILLER": "Killer",
+      "AROUND_THE_CLOCK": "Rundt klokka"
+    },
+    "typeHint": {
+      "X01": "Tell ned til null som i en vanlig kamp, med tre eller fire spillere – eller to lag på to.",
+      "CRICKET": "Lukk 20 til 15 og bull (tre treff hver). Poeng på tall du har lukket og andre ikke har.",
+      "KILLER": "Alle får et tall. Treff din egen dobbel for å bli killer, ta så liv med de andres dobler.",
+      "AROUND_THE_CLOCK": "Treff 1, 2, 3 … 20 og bull i rekkefølge. Først rundt vinner. Fungerer alene også."
+    },
+    "teams": "To mot to",
+    "teamsHint": "Makkerne bytter på; de to første du velger er lag A.",
+    "roundLimit": "Rundegrense",
+    "roundLimitHint": "Etter så mange runder vinner den med flest poeng.",
+    "noLimit": "Ingen",
+    "lives": "Liv",
+    "livesHint": "Liv hver spiller starter med.",
+    "skips": "Dobler og tripler hopper fram",
+    "skipsHint": "En dobbel flytter deg to tall fram, en trippel tre.",
+    "players": "Spillere",
+    "pickOrder": "Trykk på spillerne i kasterekkefølge.",
+    "pickTeams": "Trykk på fire spillere: de to første er lag A, de to siste lag B.",
+    "order": "Kasterekkefølge",
+    "teamA": "Lag A",
+    "teamB": "Lag B",
+    "remove": "Fjern {{name}}",
+    "lineup": {
+      "tooFew": "Velg flere spillere.",
+      "tooMany": "For mange spillere for dette spillet.",
+      "teamsNeedFour": "To mot to trenger nøyaktig fire spillere.",
+      "noTeams": "Dette spillet spilles hver mann for seg.",
+      "x01Two": "To spillere? Start en vanlig kamp i stedet – den teller på rating."
+    },
+    "neverRated": "Selskapsspill teller aldri på rating, Månedens spiller eller Årets spiller.",
+    "start": "Start spillet",
+    "legs": "Leg {{won}}/{{of}}",
+    "target": "Mål",
+    "bull": "Bull",
+    "marks_one": "{{count}} treff",
+    "marks_other": "{{count}} treff",
+    "points": "Poeng",
+    "roundOf": "Runde {{round}} av {{of}}",
+    "yourNumber": "Tall",
+    "killer": "Killer",
+    "out": "Ute",
+    "livesLeft_one": "{{count}} liv igjen",
+    "livesLeft_other": "{{count}} liv igjen",
+    "finished": "Ferdig",
+    "next": "Neste",
+    "doubles": "double",
+    "versus": " mot ",
+    "status": {
+      "IN_PROGRESS": "Direkte",
+      "COMPLETED": "Ferdig",
+      "ABANDONED": "Avbrutt"
+    },
+    "abandon": "Avbryt spillet",
+    "abandonConfirm": "Stoppe spillet? Det teller ingen steder.",
+    "howTo": {
+      "X01": "Før poeng som vanlig: tre piler per spiller, bust nullstiller runden.",
+      "CRICKET": "Piler utenfor 15–20 og bull teller bare som ingenting.",
+      "KILLER": "Trykk på dobbelen du traff. Dobler på andres tall tar liv når du er killer.",
+      "AROUND_THE_CLOCK": "Trykk på det du traff; bare neste tall i rekken teller."
+    },
+    "scoreLabel": {
+      "X01": "Poeng",
+      "CRICKET": "Treff",
+      "KILLER": "Liv tatt",
+      "AROUND_THE_CLOCK": "Mål"
+    },
+    "won": "{{name}} vinner!",
+    "again": "Nytt spill",
+    "statsTitle": "Spillere",
+    "player": "Spiller",
+    "profileTitle": "Selskapsspill",
+    "best": {
+      "X01": "Beste snitt {{value}}",
+      "CRICKET": "Beste {{value}} treff per runde",
+      "KILLER": "Flest liv tatt: {{value}}",
+      "AROUND_THE_CLOCK": "Raskest: {{value}} piler"
+    },
+    "liveTitle": "Selskapsspill nå"
+  },
+  "tv": {
+    "open": "TV-modus",
+    "rotating": "Tavle {{n}} av {{of}}",
+    "fullscreen": "Fullskjerm",
+    "exitFullscreen": "Gå ut av fullskjerm",
+    "leave": "Gå ut av TV-modus"
+  },
+  "recap": {
+    "link": "Ditt {{year}}",
+    "backToProfile": "Tilbake til profilen",
+    "year": "År",
+    "soFar": "Året så langt",
+    "final": "Dartåret",
+    "title": "{{name}}s {{year}}",
+    "nothing": "Ingen piler kastet i {{year}}. Ennå.",
+    "poyTitle": "Årets spiller",
+    "poyLead": "{{name}} var best av alle. Bukk og nei.",
+    "dartsTitle": "Piler kastet",
+    "dartsLead": "Hver tredje en tur bort til skiva og tilbake: omtrent {{km}} km gått.",
+    "matchesTitle": "Kamper vunnet–tapt",
+    "matchesLead": "{{played}} kamper, {{rate}} vunnet, snitt {{avg}}.",
+    "streak_one": "Lengste seiersrekke: {{count}} kamp.",
+    "streak_other": "Lengste seiersrekke: {{count}} kamper.",
+    "bestMonthTitle": "Beste måned",
+    "bestMonthLead": "{{points}} poeng, nummer {{rank}} den måneden.",
+    "monthsWon_one": "Månedens spiller én gang.",
+    "monthsWon_other": "Månedens spiller {{count}} ganger.",
+    "finishTitle": "Favorittutgang",
+    "finishLead_one": "Vant {{count}} leg med den.",
+    "finishLead_other": "Vant {{count}} leg med den.",
+    "numberLead": "Mest truffet: {{number}}.",
+    "nemesisTitle": "Erkefiende",
+    "nemesisLead": "Du vant {{won}}, de vant {{lost}}. Revansj?",
+    "victimTitle": "Yndlingsmotstander",
+    "victimLead": "Du vant {{won}}, de vant {{lost}}.",
+    "biggestWinTitle": "Største seier",
+    "biggestWinLead": "Slo en motstander med {{rating}} i rating, {{date}}.",
+    "bestMatchTitle": "Beste kampsnitt",
+    "bestMatchLead": "Mot {{name}}, {{date}}.",
+    "highestCheckout": "Beste utgang",
+    "highestTurn": "Beste runde",
+    "weekdayTitle": "Dartkvelden er",
+    "gamesTitle": "Selskapsspill",
+    "gamesLead": "{{won}} vunnet.",
+    "yearRankTitle": "Kampen om Årets spiller",
+    "yearRankLead": "{{points}} poeng fra månedene.",
+    "achievementsTitle_one": "{{count}} prestasjon låst opp",
+    "achievementsTitle_other": "{{count}} prestasjoner låst opp",
+    "promoTitle": "Ditt dartår {{year}}",
+    "promoLead": "Piler kastet, beste måned, favorittutgang og erkefienden din."
+  },
+  "achievements": {
+    "title": "Prestasjoner",
+    "count": "{{unlocked}} av {{total}}",
+    "unlockedOn": "Låst opp {{date}}",
+    "FIRST_WIN": {
+      "title": "Første seier",
+      "how": "Vinn en kamp."
+    },
+    "MATCHES_10": {
+      "title": "Stamgjest",
+      "how": "Spill 10 kamper."
+    },
+    "MATCHES_50": {
+      "title": "En del av inventaret",
+      "how": "Spill 50 kamper."
+    },
+    "MATCHES_100": {
+      "title": "Hundre kamper",
+      "how": "Spill 100 kamper."
+    },
+    "WINS_25": {
+      "title": "Vinnervaner",
+      "how": "Vinn 25 kamper."
+    },
+    "STREAK_5": {
+      "title": "Glohet",
+      "how": "Vinn 5 kamper på rad."
+    },
+    "FIRST_180": {
+      "title": "Hundreogåtti!",
+      "how": "Kast din første 180."
+    },
+    "MAX_COLLECTOR": {
+      "title": "Maksimumsamler",
+      "how": "Kast ti 180-ere."
+    },
+    "TON_PLUS_CHECKOUT": {
+      "title": "Hundre-pluss-utgang",
+      "how": "Gå ut på 100 eller mer."
+    },
+    "BIG_FISH": {
+      "title": "Den store fisken",
+      "how": "Gå ut på 170: T20, T20, bull."
+    },
+    "BULL_FINISH": {
+      "title": "Bull-utgang",
+      "how": "Vinn et leg på bull."
+    },
+    "SHORT_LEG": {
+      "title": "Kort leg",
+      "how": "Vinn et 501-leg på 15 piler eller færre."
+    },
+    "NINE_DARTER": {
+      "title": "Nipiler",
+      "how": "Vinn et 501-leg på ni piler. Det perfekte leget."
+    },
+    "AVERAGE_50": {
+      "title": "50-klubben",
+      "how": "Snitt på 50 eller mer i en kamp (301 og oppover)."
+    },
+    "AVERAGE_70": {
+      "title": "70-klubben",
+      "how": "Snitt på 70 eller mer i en kamp (301 og oppover)."
+    },
+    "GIANT_KILLER": {
+      "title": "Kjempedreper",
+      "how": "Vinn en rangert kamp mot en med minst 150 mer i rating."
+    },
+    "TOURNAMENT_WIN": {
+      "title": "Turneringsvinner",
+      "how": "Vinn en turnering."
+    },
+    "PLAYER_OF_MONTH": {
+      "title": "Månedens spiller",
+      "how": "Bli kåret til Månedens spiller."
+    },
+    "PLAYER_OF_YEAR": {
+      "title": "Årets spiller",
+      "how": "Bli kåret til Årets spiller."
+    },
+    "CRICKET_WIN": {
+      "title": "Cricket-mester",
+      "how": "Vinn et parti Cricket."
+    },
+    "KILLER_WIN": {
+      "title": "Sistemann igjen",
+      "how": "Vinn et parti Killer."
+    },
+    "CLOCK_UNDER_40": {
+      "title": "Som et urverk",
+      "how": "Fullfør Rundt klokka på under 40 piler."
+    },
+    "DARTS_10K": {
+      "title": "Ti tusen piler",
+      "how": "Kast 10 000 piler."
+    }
+  },
+  "challenges": {
+    "title": "Utfordringer",
+    "challenge": "Utfordre",
+    "sent": "Utfordring sendt",
+    "titleFor": "Utfordre {{name}}",
+    "message": "Melding",
+    "messagePlaceholder": "Revansj i kveld?",
+    "howItWorks": "De har 48 timer på å svare. Så venter kampen på hjemmesiden til dere begge – trykk Start ved tavla.",
+    "send": "Send utfordring",
+    "ready": "Klar til å spille",
+    "wantsToPlay": "{{name}} utfordrer deg",
+    "waitingFor": "Venter på {{name}}",
+    "start": "Start",
+    "accept": "Godta",
+    "decline": "Avslå",
+    "cancel": "Avlys",
+    "expires": "utløper {{when}}"
   }
 }

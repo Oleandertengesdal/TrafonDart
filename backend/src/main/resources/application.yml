@@ -63,6 +63,16 @@ app:
   security:
     # Reverse proxies we control in front of the app. Vercel rewrite → Render = 2. Local = 0.
     trusted-proxy-hops: ${TRUSTED_PROXY_HOPS:0}
+  awards:
+    # Months are calendar months in this zone; Player of the Month needs this many finished matches.
+    zone: ${AWARDS_ZONE:Europe/Oslo}
+    min-matches: ${AWARDS_MIN_MATCHES:3}
+    # Player of the Year needs this many rated matches in the year.
+    min-matches-year: ${AWARDS_MIN_MATCHES_YEAR:10}
+  errors:
+    # Error alerts. Leave SENTRY_DSN empty to keep them off (errors are then only logged).
+    sentry-dsn: ${SENTRY_DSN:}
+    environment: ${SENTRY_ENVIRONMENT:production}
   bootstrap-admin:
     username: ${BOOTSTRAP_ADMIN_USERNAME:}
     password: ${BOOTSTRAP_ADMIN_PASSWORD:}

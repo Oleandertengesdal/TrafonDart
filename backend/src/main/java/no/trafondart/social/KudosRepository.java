@@ -1,5 +1,6 @@
 package no.trafondart.social;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +20,11 @@ public interface KudosRepository extends JpaRepository<SocialEntities.Kudos, Soc
 
     @Query("select count(k) from MatchKudos k, Match m where k.id.matchId = m.id and (m.player1Id = :userId or m.player2Id = :userId)")
     long countReceivedBy(@Param("userId") Long userId);
+
+    @Query("select k from MatchKudos k where k.id.userId = :userId order by k.createdAt")
+    List<SocialEntities.Kudos> findByUser(@Param("userId") Long userId);
+
+    @Modifying(flushAutomatically = true)
+    @Query("delete from MatchKudos k where k.id.userId = :userId")
+    int deleteByUser(@Param("userId") Long userId);
 }

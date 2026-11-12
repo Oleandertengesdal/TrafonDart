@@ -14,7 +14,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
  *
  * <ul>
  *   <li>{@code /topic/matches/{id}} – the full live scoreboard after every dart</li>
- *   <li>{@code /topic/live} – "something changed" ping for the home feed</li>
+ *   <li>{@code /topic/games/{id}} – the full scoreboard of a party game after every dart</li>
+ *   <li>{@code /topic/live} – "something changed" ping for the home feed (matches and games)</li>
  *   <li>{@code /topic/tournaments/{id}} – "refetch" ping for brackets and tables</li>
  * </ul>
  */
@@ -39,6 +40,11 @@ public class Broadcaster {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onMatchUpdated(MatchEvents.MatchUpdated event) {
         template.convertAndSend("/topic/matches/" + event.view().id(), (Object) event.view());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onGameUpdated(no.trafondart.party.GameService.GameUpdated event) {
+        template.convertAndSend("/topic/games/" + event.view().id(), (Object) event.view());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

@@ -52,4 +52,29 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
               and (m.player1Id = :userId or m.player2Id = :userId)
             """)
     List<Match> findCompletedFor(@Param("userId") Long userId);
+
+    @Query("""
+            select m from Match m
+            where m.status = no.trafondart.match.Match.Status.COMPLETED
+              and m.completedAt >= :start and m.completedAt < :end
+            """)
+    List<Match> findCompletedBetween(@Param("start") java.time.Instant start, @Param("end") java.time.Instant end);
+
+    /**
+     * Rated matches finished in a period. Monthly awards only count these: a rated match always involves the person
+     * who created it (or an admin), so nobody can invent results for others to win awards with.
+     */
+    @Query("""
+            select m from Match m
+            where m.status = no.trafondart.match.Match.Status.COMPLETED and m.rated = true
+              and m.completedAt >= :start and m.completedAt < :end
+            """)
+    List<Match> findRatedCompletedBetween(@Param("start") java.time.Instant start, @Param("end") java.time.Instant end);
+
+    @Query("select min(m.completedAt) from Match m where m.status = no.trafondart.match.Match.Status.COMPLETED")
+    java.util.Optional<java.time.Instant> firstCompletedAt();
+
+    /** Every match the user plays in, whatever its status, oldest first (for the data export). */
+    @Query("select m from Match m where m.player1Id = :userId or m.player2Id = :userId order by m.createdAt, m.id")
+    List<Match> findAllForPlayer(@Param("userId") Long userId);
 }

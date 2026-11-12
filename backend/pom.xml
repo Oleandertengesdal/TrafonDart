@@ -13,7 +13,7 @@
 
     <groupId>no.trafondart</groupId>
     <artifactId>trafondart-backend</artifactId>
-    <version>1.0.0</version>
+    <version>1.4.0</version>
     <name>TrafonDart backend</name>
     <description>REST + STOMP backend for TrafonDart: live darts scoring, Glicko-2 ratings and tournaments</description>
 
@@ -104,6 +104,10 @@
                 <configuration>
                     <!-- Integration tests need a database; see docs/LOCAL-DEVELOPMENT.md -->
                     <excludedGroups>${excludedTestGroups}</excludedGroups>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*IT.java</include>
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>

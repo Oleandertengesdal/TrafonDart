@@ -15,7 +15,8 @@
     "logout": "Log out",
     "language": "Language",
     "menu": "Menu",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "awards": "Awards"
   },
   "common": {
     "loading": "Loading…",
@@ -360,7 +361,10 @@
     "resetTitle": "Password link for @{{username}}",
     "resetHow": "Copy the link and send it, for example on Messenger. It works once, for 24 hours, and the person chooses a new password themselves and is logged in. You never see the password. All the person's other logins are ended, and any lock-out after wrong passwords is lifted.",
     "resetExpires": "Expires {{date}}",
-    "copyLink": "Copy link"
+    "copyLink": "Copy link",
+    "recomputeAwards": "Recompute the monthly awards",
+    "recomputeAwardsDone": "Awards recomputed for {{count}} months.",
+    "deleted": "Deleted"
   },
   "settings": {
     "title": "Settings",
@@ -379,7 +383,19 @@
     "passwordChanged": "Password changed. Other devices have been logged out.",
     "sessions": "Sessions",
     "logoutAll": "Log out everywhere",
-    "logoutAllHint": "Ends every session on every device, including this one."
+    "logoutAllHint": "Ends every session on every device, including this one.",
+    "dataTitle": "Your data",
+    "exportHint": "Download everything TrafonDart stores about you: profile, matches with every dart, games, comments, ratings, awards.",
+    "export": "Download my data",
+    "deleteHint": "Delete your account for good. Your matches stay for your opponents, shown as played by a deleted player.",
+    "delete": "Delete account",
+    "deleteKeeps": "Matches and results stay, but your name is replaced by “Deleted player”.",
+    "deleteRemoves": "Your comments, kudos and likes are removed, and open challenges called off.",
+    "deleteForever": "You can't log in again, and this can't be undone.",
+    "deleteType": "Type {{word}} to confirm",
+    "deleteWord": "DELETE",
+    "deleteForeverButton": "Delete my account",
+    "deletedDone": "Your account has been deleted. Thanks for the games."
   },
   "notFound": {
     "title": "Missed the board",
@@ -429,7 +445,12 @@
       "INVALID": "Not valid."
     },
     "KUDOS_OWN_MATCH": "You can't give kudos to your own match.",
-    "RESET_LINK_INVALID": "This link doesn't work any more. Ask an admin for a new one."
+    "RESET_LINK_INVALID": "This link doesn't work any more. Ask an admin for a new one.",
+    "BAD_PATH": "That link doesn't look right. Go back and try again.",
+    "ACCOUNT_DELETED": "This account has been deleted.",
+    "CHALLENGE_NOT_OPEN": "That challenge isn't open any more.",
+    "CHALLENGE_EXISTS": "You two already have an open challenge.",
+    "CHALLENGE_LIMIT": "You already have 5 open challenges. Wait for some answers first."
   },
   "social": {
     "kudos": "Kudos",
@@ -550,5 +571,354 @@
   },
   "forgot": {
     "hint": "Forgot your password? Ask an admin for a reset link."
+  },
+  "awards": {
+    "title": "Player of the Month",
+    "lead": "Not just for the best player: points come from improving, playing a lot and the big moments. A new champion is crowned on the 1st of every month.",
+    "reigning": "Player of the Month, {{month}}",
+    "reigningPoints": "{{points}} month points",
+    "raceTitle": "The race for {{month}}",
+    "daysLeft_one": "{{count}} day left",
+    "daysLeft_other": "{{count}} days left",
+    "noRace": "Nobody has finished a match this month yet. The first match puts you on the board.",
+    "points": "Points",
+    "player": "Player",
+    "matches": "Matches",
+    "wins": "Wins",
+    "ratingChange": "Rating",
+    "avgChange": "Avg vs. usual",
+    "needsMore_one": "{{count}} more match to qualify",
+    "needsMore_other": "{{count}} more matches to qualify",
+    "breakdown": {
+      "rating": "rating",
+      "activity": "activity",
+      "wins": "wins",
+      "improvement": "improvement",
+      "highlights": "highlights",
+      "kudos": "kudos"
+    },
+    "leadersTitle": "Leading the categories",
+    "hallTitle": "Hall of fame",
+    "noHall": "No months decided yet. The first winners are crowned on the 1st.",
+    "nobody": "Nobody qualified this month.",
+    "types": {
+      "PLAYER_OF_MONTH": "Player of the Month",
+      "MOST_IMPROVED": "Climber of the Month",
+      "MOST_ACTIVE": "Most active",
+      "MOST_180S": "180 master",
+      "HIGHEST_CHECKOUT": "Best finish",
+      "PLAYER_OF_YEAR": "Player of the Year"
+    },
+    "typeHints": {
+      "PLAYER_OF_MONTH": "Most month points",
+      "MOST_IMPROVED": "Biggest rating gain",
+      "MOST_ACTIVE": "Most matches played",
+      "MOST_180S": "Most 180s",
+      "HIGHEST_CHECKOUT": "Highest checkout"
+    },
+    "values": {
+      "PLAYER_OF_MONTH": "{{value}} points",
+      "MOST_IMPROVED": "+{{value}} rating",
+      "MOST_ACTIVE": "{{value}} matches",
+      "MOST_180S": "{{value}} × 180",
+      "HIGHEST_CHECKOUT": "{{value}} checkout",
+      "PLAYER_OF_YEAR": "{{value}} points"
+    },
+    "howTitle": "How month points work",
+    "how": {
+      "rating": "1 point per rating point gained this month, up to 60 (a bad month costs at most 25)",
+      "activity": "4 points per finished match, up to 20 matches",
+      "wins": "6 points per win",
+      "improvement": "2 points per point your 3-dart average beats your own earlier average (−20 to +40)",
+      "highlights": "3 points per 180 and 5 points per checkout of 100 or more",
+      "kudos": "1 point per kudos on your matches, up to 10",
+      "eligible": "You need at least {{count}} finished matches in the month to be Player of the Month. 180s and finishes count for everyone."
+    },
+    "cabinet": "Trophy cabinet",
+    "cabinetEmpty": "No badges yet. Every month is a new chance.",
+    "seeRace": "See the race",
+    "yearRaceTitle": "Player of the Year {{year}}",
+    "yearRaceLead_one": "All month points added up. Needs {{count}} rated match in the year; crowned on 1 January.",
+    "yearRaceLead_other": "All month points added up. Needs {{count}} rated matches in the year; crowned on 1 January.",
+    "yearMatches_one": "{{count}} match",
+    "yearMatches_other": "{{count}} matches",
+    "monthsWon_one": "Player of the Month once",
+    "monthsWon_other": "Player of the Month {{count}} times",
+    "yearHallTitle": "Players of the Year",
+    "yearHallEmpty": "The first one is crowned on 1 January."
+  },
+  "player": {
+    "deleted": "Deleted player"
+  },
+  "offline": {
+    "title": "No connection.",
+    "waiting_one": "{{count}} dart is saved on this tablet and will be sent when the connection is back.",
+    "waiting_other": "{{count}} darts are saved on this tablet and will be sent when the connection is back."
+  },
+  "crash": {
+    "title": "Something broke",
+    "lead": "This page crashed. We've been told about it. Reloading usually helps.",
+    "reload": "Reload"
+  },
+  "waking": {
+    "title": "Waking up the server",
+    "lead": "The server naps when nobody is playing. It's getting up – usually in under a minute."
+  },
+  "games": {
+    "moreThanTwo": "More than two? Party game",
+    "partyGame": "Party game",
+    "newTitle": "Party game",
+    "newLead": "X01 for three or four, two against two, Cricket, Killer or Around the Clock. Just for fun: party games never count towards rating or awards.",
+    "type": "Game type",
+    "types": {
+      "X01": "X01",
+      "CRICKET": "Cricket",
+      "KILLER": "Killer",
+      "AROUND_THE_CLOCK": "Around the Clock"
+    },
+    "typeHint": {
+      "X01": "Count down to zero, like a normal match, with three or four players – or two teams of two.",
+      "CRICKET": "Close 20 to 15 and the bull (three marks each). Points on numbers you've closed and others haven't.",
+      "KILLER": "Everyone gets a number. Hit your own double to become a killer, then take lives with the others' doubles.",
+      "AROUND_THE_CLOCK": "Hit 1, 2, 3 … 20 and the bull in order. The first one all the way round wins. Works on your own, too."
+    },
+    "teams": "Two against two",
+    "teamsHint": "Partners take turns; first two chosen are team A.",
+    "roundLimit": "Round limit",
+    "roundLimitHint": "After this many rounds, most points wins.",
+    "noLimit": "None",
+    "lives": "Lives",
+    "livesHint": "Lives each player starts with.",
+    "skips": "Doubles and trebles skip ahead",
+    "skipsHint": "A double moves you two numbers on, a treble three.",
+    "players": "Players",
+    "pickOrder": "Tap players in throwing order.",
+    "pickTeams": "Tap four players: the first two are team A, the last two team B.",
+    "order": "Throwing order",
+    "teamA": "Team A",
+    "teamB": "Team B",
+    "remove": "Remove {{name}}",
+    "lineup": {
+      "tooFew": "Pick more players.",
+      "tooMany": "Too many players for this game.",
+      "teamsNeedFour": "Two against two needs exactly four players.",
+      "noTeams": "This game is played every man for himself.",
+      "x01Two": "Two players? Start a normal match instead – it counts for rating."
+    },
+    "neverRated": "Party games never count towards rating, Player of the Month or the Year.",
+    "start": "Start game",
+    "legs": "Legs {{won}}/{{of}}",
+    "target": "Target",
+    "bull": "Bull",
+    "marks_one": "{{count}} mark",
+    "marks_other": "{{count}} marks",
+    "points": "Points",
+    "roundOf": "Round {{round}} of {{of}}",
+    "yourNumber": "Number",
+    "killer": "Killer",
+    "out": "Out",
+    "livesLeft_one": "{{count}} life left",
+    "livesLeft_other": "{{count}} lives left",
+    "finished": "Done",
+    "next": "Next",
+    "doubles": "doubles",
+    "versus": " vs ",
+    "status": {
+      "IN_PROGRESS": "Live",
+      "COMPLETED": "Finished",
+      "ABANDONED": "Abandoned"
+    },
+    "abandon": "Abandon game",
+    "abandonConfirm": "Stop this game? It won't count anywhere.",
+    "howTo": {
+      "X01": "Score as usual: three darts per player, bust resets the turn.",
+      "CRICKET": "Darts outside 15–20 and the bull simply count as no score.",
+      "KILLER": "Tap the double you hit. Doubles on others' numbers take a life once you're a killer.",
+      "AROUND_THE_CLOCK": "Tap what you hit; only the next number in line counts."
+    },
+    "scoreLabel": {
+      "X01": "Points",
+      "CRICKET": "Marks",
+      "KILLER": "Lives taken",
+      "AROUND_THE_CLOCK": "Targets"
+    },
+    "won": "{{name}} wins!",
+    "again": "New game",
+    "statsTitle": "Players",
+    "player": "Player",
+    "profileTitle": "Party games",
+    "best": {
+      "X01": "Best average {{value}}",
+      "CRICKET": "Best {{value}} marks per round",
+      "KILLER": "Most lives taken: {{value}}",
+      "AROUND_THE_CLOCK": "Fastest: {{value}} darts"
+    },
+    "liveTitle": "Party games on now"
+  },
+  "tv": {
+    "open": "TV mode",
+    "rotating": "Board {{n}} of {{of}}",
+    "fullscreen": "Full screen",
+    "exitFullscreen": "Leave full screen",
+    "leave": "Leave TV mode"
+  },
+  "recap": {
+    "link": "Your {{year}}",
+    "backToProfile": "Back to profile",
+    "year": "Year",
+    "soFar": "The year so far",
+    "final": "The year in darts",
+    "title": "{{name}}'s {{year}}",
+    "nothing": "No darts thrown in {{year}}. Yet.",
+    "poyTitle": "Player of the Year",
+    "poyLead": "{{name}} was the best of the lot. Take a bow.",
+    "dartsTitle": "Darts thrown",
+    "dartsLead": "Every three of them a trip to the board and back: about {{km}} km walked.",
+    "matchesTitle": "Matches won–lost",
+    "matchesLead": "{{played}} matches, {{rate}} won, averaging {{avg}}.",
+    "streak_one": "Longest winning run: {{count}} match.",
+    "streak_other": "Longest winning run: {{count}} matches.",
+    "bestMonthTitle": "Best month",
+    "bestMonthLead": "{{points}} points, rank {{rank}} that month.",
+    "monthsWon_one": "Player of the Month once.",
+    "monthsWon_other": "Player of the Month {{count}} times.",
+    "finishTitle": "Favourite finish",
+    "finishLead_one": "Won {{count}} leg with it.",
+    "finishLead_other": "Won {{count}} legs with it.",
+    "numberLead": "Most-hit number: {{number}}.",
+    "nemesisTitle": "Nemesis",
+    "nemesisLead": "You won {{won}}, they won {{lost}}. Rematch?",
+    "victimTitle": "Favourite opponent",
+    "victimLead": "You won {{won}}, they won {{lost}}.",
+    "biggestWinTitle": "Biggest win",
+    "biggestWinLead": "Beat a {{rating}}-rated opponent on {{date}}.",
+    "bestMatchTitle": "Best match average",
+    "bestMatchLead": "Against {{name}} on {{date}}.",
+    "highestCheckout": "Best checkout",
+    "highestTurn": "Best turn",
+    "weekdayTitle": "Darts night is",
+    "gamesTitle": "Party games",
+    "gamesLead": "{{won}} won.",
+    "yearRankTitle": "Player of the Year race",
+    "yearRankLead": "{{points}} points from the months.",
+    "achievementsTitle_one": "{{count}} achievement unlocked",
+    "achievementsTitle_other": "{{count}} achievements unlocked",
+    "promoTitle": "Your {{year}} in darts",
+    "promoLead": "Darts thrown, best month, favourite finish and your nemesis."
+  },
+  "achievements": {
+    "title": "Achievements",
+    "count": "{{unlocked}} of {{total}}",
+    "unlockedOn": "Unlocked {{date}}",
+    "FIRST_WIN": {
+      "title": "First win",
+      "how": "Win a match."
+    },
+    "MATCHES_10": {
+      "title": "Regular",
+      "how": "Play 10 matches."
+    },
+    "MATCHES_50": {
+      "title": "Part of the furniture",
+      "how": "Play 50 matches."
+    },
+    "MATCHES_100": {
+      "title": "Centurion",
+      "how": "Play 100 matches."
+    },
+    "WINS_25": {
+      "title": "Winning habit",
+      "how": "Win 25 matches."
+    },
+    "STREAK_5": {
+      "title": "On fire",
+      "how": "Win 5 matches in a row."
+    },
+    "FIRST_180": {
+      "title": "One hundred and eighty!",
+      "how": "Throw your first 180."
+    },
+    "MAX_COLLECTOR": {
+      "title": "Maximum collector",
+      "how": "Throw ten 180s."
+    },
+    "TON_PLUS_CHECKOUT": {
+      "title": "Ton-plus finish",
+      "how": "Check out 100 or more."
+    },
+    "BIG_FISH": {
+      "title": "The Big Fish",
+      "how": "Check out 170: T20, T20, bull."
+    },
+    "BULL_FINISH": {
+      "title": "Bull finish",
+      "how": "Win a leg on the bull."
+    },
+    "SHORT_LEG": {
+      "title": "Short leg",
+      "how": "Win a 501 leg in 15 darts or fewer."
+    },
+    "NINE_DARTER": {
+      "title": "Nine-darter",
+      "how": "Win a 501 leg in nine darts. The perfect leg."
+    },
+    "AVERAGE_50": {
+      "title": "Fifty club",
+      "how": "Average 50 or more in a match (301 and up)."
+    },
+    "AVERAGE_70": {
+      "title": "Seventy club",
+      "how": "Average 70 or more in a match (301 and up)."
+    },
+    "GIANT_KILLER": {
+      "title": "Giant killer",
+      "how": "Win a rated match against someone rated 150 or more above you."
+    },
+    "TOURNAMENT_WIN": {
+      "title": "Tournament winner",
+      "how": "Win a tournament."
+    },
+    "PLAYER_OF_MONTH": {
+      "title": "Player of the Month",
+      "how": "Be crowned Player of the Month."
+    },
+    "PLAYER_OF_YEAR": {
+      "title": "Player of the Year",
+      "how": "Be crowned Player of the Year."
+    },
+    "CRICKET_WIN": {
+      "title": "Cricket champ",
+      "how": "Win a game of Cricket."
+    },
+    "KILLER_WIN": {
+      "title": "Last one standing",
+      "how": "Win a game of Killer."
+    },
+    "CLOCK_UNDER_40": {
+      "title": "Clockwork",
+      "how": "Finish Around the Clock in under 40 darts."
+    },
+    "DARTS_10K": {
+      "title": "Ten thousand darts",
+      "how": "Throw 10,000 darts."
+    }
+  },
+  "challenges": {
+    "title": "Challenges",
+    "challenge": "Challenge",
+    "sent": "Challenge sent",
+    "titleFor": "Challenge {{name}}",
+    "message": "Message",
+    "messagePlaceholder": "Rematch tonight?",
+    "howItWorks": "They get 48 hours to accept. Then the match waits on both your home pages – press Start at the board.",
+    "send": "Send challenge",
+    "ready": "Ready to play",
+    "wantsToPlay": "{{name}} challenges you",
+    "waitingFor": "Waiting for {{name}}",
+    "start": "Start",
+    "accept": "Accept",
+    "decline": "Decline",
+    "cancel": "Call off",
+    "expires": "expires {{when}}"
   }
 }

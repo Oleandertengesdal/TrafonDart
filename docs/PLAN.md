@@ -24,7 +24,7 @@ The whole UI is available in **Norwegian (bokmål)** and **English** **(decided)
 | Ratings | **Glicko-2 (decided)**: one match = one rating period, RD grows with inactivity | Suits a small group that plays irregularly |
 | Sign-up | **Invite codes only (decided)**. Admins create codes with a max number of uses and an expiry date, and can revoke them | Strangers cannot register |
 | First admin | Created at first start-up from `BOOTSTRAP_ADMIN_*` env vars, only if the user table is empty | No hard-coded passwords in the repo |
-| Players per match | 1 vs 1 | Ratings, head-to-head and brackets are all pairwise. Multiplayer casual games are on the roadmap |
+| Players per match | 1 vs 1 | Ratings, head-to-head and brackets are all pairwise. Since 1.4.0, games for more players (X01 for 3–4 and 2 v 2, Cricket, Killer, Around the Clock) are a separate, never-rated "party games" subsystem ([GAME-RULES.md](GAME-RULES.md#party-games-selskapsspill)) |
 | Score input | REST `POST` per dart, results pushed over WebSocket | Every write gets CSRF protection, validation and auth on the normal HTTP path. The socket is read-only, so it has a much smaller attack surface |
 | Source of truth | The list of darts thrown. Every live number (remaining, busts, legs, averages) is recomputed by a pure engine | Undo is trivial and correct, even across a leg boundary. The engine is unit-testable without a database |
 | Hosting | Frontend on **Vercel**, backend Docker image on **Render** (free web service), Postgres on **Neon** (free) | Render's free Postgres is deleted after 30 days. Neon's free plan has no expiry |
@@ -171,10 +171,18 @@ The step-by-step guide is in [`DEPLOYMENT.md`](DEPLOYMENT.md).
 4. Verification: unit and integration tests, a full local run against Postgres, screenshots in both languages, a secret scan.
 5. Docs: README, local setup, deployment, API reference.
 
-## 13. Roadmap (not in v1)
+## 13. Added after v1
 
-- Matches with 3–4 players (casual, unrated)
+- **1.1:** kudos, comments with replies and likes, match analysis tabs, the darts nerd corner, admin password links, the bug-report page.
+- **1.2:** Player of the Month with five monthly awards, badges and a hall of fame ([AWARDS.md](AWARDS.md)); user guide, admin guide, deployment plan and screenshot gallery.
+
+See [CHANGELOG.md](../CHANGELOG.md) for details.
+
+## 14. Roadmap
+
+Done in 1.4.0: matches for 3–4 players and doubles (as unrated party games), Cricket, Killer and Around the Clock, the installable app with an offline scoring queue, Player of the Year and the year recap, lifetime achievements, challenges, TV mode, data download and account deletion, error alerts.
+
+Still open:
+
 - Sets (best of N sets of M legs)
-- Cricket and Around-the-Clock game modes
-- Push notifications when it is your turn in a tournament
-- Installable PWA with offline scoring queue
+- Push notifications when it is your turn in a tournament, or when someone challenges you

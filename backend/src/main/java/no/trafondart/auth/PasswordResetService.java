@@ -3,6 +3,7 @@ package no.trafondart.auth;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import no.trafondart.common.ApiException;
+import no.trafondart.common.ClientIpResolver;
 import no.trafondart.common.ErrorCode;
 import no.trafondart.common.RateLimiter;
 import no.trafondart.user.User;
@@ -58,6 +59,7 @@ public class PasswordResetService {
     @Transactional
     public CreatedLink create(Long adminId, Long userId) {
         User user = users.findById(userId).orElseThrow(ApiException::notFound);
+        if (user.isDeleted()) throw new ApiException(no.trafondart.common.ErrorCode.ACCOUNT_DELETED);
         byte[] raw = new byte[32];
         random.nextBytes(raw);
         String token = Base64.getUrlEncoder().withoutPadding().encodeToString(raw);
@@ -68,27 +70,30 @@ public class PasswordResetService {
     }
 
     @Transactional(readOnly = true)
-    public LinkCheck check(String token, String clientIp) {
-        rateLimiter.check(RateLimiter.RESET_PER_IP, clientIp);
+    public LinkCheck check(String token, ClientIpResolver.ClientAddress client) {
+        rateLimiter.check(RateLimiter.RESET_PER_IP, client);
         return tokens.findByTokenHash(InviteService.hash(token))
                 .filter(t -> t.usable(Instant.now()))
-                .flatMap(t -> users.findById(t.getUserId()).map(u -> new LinkCheck(true, u.getUsername(), u.getRealName(), t.getExpiresAt())))
+                .flatMap(t -> users.findById(t.getUserId()).filter(User::isEnabled)
+                        .map(u -> new LinkCheck(true, u.getUsername(), u.getRealName(), t.getExpiresAt())))
                 .orElse(new LinkCheck(false, null, null, null));
     }
 
     @Transactional
-    public User reset(ResetRequest req, String clientIp) {
-        rateLimiter.check(RateLimiter.RESET_PER_IP, clientIp);
+    public User reset(ResetRequest req, ClientIpResolver.ClientAddress client) {
+        rateLimiter.check(RateLimiter.RESET_PER_IP, client);
         if (req.newPassword().getBytes(StandardCharsets.UTF_8).length > AuthService.MAX_PASSWORD_BYTES) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED);
         }
         PasswordResetToken t = tokens.findByTokenHash(InviteService.hash(req.token()))
                 .filter(x -> x.usable(Instant.now()))
                 .orElseThrow(() -> new ApiException(ErrorCode.RESET_LINK_INVALID));
-        User user = users.findById(t.getUserId()).orElseThrow(() -> new ApiException(ErrorCode.RESET_LINK_INVALID));
-        if (!user.isEnabled()) throw new ApiException(ErrorCode.AUTH_ACCOUNT_DISABLED);
+        User check = users.findById(t.getUserId()).orElseThrow(() -> new ApiException(ErrorCode.RESET_LINK_INVALID));
+        if (!check.isEnabled()) throw new ApiException(ErrorCode.AUTH_ACCOUNT_DISABLED);
 
-        t.markUsed();
+        // Atomic: of several requests racing with the same link, exactly one gets to set the password.
+        if (tokens.claim(t.getId(), Instant.now()) != 1) throw new ApiException(ErrorCode.RESET_LINK_INVALID);
+        User user = users.findById(t.getUserId()).orElseThrow(() -> new ApiException(ErrorCode.RESET_LINK_INVALID));
         user.setPasswordHash(encoder.encode(req.newPassword()));
         user.revokeSessions(); // every other device is logged out
         rateLimiter.reset(RateLimiter.LOGIN_PER_USERNAME, user.getUsername().toLowerCase(Locale.ROOT)); // lift lock-out

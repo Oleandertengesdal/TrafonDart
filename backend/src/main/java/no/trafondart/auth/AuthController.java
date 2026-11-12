@@ -52,7 +52,7 @@ public class AuthController {
     @PostMapping("/login")
     public UserDtos.Me login(@Valid @RequestBody AuthService.LoginRequest req, HttpServletRequest request,
                              HttpServletResponse response) {
-        User user = auth.login(req, ipResolver.resolve(request));
+        User user = auth.login(req, ipResolver.resolveAddress(request));
         startSession(user, response);
         return UserDtos.Me.of(user);
     }
@@ -60,7 +60,7 @@ public class AuthController {
     @PostMapping("/register")
     public UserDtos.Me register(@Valid @RequestBody AuthService.RegisterRequest req, HttpServletRequest request,
                                 HttpServletResponse response) {
-        User user = auth.register(req, ipResolver.resolve(request));
+        User user = auth.register(req, ipResolver.resolveAddress(request));
         startSession(user, response);
         return UserDtos.Me.of(user);
     }
@@ -96,7 +96,7 @@ public class AuthController {
     /** Lets the registration page tell the user early whether their invite code works. Rate-limited per IP. */
     @GetMapping("/invites/{code}")
     public InviteService.InviteCheck checkInvite(@PathVariable String code, HttpServletRequest request) {
-        rateLimiter.check(RateLimiter.INVITE_CHECK_PER_IP, ipResolver.resolve(request));
+        rateLimiter.check(RateLimiter.INVITE_CHECK_PER_IP, ipResolver.resolveAddress(request));
         if (code.length() > 40) return new InviteService.InviteCheck(false, "INVITE_INVALID", null);
         return invites.check(code);
     }
@@ -105,14 +105,14 @@ public class AuthController {
     @PostMapping("/password-reset/check")
     public PasswordResetService.LinkCheck checkReset(@Valid @RequestBody PasswordResetService.TokenRequest req,
                                                      HttpServletRequest request) {
-        return resets.check(req.token(), ipResolver.resolve(request));
+        return resets.check(req.token(), ipResolver.resolveAddress(request));
     }
 
     /** Sets a new password from a one-time admin link and logs the person in on this device. */
     @PostMapping("/password-reset")
     public UserDtos.Me resetPassword(@Valid @RequestBody PasswordResetService.ResetRequest req,
                                      HttpServletRequest request, HttpServletResponse response) {
-        User user = resets.reset(req, ipResolver.resolve(request));
+        User user = resets.reset(req, ipResolver.resolveAddress(request));
         startSession(user, response);
         return UserDtos.Me.of(user);
     }

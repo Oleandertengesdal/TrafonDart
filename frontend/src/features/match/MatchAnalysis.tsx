@@ -2,35 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import { api } from "../../api/client";
+import { api, apiPath } from "../../api/client";
 import { useBreakdown } from "../../api/queries";
 import type { HeadToHeadRow, LiveMatch, MatchBreakdown } from "../../api/types";
 import { ErrorNotice, Spinner } from "../../components/ui";
 import { dartLabel, num, pct } from "../../lib/format";
 import { BandChart, RaceChart } from "../stats/Charts";
 import { DartboardHeatmap } from "../stats/Dartboard";
-
-export type AnalysisTab = "overview" | "turns" | "analysis" | "h2h";
-
-export function AnalysisTabs({ value, onChange }: { value: AnalysisTab; onChange: (t: AnalysisTab) => void }) {
-  const { t } = useTranslation();
-  const tabs: AnalysisTab[] = ["overview", "turns", "analysis", "h2h"];
-  return (
-    <div role="tablist" className="mt-8 flex gap-1 overflow-x-auto border-b border-mortar">
-      {tabs.map((x) => (
-        <button
-          key={x}
-          role="tab"
-          aria-selected={value === x}
-          onClick={() => onChange(x)}
-          className={`-mb-px shrink-0 border-b-2 px-4 py-2.5 text-sm font-semibold ${value === x ? "border-trafon text-trim" : "border-transparent text-trim-dim hover:text-trim"}`}
-        >
-          {t(`analysis.tabs.${x}`)}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 function useMatchBreakdown(match: LiveMatch) {
   return useBreakdown(match.id, match.dartCount);
@@ -197,7 +175,7 @@ export function MatchHeadToHead({ match }: { match: LiveMatch }) {
   const [p1, p2] = match.players;
   const h2h = useQuery({
     queryKey: ["h2h-pair", p1.username, p2.username],
-    queryFn: () => api.get<HeadToHeadRow>(`/api/users/${encodeURIComponent(p1.username)}/head-to-head/${encodeURIComponent(p2.username)}`),
+    queryFn: () => api.get<HeadToHeadRow>(apiPath`/api/users/${p1.username}/head-to-head/${p2.username}`),
   });
   const prob = b.data?.winProbability;
 

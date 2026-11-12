@@ -1,14 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router";
-import { useHeadToHead, useLeaderboard, useProfile, useRecentMatches } from "../api/queries";
-import type { ProfileStats } from "../api/types";
+import { BarChart3, Sparkles } from "lucide-react";
+import { useBadges, useGameStats, useHeadToHead, useLeaderboard, useProfile, useRecentGames, useRecentMatches } from "../api/queries";
+import type { AwardType, AwardView, ProfileStats } from "../api/types";
 import { useCurrentUser } from "../auth/auth";
 import { MatchRow } from "../components/MatchRow";
 import { FormDots } from "../components/PlayerName";
-import { EmptyState, ErrorNotice, SectionTitle, Spinner } from "../components/ui";
+import { EmptyState, ErrorNotice, LinkButton, SectionTitle, Spinner } from "../components/ui";
+import { AchievementCabinet } from "../features/achievements/Cabinet";
+import { ChallengeButton } from "../features/challenges/Challenges";
+import { sideLabel } from "../features/games/gameLogic";
 import { AverageChart, RatingChart } from "../features/stats/Charts";
 import { DartNerd } from "../features/stats/DartNerd";
-import { date, num, pct, relative } from "../lib/format";
+import { AWARD_ORDER, Medal, ReigningChip, useAwardValue, useReigning } from "../features/awards/Medal";
+import { date, monthName, num, pct, relative } from "../lib/format";
 
 export function ProfilePage() {
   const { username = "" } = useParams();
@@ -18,6 +23,8 @@ export function ProfilePage() {
   const h2h = useHeadToHead(username);
   const recent = useRecentMatches(username, 10);
   const board = useLeaderboard();
+  const badges = useBadges(username);
+  const reigning = useReigning();
 
   if (profile.isLoading) return <Spinner />;
   if (profile.error || !profile.data) return <ErrorNotice error={profile.error} onRetry={() => profile.refetch()} />;
@@ -26,7 +33,7 @@ export function ProfilePage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <Hero s={s} rank={rank} />
+      <Hero s={s} rank={rank} reigningPeriod={reigning?.id === s.player.id ? reigning.period : undefined} isMe={me?.id === s.player.id} />
 
       {s.matchesPlayed === 0 ? (
         <EmptyState title={t("stats.matches")}>{t("stats.noMatchesYet")}</EmptyState>
@@ -47,7 +54,28 @@ export function ProfilePage() {
         </>
       )}
 
-      <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
+      {(badges.data ?? []).length > 0 ? (
+        <TrophyCabinet badges={badges.data!} />
+      ) : (
+        me?.id === s.player.id &&
+        badges.isSuccess && (
+          <section>
+            <SectionTitle>{t("awards.cabinet")}</SectionTitle>
+            <p className="text-trim-dim">
+              {t("awards.cabinetEmpty")}{" "}
+              <Link to="/awards" className="font-semibold text-brass hover:underline">
+                {t("awards.seeRace")}
+              </Link>
+            </p>
+          </section>
+        )
+      )}
+
+      <AchievementCabinet username={s.player.username} />
+
+      <PartyGames username={s.player.username} playerId={s.player.id} />
+
+      <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] [&>*]:min-w-0">
         <section>
           <SectionTitle>{t("stats.headToHead")}</SectionTitle>
           {h2h.isLoading ? (
@@ -118,7 +146,7 @@ export function ProfilePage() {
   );
 }
 
-function Hero({ s, rank }: { s: ProfileStats; rank?: number }) {
+function Hero({ s, rank, reigningPeriod, isMe }: { s: ProfileStats; rank?: number; reigningPeriod?: string; isMe: boolean }) {
   const { t } = useTranslation();
   return (
     <header className="grid items-end gap-6 border-b border-mortar pb-8 md:grid-cols-[1fr_auto]">
@@ -127,6 +155,18 @@ function Hero({ s, rank }: { s: ProfileStats; rank?: number }) {
           @{s.player.username}, {t("stats.memberSince", { date: date(s.memberSince) })}
         </p>
         <h1 className="mt-1 font-display text-[clamp(3rem,8vw,5.5rem)] font-extrabold uppercase leading-[0.9] tracking-tight">{s.player.realName}</h1>
+        {reigningPeriod && (
+          <div className="mt-3">
+            <ReigningChip period={reigningPeriod} />
+          </div>
+        )}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <LinkButton to={`/players/${s.player.username}/recap`} variant="brass">
+            <Sparkles className="size-4" aria-hidden />
+            {t("recap.link", { year: new Date().getFullYear() })}
+          </LinkButton>
+          {!isMe && <ChallengeButton opponent={s.player} />}
+        </div>
         {s.recentForm.length > 0 && (
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <FormDots form={s.recentForm} />
@@ -177,6 +217,89 @@ function StatGrid({ s }: { s: ProfileStats }) {
           {tile.sub && <span className="text-xs text-trim-dim">{tile.sub}</span>}
         </div>
       ))}
+    </section>
+  );
+}
+
+/** Every monthly award the player has won, grouped by kind, champion first. */
+function TrophyCabinet({ badges }: { badges: AwardView[] }) {
+  const { t } = useTranslation();
+  const value = useAwardValue();
+  const order: AwardType[] = ["PLAYER_OF_YEAR", ...AWARD_ORDER];
+  const groups = order.map((award) => ({
+    award,
+    wins: badges.filter((b) => b.award === award).sort((a, b) => b.period.localeCompare(a.period)),
+  })).filter((g) => g.wins.length > 0);
+  return (
+    <section>
+      <SectionTitle>{t("awards.cabinet")}</SectionTitle>
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {groups.map((g) => (
+          <li key={g.award} className={`panel flex gap-4 p-4 ${g.award === "PLAYER_OF_MONTH" || g.award === "PLAYER_OF_YEAR" ? "border-brass/60" : ""}`}>
+            <Medal award={g.award} size="lg" />
+            <div className="min-w-0">
+              <p className="font-display text-xl font-bold uppercase leading-tight">
+                {t(`awards.types.${g.award}`)}
+                {g.wins.length > 1 && <span className="numerals ml-2 text-brass">×{g.wins.length}</span>}
+              </p>
+              <ul className="mt-1.5 flex flex-col gap-0.5 text-sm">
+                {g.wins.map((w) => (
+                  <li key={w.period} className="flex flex-wrap gap-x-2">
+                    <span className="capitalize text-trim">{monthName(w.period)}</span>
+                    <span className="tnum text-trim-faint">{value(w.award, w.value)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Party games (never rated): played and won per type, and the latest few. */
+function PartyGames({ username, playerId }: { username: string; playerId: number }) {
+  const { t } = useTranslation();
+  const stats = useGameStats(username);
+  const recent = useRecentGames(username, 6);
+  const types = (stats.data?.types ?? []).filter((x) => x.played > 0);
+  if (types.length === 0) return null;
+  return (
+    <section>
+      <SectionTitle>{t("games.profileTitle")}</SectionTitle>
+      <div className="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
+        <ul className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
+          {types.map((x) => (
+            <li key={x.type} className="panel flex flex-col gap-1 p-4">
+              <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-trim-faint">
+                <BarChart3 className="size-3.5" aria-hidden />
+                {t(`games.types.${x.type}`)}
+              </span>
+              <span className="numerals text-4xl font-extrabold leading-none">{t("stats.record", { won: x.won, lost: x.played - x.won })}</span>
+              {x.best !== null && <span className="text-xs text-trim-dim">{t(`games.best.${x.type}`, { value: num(x.best, x.type === "X01" || x.type === "CRICKET" ? 1 : 0) })}</span>}
+            </li>
+          ))}
+        </ul>
+        <ul className="panel divide-y divide-mortar/60 p-1">
+          {(recent.data ?? []).map((g) => {
+            const mine = g.players.find((p) => p.player.id === playerId);
+            const won = g.status === "COMPLETED" && mine && g.winnerSide === mine.side;
+            return (
+              <li key={g.id}>
+                <Link to={`/games/${g.id}`} className="flex items-center gap-3 rounded px-3 py-2.5 hover:bg-masonry-2">
+                  <span className={`w-6 text-center text-xs font-bold ${won ? "text-board-bright" : "text-trim-faint"}`}>{g.status === "COMPLETED" ? (won ? t("stats.win") : t("stats.loss")) : "·"}</span>
+                  <span className="flex-1 truncate text-sm">
+                    <span className="font-semibold">{t(`games.types.${g.type}`)}</span>{" "}
+                    <span className="text-trim-dim">{[...new Set(g.players.map((p) => p.side))].map((side) => sideLabel(g, side)).join(t("games.versus"))}</span>
+                  </span>
+                  <span className="text-xs text-trim-faint">{relative(g.completedAt ?? g.createdAt)}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </section>
   );
 }

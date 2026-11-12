@@ -1,5 +1,6 @@
 package no.trafondart.auth;
 
+import no.trafondart.common.TextInput;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -67,7 +68,7 @@ public class InviteService {
         String code = generate();
         String normalized = normalize(code);
         Instant expires = Instant.now().plus(Duration.ofHours(req.validHours()));
-        String note = req.note() == null || req.note().isBlank() ? null : req.note().trim();
+        String note = TextInput.optionalSingleLine(req.note(), 100);
         InviteCode saved = codes.save(new InviteCode(hash(normalized), normalized.substring(0, 4),
                 req.maxUses(), expires, note, adminId));
         return new CreatedInvite(code, toView(saved, Map.of(), List.of()));

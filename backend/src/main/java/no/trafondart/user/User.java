@@ -58,6 +58,13 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
+    /** Set when the member deleted their account; the row stays so opponents' history stays intact. */
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
+    /** Shown instead of the name of a deleted account (the frontend translates it via {@code deleted}). */
+    public static final String DELETED_NAME = "Slettet spiller";
+
     protected User() {
     }
 
@@ -88,6 +95,26 @@ public class User {
     public void revokeSessions() {
         tokenVersion++;
     }
+
+    /**
+     * Anonymises the account for good: the name is replaced by {@code deleted~<id>} (a name nobody can register,
+     * since {@code ~} is not allowed in usernames), the password by an unusable hash, and every session ends.
+     */
+    public void markDeleted(String unusablePasswordHash, Instant at) {
+        this.username = "deleted~" + id;
+        this.realName = DELETED_NAME;
+        this.passwordHash = unusablePasswordHash;
+        this.enabled = false;
+        this.role = Role.USER;
+        this.deletedAt = at;
+        revokeSessions();
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
+
+    public Instant getDeletedAt() { return deletedAt; }
 
     public boolean isAdmin() {
         return role == Role.ADMIN;
