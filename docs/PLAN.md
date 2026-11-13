@@ -137,6 +137,8 @@ Details are in [`SECURITY.md`](SECURITY.md).
 
 ## 10. Visual design: "Trafon after dark"
 
+> This was the original plan. Since 1.5.0 the design is "Trafon at dusk"; see [DESIGN.md](DESIGN.md).
+
 The idea: a red-brick transformer station lit up at night. Its arched windows frame the scores, and its round gable window doubles as a dartboard.
 
 | Token | Hex | Use |

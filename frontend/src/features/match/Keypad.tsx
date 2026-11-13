@@ -37,7 +37,7 @@ export function Keypad({
       aria-pressed={mod === value}
       disabled={disabled}
       onClick={() => setMod(mod === value ? 1 : value)}
-      className={`h-14 rounded-lg border-2 font-display text-xl font-bold uppercase tracking-wider transition-colors disabled:opacity-40 ${
+      className={`h-14 rounded-lg border-2 font-display text-xl    transition-colors disabled:opacity-40 ${
         mod === value ? activeClass : "border-mortar bg-masonry text-trim-dim hover:text-trim"
       }`}
     >
@@ -62,7 +62,7 @@ export function Keypad({
             disabled={disabled}
             onClick={() => hit(n, mod)}
             aria-label={`${prefix}${n}`}
-            className={`numerals min-h-14 rounded-lg border-2 bg-masonry-2 text-[clamp(1.5rem,3.2vw,2.25rem)] font-bold text-trim transition-transform active:scale-95 active:bg-trafon disabled:opacity-40 ${numberTint}`}
+            className={`numerals min-h-14 rounded-lg border-2 bg-masonry-2 text-key font-bold text-trim transition-transform active:scale-95 active:bg-trafon disabled:opacity-40 ${numberTint}`}
           >
             {mod !== 1 && <span className="mr-0.5 align-top text-sm font-semibold text-trim-dim">{prefix}</span>}
             {n}
@@ -82,7 +82,7 @@ export function Keypad({
           type="button"
           disabled={disabled || mod === 3}
           onClick={() => hit(25, 2)}
-          className="h-14 rounded-lg border-2 border-board/60 bg-masonry-2 font-display text-xl font-bold uppercase text-trim active:scale-95 active:bg-trafon disabled:opacity-40"
+          className="h-14 rounded-lg border-2 border-board/60 bg-masonry-2 font-display text-xl text-trim active:scale-95 active:bg-trafon disabled:opacity-40"
         >
           {t("match.bull")}
         </button>
@@ -90,7 +90,7 @@ export function Keypad({
           type="button"
           disabled={disabled}
           onClick={() => hit(0, 0)}
-          className="h-14 rounded-lg border-2 border-transparent bg-masonry font-display text-xl font-bold uppercase text-trim-dim active:scale-95 disabled:opacity-40"
+          className="h-14 rounded-lg border-2 border-transparent bg-masonry font-display text-xl text-trim-dim active:scale-95 disabled:opacity-40"
         >
           {t("match.miss")}
         </button>
@@ -102,7 +102,7 @@ export function Keypad({
             onUndo();
             setMod(1);
           }}
-          className="flex h-14 items-center justify-center gap-1.5 rounded-lg border-2 border-mortar bg-night font-semibold text-trim-dim hover:text-trim active:scale-95 disabled:opacity-40"
+          className="flex h-14 items-center justify-center gap-2 rounded-lg border-2 border-mortar bg-night font-semibold text-trim-dim hover:text-trim active:scale-95 disabled:opacity-40"
         >
           <Undo2 className="size-5" aria-hidden />
           {t("match.undo")}

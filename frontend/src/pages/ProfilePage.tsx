@@ -14,6 +14,9 @@ import { AverageChart, RatingChart } from "../features/stats/Charts";
 import { DartNerd } from "../features/stats/DartNerd";
 import { AWARD_ORDER, Medal, ReigningChip, useAwardValue, useReigning } from "../features/awards/Medal";
 import { date, monthName, num, pct, relative } from "../lib/format";
+import { NotFound } from "./NotFoundPage";
+import { isNotFound } from "../lib/errors";
+import { usePageTitle } from "../lib/pageTitle";
 
 export function ProfilePage() {
   const { username = "" } = useParams();
@@ -25,9 +28,12 @@ export function ProfilePage() {
   const board = useLeaderboard();
   const badges = useBadges(username);
   const reigning = useReigning();
+  usePageTitle(profile.data?.player.realName);
 
   if (profile.isLoading) return <Spinner />;
-  if (profile.error || !profile.data) return <ErrorNotice error={profile.error} onRetry={() => profile.refetch()} />;
+  if (profile.error || !profile.data) {
+    return isNotFound(profile.error) ? <NotFound what="player" /> : <ErrorNotice error={profile.error} onRetry={() => profile.refetch()} resource />;
+  }
   const s = profile.data;
   const rank = board.data?.find((r) => r.player.id === s.player.id)?.rank;
 
@@ -85,7 +91,7 @@ export function ProfilePage() {
           ) : (
             <div className="panel overflow-x-auto">
               <table className="w-full min-w-[30rem] text-sm">
-                <thead className="text-left text-xs uppercase tracking-wider text-trim-faint">
+                <thead className="text-left text-xs text-trim-faint">
                   <tr>
                     <th className="px-4 py-3 font-semibold">{t("stats.opponent")}</th>
                     <th className="px-2 py-3 text-right font-semibold">{t("stats.played")}</th>
@@ -100,7 +106,7 @@ export function ProfilePage() {
                     const ahead = r.won > r.lost;
                     return (
                       <tr key={r.opponent.id} className="border-t border-mortar/60">
-                        <td className="px-4 py-2.5">
+                        <td className="px-4 py-3">
                           <Link to={`/players/${r.opponent.username}`} className="font-semibold hover:underline">
                             {r.opponent.realName}
                           </Link>
@@ -154,7 +160,7 @@ function Hero({ s, rank, reigningPeriod, isMe }: { s: ProfileStats; rank?: numbe
         <p className="text-sm text-trim-faint">
           @{s.player.username}, {t("stats.memberSince", { date: date(s.memberSince) })}
         </p>
-        <h1 className="mt-1 font-display text-[clamp(3rem,8vw,5.5rem)] font-extrabold uppercase leading-[0.9] tracking-tight">{s.player.realName}</h1>
+        <h1 className="mt-1 font-display text-score-sm leading-[0.9] tracking-tight">{s.player.realName}</h1>
         {reigningPeriod && (
           <div className="mt-3">
             <ReigningChip period={reigningPeriod} />
@@ -179,7 +185,7 @@ function Hero({ s, rank, reigningPeriod, isMe }: { s: ProfileStats; rank?: numbe
         )}
       </div>
       <div className="arch flex min-w-52 flex-col items-center border-2 border-trafon bg-masonry px-8 pb-4 pt-10 text-center">
-        <span className="text-xs font-bold uppercase tracking-wider text-trim-faint">{t("stats.rating")}</span>
+        <span className="text-xs font-bold text-trim-faint">{t("stats.rating")}</span>
         <span className="numerals text-7xl font-extrabold leading-none">{s.player.rating}</span>
         <span className="mt-1 text-xs text-trim-faint">
           ±{s.player.rd * 2}
@@ -212,7 +218,7 @@ function StatGrid({ s }: { s: ProfileStats }) {
     <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
       {tiles.map((tile) => (
         <div key={tile.label} className={`panel flex flex-col gap-1 p-4 ${tile.accent ? "border-brass/70" : ""}`}>
-          <span className="text-xs font-semibold uppercase tracking-wider text-trim-faint">{tile.label}</span>
+          <span className="text-xs font-semibold text-trim-faint">{tile.label}</span>
           <span className={`numerals text-4xl font-extrabold leading-none ${tile.accent ? "text-brass" : "text-trim"}`}>{tile.value}</span>
           {tile.sub && <span className="text-xs text-trim-dim">{tile.sub}</span>}
         </div>
@@ -238,11 +244,11 @@ function TrophyCabinet({ badges }: { badges: AwardView[] }) {
           <li key={g.award} className={`panel flex gap-4 p-4 ${g.award === "PLAYER_OF_MONTH" || g.award === "PLAYER_OF_YEAR" ? "border-brass/60" : ""}`}>
             <Medal award={g.award} size="lg" />
             <div className="min-w-0">
-              <p className="font-display text-xl font-bold uppercase leading-tight">
+              <p className="font-display text-xl leading-tight">
                 {t(`awards.types.${g.award}`)}
                 {g.wins.length > 1 && <span className="numerals ml-2 text-brass">×{g.wins.length}</span>}
               </p>
-              <ul className="mt-1.5 flex flex-col gap-0.5 text-sm">
+              <ul className="mt-2 flex flex-col gap-0.5 text-sm">
                 {g.wins.map((w) => (
                   <li key={w.period} className="flex flex-wrap gap-x-2">
                     <span className="capitalize text-trim">{monthName(w.period)}</span>
@@ -272,7 +278,7 @@ function PartyGames({ username, playerId }: { username: string; playerId: number
         <ul className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
           {types.map((x) => (
             <li key={x.type} className="panel flex flex-col gap-1 p-4">
-              <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-trim-faint">
+              <span className="flex items-center gap-2 text-xs font-semibold text-trim-faint">
                 <BarChart3 className="size-3.5" aria-hidden />
                 {t(`games.types.${x.type}`)}
               </span>
@@ -287,7 +293,7 @@ function PartyGames({ username, playerId }: { username: string; playerId: number
             const won = g.status === "COMPLETED" && mine && g.winnerSide === mine.side;
             return (
               <li key={g.id}>
-                <Link to={`/games/${g.id}`} className="flex items-center gap-3 rounded px-3 py-2.5 hover:bg-masonry-2">
+                <Link to={`/games/${g.id}`} className="flex items-center gap-3 rounded px-3 py-3 hover:bg-masonry-2">
                   <span className={`w-6 text-center text-xs font-bold ${won ? "text-board-bright" : "text-trim-faint"}`}>{g.status === "COMPLETED" ? (won ? t("stats.win") : t("stats.loss")) : "·"}</span>
                   <span className="flex-1 truncate text-sm">
                     <span className="font-semibold">{t(`games.types.${g.type}`)}</span>{" "}

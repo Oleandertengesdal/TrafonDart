@@ -8,12 +8,14 @@ import type { GameType, GameView, PartySettings } from "../api/types";
 import { useCurrentUser } from "../auth/auth";
 import { Button, ErrorNotice, PageHeader, Segmented, Spinner, Toggle } from "../components/ui";
 import { lineupError, playerIdsForRequest } from "../features/games/gameLogic";
+import { usePageTitle } from "../lib/pageTitle";
 
 const TYPES: GameType[] = ["X01", "CRICKET", "KILLER", "AROUND_THE_CLOCK"];
 
 /** Party games: X01 for 3–4 players or 2 v 2, Cricket, Killer and Around the Clock. Never rated. */
 export function NewGamePage() {
   const { t } = useTranslation();
+  usePageTitle(t("games.newTitle"));
   const { me } = useCurrentUser();
   const players = usePlayers();
   const navigate = useNavigate();
@@ -110,16 +112,16 @@ export function NewGamePage() {
 
         <section className="panel flex flex-col gap-4 p-5">
           <div>
-            <h2 className="font-display text-2xl font-bold uppercase tracking-wide">{t("games.players")}</h2>
+            <h2 className="font-display text-2xl">{t("games.players")}</h2>
             <p className="text-sm text-trim-dim">{useTeams ? t("games.pickTeams") : t("games.pickOrder")}</p>
           </div>
           {chosen.length > 0 && (
-            <ol className="flex flex-col gap-1.5" aria-label={t("games.order")}>
+            <ol className="flex flex-col gap-2" aria-label={t("games.order")}>
               {chosen.map((id, i) => (
                 <li key={id} className="flex items-center gap-3 rounded-md border border-mortar bg-night px-3 py-2">
                   <span className="numerals w-6 text-xl font-bold text-trim-faint">{i + 1}</span>
                   <span className="flex-1 font-semibold">{name(id)}</span>
-                  {useTeams && <span className="text-xs font-bold uppercase text-trim-dim">{i < 2 ? t("games.teamA") : i < 4 ? t("games.teamB") : ""}</span>}
+                  {useTeams && <span className="text-xs font-bold text-trim-dim">{i < 2 ? t("games.teamA") : i < 4 ? t("games.teamB") : ""}</span>}
                   <button type="button" onClick={() => toggle(id)} className="rounded p-1 text-trim-faint hover:text-trim" aria-label={t("games.remove", { name: name(id) })}>
                     <X className="size-4" />
                   </button>

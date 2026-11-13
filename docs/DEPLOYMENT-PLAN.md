@@ -32,7 +32,7 @@ Keeping Render and Neon in the same region keeps every database round-trip short
 | Environment | Where | Data | Purpose |
 |---|---|---|---|
 | **Local** | your laptop, `docker compose` + `run-dev.sh` + `npm run dev` | demo data from `seed_demo.py` | development, screenshots |
-| **CI** | GitHub Actions | throwaway Postgres service | every push and pull request: 305 backend tests, 94 frontend tests, lint, docs check, gitleaks |
+| **CI** | GitHub Actions | throwaway Postgres service | every push and pull request: 305 backend tests, 123 frontend tests, lint, docs check, gitleaks |
 | **Production** | Vercel + Render + Neon | the real group | the app |
 
 There is deliberately no staging environment: the group is small, every change is covered by CI, and a bad deploy is rolled back in a minute (section 9). Vercel *preview* deployments are created for pull requests. They talk to the production API through the `/api` rewrite, so treat them as production. Live updates won't work on preview URLs, because their origin isn't in `WS_ALLOWED_ORIGINS`.

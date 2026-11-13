@@ -9,6 +9,9 @@ import { AchievementIcon } from "../features/achievements/Cabinet";
 import { recapYears, walkedKm, winRate } from "../features/recap/recapMath";
 import { dartLabel, date, monthName, num, pct } from "../lib/format";
 import { intlLocale } from "../i18n";
+import { NotFound } from "./NotFoundPage";
+import { isNotFound } from "../lib/errors";
+import { usePageTitle } from "../lib/pageTitle";
 
 /** "Your year in darts": a scrollable stack of cards, Wrapped-style. Works for any year, "so far" for this one. */
 export function RecapPage() {
@@ -19,6 +22,9 @@ export function RecapPage() {
   const years = recapYears(profile.data?.memberSince);
   const year = Number(params.get("year")) || years[0];
   const q = useRecap(username, year);
+  const name = profile.data?.player.realName;
+  usePageTitle(name && t("recap.title", { name, year }));
+  if (isNotFound(profile.error) || isNotFound(q.error)) return <NotFound what="player" />;
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
@@ -30,32 +36,32 @@ export function RecapPage() {
         {years.length > 1 && (
           <div role="group" aria-label={t("recap.year")} className="flex flex-wrap gap-1 rounded-md border border-mortar p-0.5 text-sm font-bold">
             {years.map((y) => (
-              <button key={y} aria-pressed={y === year} onClick={() => setParams({ year: String(y) })} className={`rounded px-2.5 py-1 ${y === year ? "bg-trim text-night" : "text-trim-dim"}`}>
+              <button key={y} aria-pressed={y === year} onClick={() => setParams({ year: String(y) })} className={`rounded px-3 py-1 ${y === year ? "bg-trim text-night" : "text-trim-dim"}`}>
                 {y}
               </button>
             ))}
           </div>
         )}
       </div>
-      {q.isLoading ? <Spinner /> : q.error || !q.data ? <ErrorNotice error={q.error} onRetry={() => q.refetch()} /> : <RecapCards recap={q.data} />}
+      {q.isLoading ? <Spinner /> : q.error || !q.data ? <ErrorNotice error={q.error} onRetry={() => q.refetch()} resource /> : <RecapCards recap={q.data} />}
     </div>
   );
 }
 
 function Card({ icon, tone = "trafon", title, big, children }: { icon: ReactNode; tone?: "trafon" | "brass" | "board" | "salmon"; title: string; big?: ReactNode; children?: ReactNode }) {
   const tones = {
-    trafon: "border-trafon/60 from-trafon/25",
-    brass: "border-brass/60 from-brass/25",
-    board: "border-board/60 from-board/25",
-    salmon: "border-salmon/60 from-salmon/20",
+    trafon: "border-trafon/60 bg-trafon/15",
+    brass: "border-brass/50 bg-brass/10",
+    board: "border-board/60 bg-board/15",
+    salmon: "border-salmon/50 bg-salmon/10",
   };
   return (
-    <section className={`overflow-hidden rounded-2xl border bg-gradient-to-br to-masonry p-6 ${tones[tone]}`}>
-      <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-trim-dim">
+    <section className={`overflow-hidden rounded-xl border p-6 ${tones[tone]}`}>
+      <p className="flex items-center gap-2 text-sm font-bold text-trim-dim">
         {icon}
         {title}
       </p>
-      {big !== undefined && <p className="numerals mt-3 text-[clamp(3.5rem,14vw,6.5rem)] font-extrabold leading-[0.9]">{big}</p>}
+      {big !== undefined && <p className="numerals mt-3 text-score-md font-extrabold leading-[0.9]">{big}</p>}
       {children && <div className="mt-3 text-lg text-trim-dim">{children}</div>}
     </section>
   );
@@ -70,8 +76,8 @@ function RecapCards({ recap: r }: { recap: Recap }) {
   return (
     <>
       <header className="rounded-2xl border border-mortar bg-masonry p-6">
-        <p className="text-sm font-bold uppercase tracking-wider text-trafon-bright">{r.soFar ? t("recap.soFar") : t("recap.final")}</p>
-        <h1 className="mt-2 font-display text-[clamp(3rem,11vw,5.5rem)] font-extrabold uppercase leading-[0.9]">{t("recap.title", { name, year: r.year })}</h1>
+        <p className="text-sm font-bold text-trafon-bright">{r.soFar ? t("recap.soFar") : t("recap.final")}</p>
+        <h1 className="mt-2 font-display text-5xl leading-none sm:text-6xl">{t("recap.title", { name, year: r.year })}</h1>
       </header>
 
       {nothing ? (
@@ -113,13 +119,13 @@ function RecapCards({ recap: r }: { recap: Recap }) {
             <section className="grid gap-5 sm:grid-cols-2">
               {r.nemesis && (
                 <Card icon={<Skull className="size-4" aria-hidden />} title={t("recap.nemesisTitle")}>
-                  <span className="block font-display text-4xl font-extrabold uppercase leading-none text-trim">{r.nemesis.player.realName}</span>
+                  <span className="block font-display text-4xl leading-none text-trim">{r.nemesis.player.realName}</span>
                   <span className="mt-2 block">{t("recap.nemesisLead", { won: r.nemesis.won, lost: r.nemesis.lost })}</span>
                 </Card>
               )}
               {r.favouriteVictim && (
                 <Card icon={<Flame className="size-4" aria-hidden />} tone="board" title={t("recap.victimTitle")}>
-                  <span className="block font-display text-4xl font-extrabold uppercase leading-none text-trim">{r.favouriteVictim.player.realName}</span>
+                  <span className="block font-display text-4xl leading-none text-trim">{r.favouriteVictim.player.realName}</span>
                   <span className="mt-2 block">{t("recap.victimLead", { won: r.favouriteVictim.won, lost: r.favouriteVictim.lost })}</span>
                 </Card>
               )}
@@ -129,7 +135,7 @@ function RecapCards({ recap: r }: { recap: Recap }) {
           {r.biggestWin && (
             <Card icon={<Trophy className="size-4" aria-hidden />} tone="brass" title={t("recap.biggestWinTitle")}>
               <Link to={`/matches/${r.biggestWin.matchId}`} className="block hover:underline">
-                <span className="block font-display text-4xl font-extrabold uppercase leading-none text-trim">{r.biggestWin.opponent?.realName}</span>
+                <span className="block font-display text-4xl leading-none text-trim">{r.biggestWin.opponent?.realName}</span>
                 <span className="mt-2 block">{t("recap.biggestWinLead", { rating: r.biggestWin.opponentRating ?? "–", date: date(r.biggestWin.at) })}</span>
               </Link>
             </Card>
@@ -152,7 +158,7 @@ function RecapCards({ recap: r }: { recap: Recap }) {
                 { label: t("recap.highestTurn"), value: r.highestTurn },
               ].map((x) => (
                 <div key={x.label} className="panel p-4">
-                  <p className="text-xs font-bold uppercase tracking-wider text-trim-faint">{x.label}</p>
+                  <p className="text-xs font-bold text-trim-faint">{x.label}</p>
                   <p className="numerals text-5xl font-extrabold">{x.value}</p>
                 </div>
               ))}
@@ -161,7 +167,7 @@ function RecapCards({ recap: r }: { recap: Recap }) {
 
           {weekday && (
             <Card icon={<Target className="size-4" aria-hidden />} title={t("recap.weekdayTitle")}>
-              <span className="block font-display text-4xl font-extrabold uppercase leading-none text-trim">{weekday}</span>
+              <span className="block font-display text-4xl leading-none text-trim">{weekday}</span>
             </Card>
           )}
 
@@ -180,10 +186,10 @@ function RecapCards({ recap: r }: { recap: Recap }) {
 
           {r.achievements.length > 0 && (
             <section className="rounded-2xl border border-mortar bg-masonry p-6">
-              <p className="text-sm font-bold uppercase tracking-wider text-trim-dim">{t("recap.achievementsTitle", { count: r.achievements.length })}</p>
+              <p className="text-sm font-bold text-trim-dim">{t("recap.achievementsTitle", { count: r.achievements.length })}</p>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {r.achievements.map((code) => (
-                  <li key={code} className="inline-flex items-center gap-2 rounded-full border border-brass/50 bg-brass/10 py-1 pl-1.5 pr-3 text-sm font-semibold">
+                  <li key={code} className="inline-flex items-center gap-2 rounded-full border border-brass/50 bg-brass/10 py-1 pl-2 pr-3 text-sm font-semibold">
                     <AchievementIcon code={code} unlocked size="sm" />
                     {t(`achievements.${code}.title`)}
                   </li>

@@ -25,7 +25,7 @@ export function RatingBadge({ player, size = "sm" }: { player: Pick<PlayerSummar
       {player.rating}
       {player.provisional && (
         <>
-          <span aria-hidden className="text-[10px] font-semibold text-trim-faint">
+          <span aria-hidden className="text-xs font-semibold text-trim-faint">
             ~
           </span>
           <span className="sr-only">{t("common.provisional")}</span>
@@ -42,7 +42,7 @@ export function FormDots({ form }: { form: ("W" | "L")[] }) {
       {form.map((r, i) => (
         <span
           key={i}
-          className={`flex size-6 items-center justify-center rounded-sm text-[11px] font-bold ${r === "W" ? "bg-board text-trim" : "bg-masonry-2 text-trim-dim"}`}
+          className={`flex size-6 items-center justify-center rounded-sm text-xs font-bold ${r === "W" ? "bg-board text-trim" : "bg-masonry-2 text-trim-dim"}`}
         >
           {r === "W" ? t("stats.win") : t("stats.loss")}
         </span>

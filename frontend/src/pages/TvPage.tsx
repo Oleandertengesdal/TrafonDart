@@ -15,6 +15,7 @@ import { CheckoutHint, TurnStrip } from "../features/match/TurnStrip";
 import { monthName, num, rulesSummary } from "../lib/format";
 import { useWakeLock } from "../lib/wakeLock";
 import { useLiveStatus, useTopic } from "../realtime/useTopic";
+import { usePageTitle } from "../lib/pageTitle";
 
 const ROTATE_MS = 20_000;
 
@@ -27,6 +28,7 @@ type Live = { kind: "match"; id: string } | { kind: "game"; id: string };
  */
 export function TvPage() {
   const { t } = useTranslation();
+  usePageTitle(t("tv.open"));
   const qc = useQueryClient();
   const [params] = useSearchParams();
   const matches = useLiveMatches();
@@ -90,7 +92,7 @@ function TvHeader({ connected, count }: { connected: boolean; count: number }) {
     <header className="flex items-center gap-2 sm:gap-4">
       <Logo />
       {count > 0 && (
-        <span className={`hidden items-center gap-2 text-lg font-bold uppercase tracking-wider sm:flex ${connected ? "text-trafon-bright" : "text-trim-faint"}`}>
+        <span className={`hidden items-center gap-2 text-lg font-bold   sm:flex ${connected ? "text-trafon-bright" : "text-trim-faint"}`}>
           <Radio className={`size-5 ${connected ? "animate-pulse" : ""}`} aria-hidden />
           {connected ? t("match.connection.live") : t("match.connection.reconnecting")}
         </span>
@@ -147,7 +149,7 @@ function TvMatch({ id }: { id: string }) {
         </div>
       )}
       {match.status === "COMPLETED" && match.winnerIndex !== null && (
-        <p className="text-center font-display text-6xl font-extrabold uppercase text-brass">{t("match.matchWon", { name: match.players[match.winnerIndex].realName })}</p>
+        <p className="text-center font-display text-6xl text-brass">{t("match.matchWon", { name: match.players[match.winnerIndex].realName })}</p>
       )}
       <CelebrationOverlay moment={moment} />
     </div>
@@ -172,7 +174,7 @@ function TvGame({ id }: { id: string }) {
         <GameTurn game={game} />
       </div>
       {game.status === "COMPLETED" && game.winnerSide !== null && (
-        <p className="text-center font-display text-6xl font-extrabold uppercase text-brass">{t("games.won", { name: sideLabel(game, game.winnerSide) })}</p>
+        <p className="text-center font-display text-6xl text-brass">{t("games.won", { name: sideLabel(game, game.winnerSide) })}</p>
       )}
     </div>
   );
@@ -188,7 +190,7 @@ function TvIdle() {
   return (
     <div className="grid gap-[3vw] lg:grid-cols-[1.2fr_1fr]">
       <section>
-        <h2 className="mb-4 font-display text-5xl font-extrabold uppercase">{t("home.leaderboard")}</h2>
+        <h2 className="mb-4 font-display text-5xl">{t("home.leaderboard")}</h2>
         <ol className="flex flex-col gap-2">
           {(board.data ?? []).slice(0, 8).map((row) => (
             <li key={row.player.id} className="panel flex items-center gap-4 px-5 py-3 text-2xl">
@@ -205,7 +207,7 @@ function TvIdle() {
       <div className="flex flex-col gap-[3vh]">
         {race.data && (
           <section className="rounded-xl border border-brass/50 bg-masonry p-5">
-            <h2 className="font-display text-3xl font-extrabold uppercase text-brass">{t("awards.raceTitle", { month: monthName(race.data.period) })}</h2>
+            <h2 className="font-display text-3xl text-brass">{t("awards.raceTitle", { month: monthName(race.data.period) })}</h2>
             {top.length === 0 ? (
               <p className="mt-2 text-xl text-trim-faint">{t("awards.noRace")}</p>
             ) : (
@@ -222,7 +224,7 @@ function TvIdle() {
           </section>
         )}
         <section>
-          <h2 className="mb-3 font-display text-3xl font-extrabold uppercase">{t("home.recent")}</h2>
+          <h2 className="mb-3 font-display text-3xl">{t("home.recent")}</h2>
           <ul className="flex flex-col gap-2 text-xl">
             {(recent.data ?? []).map((m) => (
               <li key={m.id} className="panel grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-2">

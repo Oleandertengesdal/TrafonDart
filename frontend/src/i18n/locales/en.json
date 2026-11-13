@@ -40,7 +40,8 @@
     "optional": "optional",
     "never": "Never",
     "none": "None",
-    "darts": "darts"
+    "darts": "darts",
+    "dartsHeading": "Darts"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -63,7 +64,8 @@
     "register": "Create account",
     "registering": "Creating account…",
     "haveAccount": "Already have an account?",
-    "logout": "Log out"
+    "logout": "Log out",
+    "expired": "Your session expired. Log in again and you'll be back where you were."
   },
   "home": {
     "liveNow": "Live now",
@@ -399,8 +401,25 @@
   },
   "notFound": {
     "title": "Missed the board",
-    "lead": "That page doesn't exist.",
-    "home": "Go home"
+    "lead": "That page doesn't exist. Maybe the link is old, or has a typo in it.",
+    "home": "Go home",
+    "elsewhere": "Or try",
+    "match": {
+      "title": "Match not found",
+      "lead": "The match doesn't exist, or it has been deleted."
+    },
+    "game": {
+      "title": "Game not found",
+      "lead": "The game doesn't exist, or it has been deleted."
+    },
+    "player": {
+      "title": "Player not found",
+      "lead": "Nobody in the crew has that username."
+    },
+    "tournament": {
+      "title": "Tournament not found",
+      "lead": "The tournament doesn't exist, or it has been deleted."
+    }
   },
   "errors": {
     "VALIDATION_FAILED": "Some fields need another look.",
@@ -450,7 +469,55 @@
     "ACCOUNT_DELETED": "This account has been deleted.",
     "CHALLENGE_NOT_OPEN": "That challenge isn't open any more.",
     "CHALLENGE_EXISTS": "You two already have an open challenge.",
-    "CHALLENGE_LIMIT": "You already have 5 open challenges. Wait for some answers first."
+    "CHALLENGE_LIMIT": "You already have 5 open challenges. Wait for some answers first.",
+    "kind": {
+      "offline": {
+        "title": "You're offline",
+        "body": "This device has no connection. Check Wi-Fi or mobile data and try again."
+      },
+      "waking": {
+        "title": "The server is waking up",
+        "body": "The free server sleeps when nobody is playing and takes up to a minute to get up. We'll keep trying."
+      },
+      "session": {
+        "title": "You've been logged out",
+        "body": "Your session expired. Log in again to carry on."
+      },
+      "forbidden": {
+        "title": "No access",
+        "body": "You don't have access to this."
+      },
+      "notFound": {
+        "title": "Not found",
+        "body": "It doesn't exist, or it has been deleted."
+      },
+      "rateLimited": {
+        "title": "A few too many tries",
+        "body": "Wait half a minute, then try again."
+      },
+      "server": {
+        "title": "The server hit an error",
+        "body": "The error has been reported. Try again in a moment."
+      },
+      "conflict": {
+        "title": "Something changed in the meantime",
+        "body": "Reload to see the latest."
+      },
+      "invalid": {
+        "title": "That didn't work",
+        "body": "Check what you entered and try again."
+      },
+      "unknown": {
+        "title": "Something went wrong",
+        "body": "Try again. If it keeps happening, report the bug."
+      }
+    },
+    "action": {
+      "login": "Log in",
+      "home": "Go home",
+      "reload": "Reload",
+      "report": "Report the bug"
+    }
   },
   "social": {
     "kudos": "Kudos",
@@ -653,12 +720,15 @@
   "offline": {
     "title": "No connection.",
     "waiting_one": "{{count}} dart is saved on this tablet and will be sent when the connection is back.",
-    "waiting_other": "{{count}} darts are saved on this tablet and will be sent when the connection is back."
+    "waiting_other": "{{count}} darts are saved on this tablet and will be sent when the connection is back.",
+    "banner": "You're offline. What you see may be out of date."
   },
   "crash": {
     "title": "Something broke",
     "lead": "This page crashed. We've been told about it. Reloading usually helps.",
-    "reload": "Reload"
+    "reload": "Reload",
+    "updateTitle": "A new version is out",
+    "updateLead": "TrafonDart was updated since you opened this page. Reload to get the new version."
   },
   "waking": {
     "title": "Waking up the server",

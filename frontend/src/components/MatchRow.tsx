@@ -37,7 +37,7 @@ export function MatchRow({ match, perspective }: { match: MatchSummary; perspect
                   <span className={match.winnerIndex === 1 ? "text-trim" : "text-trim-dim"}>{match.legsWon[1]}</span>
                 </span>
                 {(match.kudos > 0 || match.comments > 0) && (
-                  <span className="mt-1 flex items-center gap-2 text-[11px] text-trim-faint">
+                  <span className="mt-1 flex items-center gap-2 text-xs text-trim-faint">
                     {match.kudos > 0 && (
                       <span className="flex items-center gap-0.5 text-brass" title={t("social.kudosCount", { count: match.kudos })}>
                         <PartyPopper className="size-3" aria-hidden />
@@ -52,7 +52,7 @@ export function MatchRow({ match, perspective }: { match: MatchSummary; perspect
                     )}
                   </span>
                 )}
-                <span className="mt-1 text-[11px] uppercase tracking-wider text-trim-faint">
+                <span className="mt-1 text-xs text-trim-faint">
                   {live ? (
                     <span className="font-bold text-trafon-bright">{t("common.live")}</span>
                   ) : voided ? (

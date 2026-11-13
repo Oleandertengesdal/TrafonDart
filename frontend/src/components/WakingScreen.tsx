@@ -18,7 +18,7 @@ export function WakingScreen() {
   return (
     <div role="status" className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-6 px-6 text-center">
       <Facade className="h-48 w-auto" />
-      <h1 className="font-display text-4xl font-extrabold uppercase leading-none">{t("waking.title")}</h1>
+      <h1 className="font-display text-4xl leading-none">{t("waking.title")}</h1>
       <p className="text-trim-dim">{t("waking.lead")}</p>
       <div className="h-1.5 w-48 overflow-hidden rounded-full bg-masonry-2">
         <div className="h-full w-1/3 animate-[waking_1.6s_ease-in-out_infinite] rounded-full bg-trafon" />

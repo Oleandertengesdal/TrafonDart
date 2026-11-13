@@ -7,12 +7,14 @@ import { useAuthActions } from "../auth/auth";
 import { LanguageSwitch } from "../components/Layout";
 import { Logo } from "../components/Logo";
 import { Button, ErrorNotice, Field, LinkButton, Spinner } from "../components/ui";
+import { usePageTitle } from "../lib/pageTitle";
 
 type Check = { valid: boolean; username: string | null; realName: string | null };
 
 /** Landing page for a one-time password link an admin sent (e.g. on Messenger). */
 export function ResetPasswordPage() {
   const { t } = useTranslation();
+  usePageTitle(t("reset.title"));
   const [params] = useSearchParams();
   const token = params.get("token") ?? "";
   const navigate = useNavigate();
@@ -61,7 +63,7 @@ export function ResetPasswordPage() {
           <Spinner label={t("reset.checking")} />
         ) : !check.valid ? (
           <>
-            <h1 className="font-display text-5xl font-extrabold uppercase leading-none">{t("reset.invalidTitle")}</h1>
+            <h1 className="font-display text-5xl leading-none">{t("reset.invalidTitle")}</h1>
             <p className="mb-8 mt-3 text-trim-dim">{t("reset.invalidLead")}</p>
             <LinkButton to="/login" className="self-start">
               {t("reset.toLogin")}
@@ -69,7 +71,7 @@ export function ResetPasswordPage() {
           </>
         ) : (
           <>
-            <h1 className="font-display text-5xl font-extrabold uppercase leading-none">{t("reset.title")}</h1>
+            <h1 className="font-display text-5xl leading-none">{t("reset.title")}</h1>
             <p className="mb-8 mt-3 text-trim-dim">{t("reset.lead", { name: check.realName, username: check.username })}</p>
             <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
               {/* Lets password managers save the new password against the right username. */}

@@ -34,7 +34,7 @@ export function useAwardValue() {
 /** A little arched window, like the ones on the facade, with the award's icon inside. */
 export function Medal({ award, size = "md", title }: { award: AwardType; size?: "sm" | "md" | "lg"; title?: string }) {
   const Icon = ICON[award];
-  const dims = { sm: "h-8 w-7 pt-1.5", md: "h-12 w-10 pt-2.5", lg: "h-20 w-16 pt-4" }[size];
+  const dims = { sm: "h-8 w-7 pt-2", md: "h-12 w-10 pt-3", lg: "h-20 w-16 pt-4" }[size];
   const icon = { sm: "size-3.5", md: "size-5", lg: "size-8" }[size];
   return (
     <span
@@ -53,7 +53,7 @@ export function Medal({ award, size = "md", title }: { award: AwardType; size?: 
 export function ReigningChip({ period }: { period: string }) {
   const { t } = useTranslation();
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-brass/70 bg-brass/10 py-1 pl-1.5 pr-3 text-sm font-semibold text-brass">
+    <span className="inline-flex items-center gap-2 rounded-full border border-brass/70 bg-brass/10 py-1 pl-2 pr-3 text-sm font-semibold text-brass">
       <Crown className="size-4" aria-hidden />
       {t("awards.reigning", { month: monthName(period) })}
     </span>

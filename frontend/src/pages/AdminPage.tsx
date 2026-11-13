@@ -10,11 +10,13 @@ import { useCurrentUser } from "../auth/auth";
 import { MatchRow } from "../components/MatchRow";
 import { Button, ConfirmButton, EmptyState, ErrorNotice, Field, Modal, PageHeader, SectionTitle, Segmented, Spinner } from "../components/ui";
 import { dateTime, relative } from "../lib/format";
+import { usePageTitle } from "../lib/pageTitle";
 
 type Tab = "invites" | "users" | "disputes";
 
 export function AdminPage() {
   const { t } = useTranslation();
+  usePageTitle(t("admin.title"));
   const [tab, setTab] = useState<Tab>("invites");
   const disputes = useDisputes();
   const open = (disputes.data ?? []).filter((d) => d.status === "OPEN").length;
@@ -28,10 +30,10 @@ export function AdminPage() {
             role="tab"
             aria-selected={tab === x}
             onClick={() => setTab(x)}
-            className={`-mb-px flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold ${tab === x ? "border-trafon text-trim" : "border-transparent text-trim-dim hover:text-trim"}`}
+            className={`-mb-px flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold ${tab === x ? "border-trafon text-trim" : "border-transparent text-trim-dim hover:text-trim"}`}
           >
             {t(`admin.${x}`)}
-            {x === "disputes" && open > 0 && <span className="rounded-full bg-trafon px-1.5 text-xs text-trim">{open}</span>}
+            {x === "disputes" && open > 0 && <span className="rounded-full bg-trafon px-2 text-xs text-trim">{open}</span>}
           </button>
         ))}
       </div>
@@ -99,7 +101,7 @@ function Invites() {
       <section className="flex flex-col gap-4">
         <form onSubmit={submit} className="panel flex flex-col gap-4 p-5">
           <div>
-            <h2 className="font-display text-2xl font-bold uppercase">{t("admin.newInvite")}</h2>
+            <h2 className="font-display text-2xl">{t("admin.newInvite")}</h2>
             <p className="text-sm text-trim-dim">{t("admin.newInviteLead")}</p>
           </div>
           <Field label={t("admin.maxUses")} type="number" min={1} max={100} inputMode="numeric" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} />
@@ -123,8 +125,8 @@ function Invites() {
         </form>
         {created && (
           <div className="rounded-lg border-2 border-brass bg-brass/10 p-5" role="status">
-            <p className="text-xs font-bold uppercase tracking-wider text-brass">{t("admin.inviteCreated")}</p>
-            <p className="my-2 select-all font-mono text-2xl font-bold tracking-widest text-trim">{created}</p>
+            <p className="text-xs font-bold text-brass">{t("admin.inviteCreated")}</p>
+            <p className="my-2 select-all font-mono text-2xl font-bold text-trim">{created}</p>
             <p className="mb-3 text-sm text-trim-dim">{t("admin.inviteOnce")}</p>
             <div className="flex flex-wrap gap-2">
               <CopyButton text={created} label={t("admin.copyCode")} />
@@ -144,8 +146,8 @@ function Invites() {
           <ul className="flex flex-col gap-2">
             {q.data!.map((inv) => (
               <li key={inv.id} className={`panel flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 ${inv.status !== "ACTIVE" ? "opacity-60" : ""}`}>
-                <span className="font-mono font-bold tracking-widest">{inv.hint}</span>
-                <span className={`rounded px-2 py-0.5 text-xs font-bold uppercase ${inv.status === "ACTIVE" ? "bg-board/25 text-board-bright" : "bg-masonry-2 text-trim-faint"}`}>
+                <span className="font-mono font-bold">{inv.hint}</span>
+                <span className={`rounded px-2 py-0.5 text-xs font-bold  ${inv.status === "ACTIVE" ? "bg-board/25 text-board-bright" : "bg-masonry-2 text-trim-faint"}`}>
                   {t(`admin.inviteStatus.${inv.status}`)}
                 </span>
                 <span className="tnum text-sm">
@@ -222,7 +224,7 @@ function Users() {
       {error !== null && <ErrorNotice error={error} />}
       <div className="panel overflow-x-auto">
         <table className="w-full min-w-[36rem] text-sm">
-          <thead className="text-left text-xs uppercase tracking-wider text-trim-faint">
+          <thead className="text-left text-xs text-trim-faint">
             <tr>
               <th className="px-4 py-3">{t("players.player")}</th>
               <th className="px-2 py-3">{t("admin.role")}</th>
@@ -234,7 +236,7 @@ function Users() {
           <tbody>
             {(q.data ?? []).map((u) => (
               <tr key={u.id} className={`border-t border-mortar/60 ${u.enabled ? "" : "opacity-50"}`}>
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-3">
                   {u.deleted ? (
                     <span className="font-semibold italic text-trim-dim">{u.realName}</span>
                   ) : (
@@ -246,9 +248,9 @@ function Users() {
                     </>
                   )}
                   {u.deleted ? (
-                    <span className="ml-2 text-xs font-bold uppercase text-trim-faint">{t("admin.deleted")}</span>
+                    <span className="ml-2 text-xs font-bold text-trim-faint">{t("admin.deleted")}</span>
                   ) : (
-                    !u.enabled && <span className="ml-2 text-xs font-bold uppercase text-salmon">{t("admin.disabled")}</span>
+                    !u.enabled && <span className="ml-2 text-xs font-bold text-salmon">{t("admin.disabled")}</span>
                   )}
                 </td>
                 <td className="px-2">
@@ -349,7 +351,7 @@ function Disputes() {
             <p className="text-sm text-trim-dim">
               {t("admin.raisedBy", { name: `@${d.raisedBy}` })}, {relative(d.createdAt)}
             </p>
-            <span className="rounded bg-masonry-2 px-2 py-0.5 text-xs font-bold uppercase">{t(`admin.disputeStatus.${d.status}`)}</span>
+            <span className="rounded bg-masonry-2 px-2 py-0.5 text-xs font-bold">{t(`admin.disputeStatus.${d.status}`)}</span>
           </div>
           <blockquote className="my-3 border-l-2 border-trafon pl-3 text-trim">{d.reason}</blockquote>
           {d.match && (

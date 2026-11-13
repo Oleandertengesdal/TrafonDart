@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { chart } from "../../lib/palette";
 import { Link } from "react-router";
 import { api, apiPath } from "../../api/client";
 import { useBreakdown } from "../../api/queries";
@@ -29,7 +30,7 @@ export function TurnByTurn({ match }: { match: LiveMatch }) {
         return (
           <section key={leg.legNo} className="panel overflow-hidden">
             <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-mortar px-4 py-3">
-              <h3 className="font-display text-xl font-bold uppercase">
+              <h3 className="font-display text-xl">
                 {t("match.legN", { n: leg.legNo })}
                 {leg.winnerIndex !== null && <span className="ml-3 text-base text-brass">{match.players[leg.winnerIndex].realName}</span>}
               </h3>
@@ -41,7 +42,7 @@ export function TurnByTurn({ match }: { match: LiveMatch }) {
             </header>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[34rem] text-sm">
-                <thead className="text-xs uppercase tracking-wider text-trim-faint">
+                <thead className="text-xs text-trim-faint">
                   <tr>
                     <th className="px-3 py-2 text-left font-semibold">{t("analysis.darts")}</th>
                     <th className="px-2 py-2 text-right font-semibold">{t("analysis.scored")}</th>
@@ -60,7 +61,7 @@ export function TurnByTurn({ match }: { match: LiveMatch }) {
                       !x ? "" : x.bust ? "text-salmon line-through" : x.checkout ? "font-bold text-board-bright" : x.scored === 180 ? "font-bold text-brass" : x.scored >= 100 ? "font-semibold text-trim" : "text-trim-dim";
                     return (
                       <tr key={r} className="border-t border-mortar/50">
-                        <td className="px-3 py-1.5 text-trim-faint">{a?.darts.map(dartLabel).join("  ")}</td>
+                        <td className="px-3 py-2 text-trim-faint">{a?.darts.map(dartLabel).join("  ")}</td>
                         <td className={`tnum px-2 text-right ${scoreCls(a)}`}>{a ? a.scored : ""}</td>
                         <td className="tnum px-2 text-right text-trim">{a?.remainingAfter ?? ""}</td>
                         <td className="tnum px-2 text-center text-xs text-trim-faint">{r}</td>
@@ -94,7 +95,7 @@ export function MatchAnalysisPanel({ match }: { match: LiveMatch }) {
   return (
     <div className="mt-6 flex flex-col gap-6">
       <section className="panel p-5">
-        <h3 className="font-display text-xl font-bold uppercase">{t("analysis.scoreBands")}</h3>
+        <h3 className="font-display text-xl">{t("analysis.scoreBands")}</h3>
         <p className="mb-3 text-sm text-trim-faint">{t("analysis.scoreBandsHint")}</p>
         <BandChart series={b.players.map((p, i) => ({ name: names[i], bands: p.bands }))} />
       </section>
@@ -102,7 +103,7 @@ export function MatchAnalysisPanel({ match }: { match: LiveMatch }) {
       {raceLeg && (
         <section className="panel p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h3 className="font-display text-xl font-bold uppercase">{t("analysis.race")}</h3>
+            <h3 className="font-display text-xl">{t("analysis.race")}</h3>
             {b.legs.length > 1 && (
               <div className="flex gap-1">
                 {b.legs.map((l) => (
@@ -110,7 +111,7 @@ export function MatchAnalysisPanel({ match }: { match: LiveMatch }) {
                     key={l.legNo}
                     onClick={() => setLeg(l.legNo)}
                     aria-pressed={raceLeg.legNo === l.legNo}
-                    className={`rounded px-2.5 py-1 text-xs font-bold ${raceLeg.legNo === l.legNo ? "bg-trafon text-trim" : "bg-masonry-2 text-trim-dim"}`}
+                    className={`rounded px-3 py-1 text-xs font-bold ${raceLeg.legNo === l.legNo ? "bg-trafon text-trim" : "bg-masonry-2 text-trim-dim"}`}
                   >
                     {l.legNo}
                   </button>
@@ -124,12 +125,12 @@ export function MatchAnalysisPanel({ match }: { match: LiveMatch }) {
       )}
 
       <section>
-        <h3 className="font-display text-xl font-bold uppercase">{t("analysis.heatmap")}</h3>
+        <h3 className="font-display text-xl">{t("analysis.heatmap")}</h3>
         <p className="mb-3 text-sm text-trim-faint">{t("analysis.heatmapHint")}</p>
         <div className="grid gap-4 md:grid-cols-2">
           {b.players.map((p, i) => (
             <div key={i} className="panel flex flex-col items-center gap-4 p-5">
-              <h4 className="font-display text-lg font-bold uppercase">{names[i]}</h4>
+              <h4 className="font-display text-lg">{names[i]}</h4>
               <DartboardHeatmap cells={p.heatmap} size={280} />
               <dl className="grid w-full grid-cols-2 gap-3 text-sm sm:grid-cols-4">
                 <Mini label={t("analysis.trebles")} value={pct(p.trebleRate)} />
@@ -163,7 +164,7 @@ function Mini({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md bg-night/60 px-3 py-2">
       <dt className="text-xs text-trim-faint">{label}</dt>
-      <dd className="font-display text-2xl font-bold">{value}</dd>
+      <dd className="font-display text-2xl">{value}</dd>
     </div>
   );
 }
@@ -183,16 +184,16 @@ export function MatchHeadToHead({ match }: { match: LiveMatch }) {
     <div className="mt-6 grid gap-6 lg:grid-cols-2">
       {prob && (
         <section className="panel p-5">
-          <h3 className="font-display text-xl font-bold uppercase">{t("analysis.winProbability")}</h3>
+          <h3 className="font-display text-xl">{t("analysis.winProbability")}</h3>
           <p className="mb-4 text-sm text-trim-faint">{t("analysis.winProbabilityHint")}</p>
-          <div className="mb-2 flex justify-between font-display text-3xl font-extrabold">
+          <div className="mb-2 flex justify-between font-display text-3xl">
             <span>{pct(prob[0], 0)}</span>
             <span className="text-trim-dim">{pct(prob[1], 0)}</span>
           </div>
           <div className="flex h-3 overflow-hidden rounded-full bg-night" role="img" aria-label={`${p1.realName} ${pct(prob[0], 0)}, ${p2.realName} ${pct(prob[1], 0)}`}>
-            <span className="h-full bg-[#d9735c]" style={{ width: `${prob[0]}%` }} />
+            <span className="h-full" style={{ width: `${prob[0]}%`, background: chart.avg }} />
             <span className="h-full w-0.5 bg-night" />
-            <span className="h-full flex-1 bg-[#4c94cc]" />
+            <span className="h-full flex-1" style={{ background: chart.first9 }} />
           </div>
           <div className="mt-2 flex justify-between text-sm text-trim-dim">
             <span>{p1.realName}</span>
@@ -201,7 +202,7 @@ export function MatchHeadToHead({ match }: { match: LiveMatch }) {
         </section>
       )}
       <section className="panel p-5">
-        <h3 className="mb-4 font-display text-xl font-bold uppercase">{t("analysis.h2hRecord")}</h3>
+        <h3 className="mb-4 font-display text-xl">{t("analysis.h2hRecord")}</h3>
         {h2h.isLoading ? (
           <Spinner />
         ) : !h2h.data || h2h.data.played === 0 ? (
@@ -210,7 +211,7 @@ export function MatchHeadToHead({ match }: { match: LiveMatch }) {
           <>
             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-center">
               <span className="truncate font-semibold">{p1.realName}</span>
-              <span className="font-display text-5xl font-extrabold">
+              <span className="font-display text-5xl">
                 {h2h.data.won}
                 <span className="mx-1 text-trim-faint">–</span>
                 {h2h.data.lost}

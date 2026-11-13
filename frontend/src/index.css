@@ -1,30 +1,119 @@
-@import "@fontsource-variable/big-shoulders-display";
+@import "@fontsource/young-serif/400.css";
 @import "@fontsource-variable/schibsted-grotesk";
+@import "@fontsource-variable/big-shoulders-display";
 @import "tailwindcss";
 
 /*
- * "Trafon after dark" – a red-brick transformer station lit up at night.
- * Tokens are documented in docs/DESIGN.md.
+ * "Trafon at dusk" – the red 1910 building in Høyskoleparken on a darts night: facade red, white trim, the grey
+ * stone base, black doors and the warm lamps over them. Everything is a step on one of five scales; components use
+ * the role names below (documented in docs/DESIGN.md). Contrast and the scales are checked by scripts/design.test.mjs.
  */
 @theme {
-  --color-night: #170d0c;        /* page: warm near-black brick in shadow */
-  --color-masonry: #24140f;      /* raised surfaces */
-  --color-masonry-2: #321c17;    /* hover / second level */
-  --color-mortar: #4a2c25;       /* hairlines and borders */
-  --color-trafon: #c8231f;       /* the facade red – brand and primary actions */
-  --color-trafon-bright: #e0392c;
-  --color-trafon-deep: #8e1b1f;
-  --color-salmon: #e58a73;       /* the building's old colour – secondary data */
-  --color-trim: #f3e9dc;         /* window trim – main text, big numbers */
-  --color-trim-dim: #bfaea3;     /* secondary text */
-  --color-trim-faint: #8c7a70;   /* tertiary text, never for body copy */
-  --color-board: #1f8a5b;        /* dartboard green – wins, success */
-  --color-board-bright: #34b97f;
-  --color-brass: #cda349;        /* achievements – 180s, high finishes, champions */
+  /* Facade red – the building's paint. 500 is the sunlit wall, 600 the wall in shade. */
+  --color-brick-50: #fcefec;
+  --color-brick-100: #f8dad4;
+  --color-brick-200: #f3baae;
+  --color-brick-300: #ec9a89;
+  --color-brick-400: #e47a66;
+  --color-brick-500: #c9493a;
+  --color-brick-600: #ad3a2e;
+  --color-brick-700: #8c3027;
+  --color-brick-800: #6b2620;
+  --color-brick-900: #4c1c18;
+  --color-brick-950: #2c100d;
 
-  --font-display: "Big Shoulders Display Variable", "Arial Narrow", sans-serif;
+  /* Stone – white trim at the top (text), the charcoal plinth at the bottom (surfaces). Warm, never red-tinted. */
+  --color-stone-50: #f6f2ec;
+  --color-stone-100: #ebe5dc;
+  --color-stone-200: #d8d0c4;
+  --color-stone-300: #bdb4a7;
+  --color-stone-400: #a69d90;
+  --color-stone-500: #7d756a;
+  --color-stone-600: #5f5951;
+  --color-stone-700: #47423c;
+  --color-stone-800: #34302c;
+  --color-stone-900: #25221f;
+  --color-stone-950: #181614;
+
+  /* Lamp – the bulbs over the doors: highlights, achievements, champions. */
+  --color-lamp-50: #fef7e7;
+  --color-lamp-100: #fcebc4;
+  --color-lamp-200: #f8d58c;
+  --color-lamp-300: #f2bd5c;
+  --color-lamp-400: #e8a43a;
+  --color-lamp-500: #cf8a24;
+  --color-lamp-600: #ad6e1c;
+  --color-lamp-700: #895519;
+  --color-lamp-800: #673f16;
+  --color-lamp-900: #4a2e12;
+  --color-lamp-950: #2c1b0a;
+
+  /* Board – the dartboard's green (and the park): wins, doubles, checkouts. */
+  --color-board-50: #eaf6ef;
+  --color-board-100: #cbeada;
+  --color-board-200: #98d4b1;
+  --color-board-300: #5fbb87;
+  --color-board-400: #3ba36a;
+  --color-board-500: #2c8a56;
+  --color-board-600: #236f46;
+  --color-board-700: #1c5838;
+  --color-board-800: #16432b;
+  --color-board-900: #10301f;
+  --color-board-950: #091c12;
+
+  /* Dusk – the winter sky behind the building. Illustration only, plus quiet info states. */
+  --color-dusk-50: #eff3f6;
+  --color-dusk-100: #d9e1e8;
+  --color-dusk-200: #b7c5d2;
+  --color-dusk-300: #91a5b8;
+  --color-dusk-400: #6f879e;
+  --color-dusk-500: #566e85;
+  --color-dusk-600: #43576b;
+  --color-dusk-700: #344455;
+  --color-dusk-800: #273340;
+  --color-dusk-900: #1c252f;
+  --color-dusk-950: #11171d;
+
+  /* Roles. Components use these names; each is a step on a scale above. */
+  --color-night: var(--color-stone-950);        /* the page */
+  --color-masonry: var(--color-stone-900);      /* cards and panels */
+  --color-masonry-2: var(--color-stone-800);    /* raised: hover, inputs, keys */
+  --color-mortar: var(--color-stone-700);       /* borders and hairlines */
+  --color-trafon: var(--color-brick-600);       /* primary actions, the active thrower */
+  --color-trafon-bright: var(--color-brick-400); /* red text and hover */
+  --color-trafon-deep: var(--color-brick-700);  /* pressed, danger surfaces */
+  --color-salmon: var(--color-brick-300);       /* warnings, busts */
+  --color-trim: var(--color-stone-50);          /* main text, big numbers */
+  --color-trim-dim: var(--color-stone-300);     /* secondary text */
+  --color-trim-faint: var(--color-stone-400);   /* labels and meta */
+  --color-board: var(--color-board-500);        /* wins, success */
+  --color-board-bright: var(--color-board-300); /* green text */
+  --color-brass: var(--color-lamp-300);         /* lamplight: 180s, high finishes, champions */
+
+  /* Type: a 1910 serif for headings, a Norwegian grotesk for everything else, a condensed face for the scoreboard. */
+  --font-display: "Young Serif", Georgia, serif;
   --font-sans: "Schibsted Grotesk Variable", system-ui, sans-serif;
+  --font-score: "Big Shoulders Display Variable", "Arial Narrow", sans-serif;
 
+  /* Scoreboard sizes (the only fluid sizes): from a phone to a TV. */
+  --text-score-sm: clamp(3rem, 8vw, 5rem);
+  --text-score-sm--line-height: 0.9;
+  --text-score-md: clamp(3.5rem, 9vw, 6rem);
+  --text-score-md--line-height: 0.9;
+  --text-score-lg: clamp(4rem, 10vw, 8rem);
+  --text-score-lg--line-height: 0.88;
+  --text-score-xl: clamp(5rem, 16vw, 12rem);
+  --text-score-xl--line-height: 0.85;
+
+  /* Keypad numbers. */
+  --text-key: clamp(1.5rem, 3.2vw, 2.25rem);
+  --text-key--line-height: 1;
+
+  /* Radii: 4 small, 8 controls, 12 cards, 16 large cards. */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-arch: 999px;
 
   --animate-shake: shake 0.4s ease-in-out;
@@ -62,11 +151,13 @@
   }
   body {
     min-height: 100dvh;
-    /* Faint brick courses: 1px mortar lines every 26px, staggered joints every other course. */
-    background-image:
-      linear-gradient(to bottom, rgb(74 44 37 / 0.18) 1px, transparent 1px),
-      linear-gradient(to right, rgb(74 44 37 / 0.10) 1px, transparent 1px);
-    background-size: 100% 26px, 78px 52px;
+    line-height: 1.5;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.1;
+    text-wrap: balance;
   }
   :focus-visible {
     outline: 2px solid var(--color-brass);
@@ -79,15 +170,16 @@
 }
 
 @layer components {
-  /* The signature element: an arched window, rounded on top, square at the sill. */
+  /* The signature element: Trafon's arched gable – a low, wide arch on top, square at the base. */
   .arch {
-    border-top-left-radius: 50% 34%;
-    border-top-right-radius: 50% 34%;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
+    border-top-left-radius: 50% 26%;
+    border-top-right-radius: 50% 26%;
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
   }
+  /* Scoreboard numerals: condensed, tabular. */
   .numerals {
-    font-family: var(--font-display);
+    font-family: var(--font-score);
     font-variant-numeric: tabular-nums lining-nums;
     letter-spacing: -0.01em;
   }
@@ -98,7 +190,7 @@
   .panel {
     background: var(--color-masonry);
     border: 1px solid var(--color-mortar);
-    border-radius: 10px;
+    border-radius: var(--radius-lg);
   }
 }
 

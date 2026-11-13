@@ -13,7 +13,7 @@ export function AnalysisTabs({ value, onChange }: { value: AnalysisTab; onChange
           role="tab"
           aria-selected={value === x}
           onClick={() => onChange(x)}
-          className={`-mb-px shrink-0 border-b-2 px-4 py-2.5 text-sm font-semibold ${value === x ? "border-trafon text-trim" : "border-transparent text-trim-dim hover:text-trim"}`}
+          className={`-mb-px shrink-0 border-b-2 px-4 py-3 text-sm font-semibold ${value === x ? "border-trafon text-trim" : "border-transparent text-trim-dim hover:text-trim"}`}
         >
           {t(`analysis.tabs.${x}`)}
         </button>

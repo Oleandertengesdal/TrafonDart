@@ -34,7 +34,7 @@ export function MatchStatsTable({ match }: { match: LiveMatch }) {
           return (
             <tr key={r.label} className="border-t border-mortar/60">
               <td className={`numerals py-2 text-left text-lg ${better === 0 ? "font-bold text-trim" : "text-trim-dim"}`}>{r.format(r.values[0])}</td>
-              <th scope="row" className="py-2 text-center text-xs font-semibold uppercase tracking-wider text-trim-faint">
+              <th scope="row" className="py-2 text-center text-xs font-semibold text-trim-faint">
                 {r.label}
               </th>
               <td className={`numerals py-2 text-right text-lg ${better === 1 ? "font-bold text-trim" : "text-trim-dim"}`}>{r.format(r.values[1])}</td>

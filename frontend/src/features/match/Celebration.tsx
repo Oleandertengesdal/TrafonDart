@@ -103,8 +103,8 @@ export function CelebrationOverlay({ moment }: { moment: Moment | null }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center" aria-live="assertive">
       <div className="animate-flash flex flex-col items-center rounded-2xl border border-mortar bg-night/90 px-10 py-8 text-center shadow-2xl backdrop-blur">
-        <span className={`numerals text-[clamp(5rem,18vw,12rem)] font-extrabold uppercase leading-none ${tone}`}>{big}</span>
-        <span className="mt-2 font-display text-2xl font-bold uppercase tracking-wide text-trim">{small}</span>
+        <span className={`numerals text-score-xl font-extrabold  leading-none ${tone}`}>{big}</span>
+        <span className="mt-2 font-display text-2xl text-trim">{small}</span>
       </div>
     </div>
   );

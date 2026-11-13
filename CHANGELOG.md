@@ -2,6 +2,27 @@
 
 All notable changes to TrafonDart. Versions follow [semantic versioning](https://semver.org/). Database migrations are listed, because they are the one thing that can't simply be rolled back.
 
+## 1.5.0: Trafon at dusk
+
+### Changed
+
+- **New look, drawn from the real building.** A redrawn illustration of Trafon's front, from photos: the low arched gable with its oval window, the pilasters, the banded ground floor, the black doors with their lamps and the ornamented plaques (with a dartboard where the old power company's monogram is), at dusk in the snow. It's on the login page, the waking screen, the quiet home page and the 404 pages.
+- **Colour scales**: five scales (brick, stone, lamp, board, dusk) from 50 to 950, with every colour in the app a step on one of them. Warm charcoal surfaces instead of the old maroon-black, and no gradients, glows or purple. Every text colour passes WCAG AA contrast.
+- **Type**: Young Serif for headings (sentence case, no bold), Schibsted Grotesk for text, Big Shoulders Display for the scoreboard only. No more letter-spaced capitals.
+- **Spacing scale** (4-point) and fixed radii, used everywhere.
+- **Real icons, no emoji**: Cricket marks are drawn in SVG, a finished Around the Clock shows a check icon.
+- **New logo, favicon and app icons**: the building with a dartboard for a window, as SVG with PNG fallbacks.
+- A live match on the home page is the lit facade: a red arch with a white top edge.
+
+### Added
+
+- **Tab titles** on every page ("Spillere – TrafonDart"); a match shows its live score in the tab.
+- **Better error handling.** Every error says what happened and what to do, with its own icon: offline, server waking up, logged out, no access, not found, too many tries, server error, changed meanwhile. Retry only where it can help; log in, go home or report the bug where that's the way out.
+- **Session expiry**: when a session runs out, the next request sends you to the login page, which says why and brings you back.
+- **404 pages** for unknown addresses and for a match, game, player or tournament that doesn't exist (also for a link with a broken id), with a way home.
+- An **offline banner** under the header, and a "new version is out" page with a reload button instead of a crash when an open tab misses code after a deploy.
+- 29 new tests (428 in all), among them `design.test.mjs`, which keeps the colours, contrast, spacing, fonts, icons and tab titles honest. [DESIGN.md](docs/DESIGN.md) is rewritten, and all screenshots are retaken.
+
 ## 1.4.0: Party games, Player of the Year and the installable app
 
 ### Added

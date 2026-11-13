@@ -15,9 +15,11 @@ import { useTopic } from "../realtime/useTopic";
 import { ChallengesCard } from "../features/challenges/Challenges";
 import { sideLabel } from "../features/games/gameLogic";
 import { recapPromo } from "../features/recap/recapMath";
+import { usePageTitle } from "../lib/pageTitle";
 
 export function HomePage() {
   const { t } = useTranslation();
+  usePageTitle();
   const qc = useQueryClient();
   const live = useLiveMatches();
   const liveGames = useLiveGames();
@@ -49,11 +51,11 @@ export function HomePage() {
       {promo && me && (
         <Link
           to={`/players/${me.username}/recap?year=${promo.year}`}
-          className="flex flex-wrap items-center gap-4 rounded-2xl border border-brass/60 bg-gradient-to-r from-brass/25 via-trafon/15 to-masonry px-6 py-5 hover:border-brass"
+          className="flex flex-wrap items-center gap-4 rounded-xl border border-brass/60 bg-brass/10 px-6 py-5 hover:border-brass"
         >
           <Sparkles className="size-8 text-brass" aria-hidden />
           <span className="flex-1">
-            <span className="block font-display text-3xl font-extrabold uppercase leading-none">{t("recap.promoTitle", { year: promo.year })}</span>
+            <span className="block font-display text-3xl leading-none">{t("recap.promoTitle", { year: promo.year })}</span>
             <span className="text-trim-dim">{t("recap.promoLead")}</span>
           </span>
         </Link>
@@ -88,9 +90,9 @@ export function HomePage() {
               <ol className="panel divide-y divide-mortar/60">
                 {(board.data ?? []).slice(0, 8).map((row) => (
                   <li key={row.player.id}>
-                    <Link to={`/players/${row.player.username}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-masonry-2">
+                    <Link to={`/players/${row.player.username}`} className="flex items-center gap-3 px-4 py-3 hover:bg-masonry-2">
                       <span className={`numerals w-6 text-xl font-bold ${row.rank === 1 ? "text-brass" : "text-trim-faint"}`}>{row.rank}</span>
-                      <span className="flex min-w-0 flex-1 items-center gap-1.5 font-semibold">
+                      <span className="flex min-w-0 flex-1 items-center gap-2 font-semibold">
                         <span className="truncate">{row.player.realName}</span>
                         {reigning?.player?.id === row.player.id && <CrownMark period={reigning.period} />}
                       </span>
@@ -132,7 +134,7 @@ function QuietHero() {
   return (
     <section className="grid items-center gap-8 overflow-hidden rounded-2xl border border-mortar bg-masonry/80 p-6 sm:p-10 md:grid-cols-[1.2fr_1fr]">
       <div>
-        <h1 className="font-display text-[clamp(3rem,8vw,6rem)] font-extrabold uppercase leading-[0.9] tracking-tight">{t("home.noLiveTitle")}</h1>
+        <h1 className="font-display text-score-md leading-[0.9] tracking-tight">{t("home.noLiveTitle")}</h1>
         <p className="mt-4 max-w-md text-lg text-trim-dim">{t("home.noLiveLead")}</p>
         <div className="mt-8 flex flex-wrap gap-3">
           <LinkButton to="/play" size="lg">
@@ -160,7 +162,7 @@ function LiveNow({ matches }: { matches: MatchSummary[] }) {
     <section>
       <div className="mb-4 flex items-center gap-3">
         <Radio className="size-6 animate-pulse text-trafon-bright" aria-hidden />
-        <h1 className="font-display text-5xl font-extrabold uppercase leading-none">{t("home.liveNow")}</h1>
+        <h1 className="font-display text-5xl leading-none">{t("home.liveNow")}</h1>
       </div>
       <ul className="grid gap-4 md:grid-cols-2">
         {matches.map((m) => {
@@ -169,22 +171,22 @@ function LiveNow({ matches }: { matches: MatchSummary[] }) {
             <li key={m.id}>
               <Link
                 to={`/matches/${m.id}`}
-                className="arch group block border-2 border-trafon bg-gradient-to-b from-[#3a1612] to-masonry px-6 pb-5 pt-12 shadow-[0_0_40px_-12px_rgba(224,57,44,0.6)]"
+                className="arch group block border-2 border-t-[6px] border-trim bg-trafon px-6 pb-5 pt-12 transition-colors hover:bg-brick-500"
               >
                 <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-center">
-                  <span className="truncate font-display text-2xl font-bold uppercase">{m.players[0].realName}</span>
-                  <span className="numerals text-6xl font-extrabold leading-none">
+                  <span className="font-display text-xl leading-tight text-balance break-words sm:text-2xl">{m.players[0].realName}</span>
+                  <span className="numerals whitespace-nowrap text-5xl leading-none sm:text-6xl">
                     {m.legsWon[0]}
-                    <span className="mx-1 text-trim-faint">–</span>
+                    <span className="mx-1 text-brick-200">–</span>
                     {m.legsWon[1]}
                   </span>
-                  <span className="truncate font-display text-2xl font-bold uppercase">{m.players[1].realName}</span>
+                  <span className="font-display text-xl leading-tight text-balance break-words sm:text-2xl">{m.players[1].realName}</span>
                 </div>
-                <p className="mt-3 text-center text-sm text-trim-faint">
+                <p className="mt-3 text-center text-sm text-brick-100">
                   {m.tournament ? `${m.tournament.name}, ` : ""}
                   {rulesSummary(m.config)}
                 </p>
-                <span className="mt-4 block text-center text-sm font-bold uppercase tracking-wider text-trafon-bright group-hover:underline">
+                <span className="mt-4 block text-center text-sm font-bold text-trim underline-offset-4 group-hover:underline">
                   {mine ? t("home.score") : t("home.watch")}
                 </span>
               </Link>
@@ -202,7 +204,7 @@ function LiveGames({ games }: { games: GameSummary[] }) {
     <section>
       <SectionTitle
         action={
-          <Link to="/tv" className="flex items-center gap-1.5 text-sm font-semibold text-trim-dim hover:text-trim">
+          <Link to="/tv" className="flex items-center gap-2 text-sm font-semibold text-trim-dim hover:text-trim">
             <Tv className="size-4" aria-hidden />
             {t("tv.open")}
           </Link>
@@ -247,7 +249,7 @@ function MonthCard() {
           </span>
           <span className="min-w-0">
             <span className="block text-sm font-semibold text-brass">{t("awards.reigning", { month: monthName(reigning.period) })}</span>
-            <span className="block truncate font-display text-3xl font-extrabold uppercase leading-none">{reigning.player.realName}</span>
+            <span className="block truncate font-display text-3xl leading-none">{reigning.player.realName}</span>
           </span>
         </Link>
       )}
@@ -256,7 +258,7 @@ function MonthCard() {
         {top.length === 0 ? (
           <p className="mt-1 text-sm text-trim-faint">{t("awards.noRace")}</p>
         ) : (
-          <ol className="mt-2 flex flex-col gap-1.5">
+          <ol className="mt-2 flex flex-col gap-2">
             {top.map((s) => (
               <li key={s.player.id} className="flex items-center gap-3">
                 <span className={`numerals w-5 text-lg font-bold ${s.rank === 1 ? "text-brass" : "text-trim-faint"}`}>{s.rank}</span>

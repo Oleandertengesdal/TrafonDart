@@ -1,13 +1,28 @@
 import { useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { LoaderCircle, X } from "lucide-react";
+import {
+  CircleAlert,
+  Hourglass,
+  LoaderCircle,
+  Lock,
+  LogIn,
+  RefreshCw,
+  SearchX,
+  ServerCrash,
+  Timer,
+  TriangleAlert,
+  WifiOff,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { Link, type LinkProps } from "react-router";
-import { ApiError } from "../api/client";
+import { describeError, type ErrorKind } from "../lib/errors";
+import { useOnline } from "../lib/useOnline";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "brass";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-trafon text-trim hover:bg-trafon-bright active:bg-trafon-deep shadow-[0_1px_0_0_rgb(0_0_0/0.4)]",
+  primary: "bg-trafon text-trim hover:bg-trafon-bright active:bg-trafon-deep",
   secondary: "bg-masonry-2 text-trim border border-mortar hover:border-trim-faint",
   ghost: "text-trim-dim hover:text-trim hover:bg-masonry-2",
   danger: "bg-transparent text-salmon border border-trafon-deep hover:bg-trafon-deep/40",
@@ -56,7 +71,7 @@ export function Field({
   const id = useId();
   const describedBy = error ? `${id}-err` : hint ? `${id}-hint` : undefined;
   return (
-    <div className={`flex flex-col gap-1.5 ${className}`}>
+    <div className={`flex flex-col gap-2 ${className}`}>
       <label htmlFor={id} className="text-sm font-medium text-trim-dim">
         {label}
       </label>
@@ -95,8 +110,8 @@ export function Segmented<T extends string | number>({
 }) {
   const id = useId();
   return (
-    <fieldset className="flex flex-col gap-1.5">
-      <legend id={id} className="mb-1.5 text-sm font-medium text-trim-dim">
+    <fieldset className="flex flex-col gap-2">
+      <legend id={id} className="mb-2 text-sm font-medium text-trim-dim">
         {label}
       </legend>
       <div role="radiogroup" aria-labelledby={id} className="flex flex-wrap gap-1 rounded-lg border border-mortar bg-night p-1">
@@ -154,26 +169,94 @@ export function Spinner({ label }: { label?: string }) {
   );
 }
 
-/** Translates an API error code. */
+/** One sentence for an error: the code's own message when it has one that says more, otherwise its kind's (see errors.ts). */
 export function useErrorText() {
   const { t } = useTranslation();
   return (err: unknown): string => {
-    const code = err instanceof ApiError ? err.code : "UNKNOWN";
-    return t(`errors.${code}`, { defaultValue: t("errors.UNKNOWN") });
+    const d = describeError(err, { online: typeof navigator === "undefined" || navigator.onLine });
+    const general = t(`errors.kind.${d.kind}.body`);
+    return d.specific ? t(`errors.${d.code}`, { defaultValue: general }) : general;
   };
 }
 
-export function ErrorNotice({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+const errorIcons: Record<ErrorKind, LucideIcon> = {
+  offline: WifiOff,
+  waking: Hourglass,
+  session: LogIn,
+  forbidden: Lock,
+  notFound: SearchX,
+  rateLimited: Timer,
+  server: ServerCrash,
+  conflict: RefreshCw,
+  invalid: CircleAlert,
+  unknown: TriangleAlert,
+};
+
+/** Kinds that are nobody's fault and pass on their own: shown calm, not alarm-red. */
+const calmKinds = new Set<ErrorKind>(["offline", "waking", "session", "rateLimited", "notFound", "forbidden"]);
+
+/**
+ * Explains an error: what happened, in words, with an icon, and a way out.
+ * - Without `onRetry` (forms): one line, right under the thing that failed.
+ * - With `onRetry` (something failed to load): a block with a title, the explanation, and the buttons that can help –
+ *   try again, log in, go home, reload, or report the bug.
+ * `resource`: this page loads one thing by the id in the address, so a malformed id means "not found".
+ */
+export function ErrorNotice({ error, onRetry, resource = false }: { error: unknown; onRetry?: () => void; resource?: boolean }) {
   const { t } = useTranslation();
-  const text = useErrorText();
+  const online = useOnline();
+  const d = describeError(error, { online, resource });
+  const Icon = errorIcons[d.kind];
+  const body = d.specific ? t(`errors.${d.code}`, { defaultValue: t(`errors.kind.${d.kind}.body`) }) : t(`errors.kind.${d.kind}.body`);
+  const tone = calmKinds.has(d.kind) ? "border-mortar bg-masonry" : "border-trafon/60 bg-trafon/15";
+
+  if (!onRetry) {
+    return (
+      <div role="alert" className={`flex items-start gap-3 rounded-md border px-4 py-3 text-sm text-trim ${tone}`}>
+        <Icon className="mt-0.5 size-4 shrink-0 text-trim-dim" aria-hidden />
+        <span>{body}</span>
+      </div>
+    );
+  }
   return (
-    <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-trafon-deep bg-trafon-deep/20 px-4 py-3 text-sm text-trim">
-      <span>{text(error)}</span>
-      {onRetry && (
-        <Button size="sm" variant="secondary" onClick={onRetry}>
-          {t("common.retry")}
-        </Button>
-      )}
+    <div role="alert" className={`flex flex-col gap-4 rounded-lg border p-5 sm:flex-row sm:items-start ${tone}`}>
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-night text-trim-dim">
+        <Icon className="size-5" aria-hidden />
+      </span>
+      <div className="flex flex-col gap-3">
+        <div>
+          <p className="font-display text-xl leading-tight">{t(`errors.kind.${d.kind}.title`)}</p>
+          <p className="mt-1 max-w-prose text-sm text-trim-dim">{body}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {d.retry && (
+            <Button size="sm" variant="secondary" onClick={onRetry}>
+              <RefreshCw className="size-4" aria-hidden />
+              {t("common.retry")}
+            </Button>
+          )}
+          {d.action === "login" && (
+            <LinkButton size="sm" to="/login">
+              {t("errors.action.login")}
+            </LinkButton>
+          )}
+          {d.action === "home" && (
+            <LinkButton size="sm" variant="secondary" to="/">
+              {t("errors.action.home")}
+            </LinkButton>
+          )}
+          {d.action === "reload" && (
+            <Button size="sm" variant="secondary" onClick={() => window.location.reload()}>
+              {t("errors.action.reload")}
+            </Button>
+          )}
+          {(d.kind === "server" || d.kind === "unknown") && (
+            <LinkButton size="sm" variant="ghost" to="/feedback">
+              {t("errors.action.report")}
+            </LinkButton>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -181,7 +264,7 @@ export function ErrorNotice({ error, onRetry }: { error: unknown; onRetry?: () =
 export function EmptyState({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-start gap-3 rounded-lg border border-dashed border-mortar px-6 py-8">
-      <h3 className="font-display text-2xl font-bold uppercase tracking-wide">{title}</h3>
+      <h3 className="font-display text-2xl">{title}</h3>
       {children && <p className="max-w-prose text-trim-dim">{children}</p>}
       {action}
     </div>
@@ -204,7 +287,7 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
       className="m-auto w-[min(92vw,30rem)] rounded-xl border border-mortar bg-masonry p-0 text-trim backdrop:bg-night/80"
     >
       <div className="flex items-center justify-between border-b border-mortar px-5 py-3">
-        <h2 className="font-display text-xl font-bold uppercase tracking-wide">{title}</h2>
+        <h2 className="font-display text-xl">{title}</h2>
         <button onClick={onClose} className="rounded p-1 text-trim-dim hover:text-trim" aria-label={t("common.close")}>
           <X className="size-5" />
         </button>
@@ -261,7 +344,7 @@ export function ConfirmButton({
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
     <div className="mb-3 flex items-end justify-between gap-4">
-      <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-trim">{children}</h2>
+      <h2 className="font-display text-2xl text-trim">{children}</h2>
       {action}
     </div>
   );
@@ -271,7 +354,7 @@ export function PageHeader({ title, lead, action }: { title: string; lead?: stri
   return (
     <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="font-display text-5xl font-extrabold uppercase leading-none tracking-tight sm:text-6xl">{title}</h1>
+        <h1 className="font-display text-5xl leading-none tracking-tight sm:text-6xl">{title}</h1>
         {lead && <p className="mt-3 max-w-prose text-trim-dim">{lead}</p>}
       </div>
       {action}

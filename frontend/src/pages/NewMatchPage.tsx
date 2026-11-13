@@ -7,6 +7,7 @@ import { usePlayers } from "../api/queries";
 import type { InRule, LiveMatch, OutRule, PlayerSummary } from "../api/types";
 import { useCurrentUser } from "../auth/auth";
 import { Button, ErrorNotice, LinkButton, PageHeader, Segmented, Spinner, Toggle } from "../components/ui";
+import { usePageTitle } from "../lib/pageTitle";
 
 export function PlayerSelect({
   label,
@@ -24,7 +25,7 @@ export function PlayerSelect({
   const { t } = useTranslation();
   const id = useId();
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-sm font-medium text-trim-dim">
         {label}
       </label>
@@ -51,6 +52,7 @@ export function PlayerSelect({
 
 export function NewMatchPage() {
   const { t } = useTranslation();
+  usePageTitle(t("match.newTitle"));
   const { me } = useCurrentUser();
   const players = usePlayers();
   const navigate = useNavigate();

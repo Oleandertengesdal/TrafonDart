@@ -81,7 +81,7 @@ function Item({ a }: { a: Achievement }) {
         <span className="block text-sm text-trim-faint">{t(`achievements.${a.code}.how`)}</span>
         {a.unlocked && a.unlockedAt && <span className="mt-0.5 block text-xs text-board-bright">{t("achievements.unlockedOn", { date: date(a.unlockedAt) })}</span>}
         {showProgress && (
-          <span className="mt-1.5 flex items-center gap-2">
+          <span className="mt-2 flex items-center gap-2">
             <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-night" role="progressbar" aria-valuemin={0} aria-valuemax={a.target!} aria-valuenow={a.progress!}>
               <span className="block h-full rounded-full bg-trim-dim" style={{ width: `${(a.progress! / a.target!) * 100}%` }} />
             </span>

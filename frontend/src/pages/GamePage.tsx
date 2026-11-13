@@ -18,6 +18,9 @@ import { OfflineNotice } from "../features/scoring/OfflineNotice";
 import { useDartQueue } from "../features/scoring/useDartQueue";
 import { useWakeLock } from "../lib/wakeLock";
 import { useLiveStatus, useTopic } from "../realtime/useTopic";
+import { NotFound } from "./NotFoundPage";
+import { isNotFound } from "../lib/errors";
+import { usePageTitle } from "../lib/pageTitle";
 
 /** A party game (never rated): scoreboard, keypad for the scorer, live view for everyone else. */
 export function GamePage() {
@@ -41,12 +44,14 @@ export function GamePage() {
   });
   const game = q.data;
   useWakeLock(game?.status === "IN_PROGRESS");
+  const { t } = useTranslation();
+  usePageTitle(game && `${t(`games.types.${game.type}`)}: ${game.players.map((p) => p.player.realName).join(", ")}`);
 
   if (q.isLoading) return <Spinner />;
   if (q.error || !game) {
     return (
-      <div className="mx-auto max-w-xl p-6">
-        <ErrorNotice error={q.error} onRetry={() => q.refetch()} />
+      <div className="mx-auto flex min-h-dvh max-w-5xl items-center p-6 [&>*]:w-full">
+        {isNotFound(q.error) ? <NotFound what="game" /> : <ErrorNotice error={q.error} onRetry={() => q.refetch()} resource />}
       </div>
     );
   }
@@ -79,7 +84,7 @@ function GameTopBar({
   const { t } = useTranslation();
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-mortar bg-night/95 px-3 backdrop-blur">
-      <Link to="/" className="flex items-center gap-2 rounded-md p-1.5 text-trim-dim hover:text-trim" aria-label={t("common.back")}>
+      <Link to="/" className="flex items-center gap-2 rounded-md p-2 text-trim-dim hover:text-trim" aria-label={t("common.back")}>
         <ArrowLeft className="size-5" />
         <LogoMark className="size-7" />
       </Link>
@@ -93,12 +98,12 @@ function GameTopBar({
         </p>
       </div>
       {game.status === "IN_PROGRESS" ? (
-        <span className={`hidden items-center gap-1.5 text-xs font-bold uppercase tracking-wider sm:flex ${connected ? "text-trafon-bright" : "text-trim-faint"}`}>
+        <span className={`hidden items-center gap-2 text-xs font-bold   sm:flex ${connected ? "text-trafon-bright" : "text-trim-faint"}`}>
           <Radio className={`size-4 ${connected ? "animate-pulse" : ""}`} aria-hidden />
           {connected ? t("match.connection.live") : t("match.connection.reconnecting")}
         </span>
       ) : (
-        <span className="rounded bg-masonry-2 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-trim-dim">{t(`games.status.${game.status}`)}</span>
+        <span className="rounded bg-masonry-2 px-2 py-0.5 text-xs font-bold text-trim-dim">{t(`games.status.${game.status}`)}</span>
       )}
       {canScore && (
         <div className="flex rounded-md border border-mortar p-0.5 text-xs font-bold">
@@ -167,9 +172,9 @@ function WatchGame({ game }: { game: GameView }) {
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 pb-16 pt-6">
       {finished && game.winnerSide !== null && (
-        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-brass/60 bg-gradient-to-r from-brass/20 to-transparent px-5 py-4">
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-brass/60 bg-brass/10 px-5 py-4">
           <Trophy className="size-8 text-brass" aria-hidden />
-          <p className="flex-1 font-display text-3xl font-extrabold uppercase leading-none">{t("games.won", { name: sideLabel(game, game.winnerSide) })}</p>
+          <p className="flex-1 font-display text-3xl leading-none">{t("games.won", { name: sideLabel(game, game.winnerSide) })}</p>
           <LinkButton to="/games/new" variant="secondary">
             {t("games.again")}
           </LinkButton>
@@ -178,13 +183,13 @@ function WatchGame({ game }: { game: GameView }) {
       <GameBoard game={game} size="lg" />
       <GameTurn game={game} />
       <section className="panel p-4">
-        <h2 className="mb-2 font-display text-xl font-bold uppercase tracking-wide">{t("games.statsTitle")}</h2>
+        <h2 className="mb-2 font-display text-xl">{t("games.statsTitle")}</h2>
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-trim-faint">
               {finished && <th className="py-1 font-semibold">#</th>}
               <th className="py-1 font-semibold">{t("games.player")}</th>
-              <th className="py-1 text-right font-semibold">{t("common.darts")}</th>
+              <th className="py-1 text-right font-semibold">{t("common.dartsHeading")}</th>
               <th className="py-1 text-right font-semibold">{scoreLabel}</th>
               {game.type === "X01" && <th className="py-1 text-right font-semibold">{t("match.average")}</th>}
               {game.type === "X01" && <th className="py-1 text-right font-semibold">180</th>}
@@ -193,12 +198,12 @@ function WatchGame({ game }: { game: GameView }) {
           <tbody>
             {(finished ? ranked : game.slots).map((s) => (
               <tr key={s.slot} className="border-t border-mortar/60">
-                {finished && <td className="numerals py-1.5 text-lg font-bold text-trim-faint">{s.placement || "–"}</td>}
-                <td className="py-1.5 font-semibold">{name(s.slot)}</td>
-                <td className="tnum py-1.5 text-right">{s.darts}</td>
-                <td className="tnum py-1.5 text-right">{s.score}</td>
-                {game.type === "X01" && <td className="tnum py-1.5 text-right">{s.darts ? ((s.score * 3) / s.darts).toFixed(1) : "–"}</td>}
-                {game.type === "X01" && <td className="tnum py-1.5 text-right">{s.count180}</td>}
+                {finished && <td className="numerals py-2 text-lg font-bold text-trim-faint">{s.placement || "–"}</td>}
+                <td className="py-2 font-semibold">{name(s.slot)}</td>
+                <td className="tnum py-2 text-right">{s.darts}</td>
+                <td className="tnum py-2 text-right">{s.score}</td>
+                {game.type === "X01" && <td className="tnum py-2 text-right">{s.darts ? ((s.score * 3) / s.darts).toFixed(1) : "–"}</td>}
+                {game.type === "X01" && <td className="tnum py-2 text-right">{s.count180}</td>}
               </tr>
             ))}
           </tbody>

@@ -6,6 +6,7 @@ import { LanguageSwitch } from "../components/Layout";
 import { Logo } from "../components/Logo";
 import { Button } from "../components/ui";
 import { Link } from "react-router";
+import { usePageTitle } from "../lib/pageTitle";
 
 /** Where bug reports go. Override with VITE_CONTACT_EMAIL at build time. */
 export const CONTACT_EMAIL = (import.meta.env.VITE_CONTACT_EMAIL as string | undefined) || "adminsjef@uka.no";
@@ -13,6 +14,7 @@ export const CONTACT_EMAIL = (import.meta.env.VITE_CONTACT_EMAIL as string | und
 /** "Found a bug?" – a small page that opens the user's mail app with a ready-made bug report. */
 export function FeedbackPage() {
   const { t } = useTranslation();
+  usePageTitle(t("feedback.title"));
   const { me } = useCurrentUser();
   const [copied, setCopied] = useState(false);
 
@@ -23,7 +25,7 @@ export function FeedbackPage() {
   const content = (
     <div className="mx-auto max-w-2xl py-6">
       <Bug className="mb-4 size-12 text-trafon-bright" aria-hidden />
-      <h1 className="font-display text-[clamp(3rem,8vw,5rem)] font-extrabold uppercase leading-[0.9]">{t("feedback.title")}</h1>
+      <h1 className="font-display text-score-sm leading-[0.9]">{t("feedback.title")}</h1>
       <p className="mt-4 text-lg text-trim-dim">{t("feedback.lead")}</p>
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -54,8 +56,8 @@ export function FeedbackPage() {
       <p className="mt-3 select-all font-mono text-trim">{CONTACT_EMAIL}</p>
 
       <section className="panel mt-10 p-5">
-        <h2 className="mb-3 font-display text-xl font-bold uppercase">{t("feedback.whatToInclude")}</h2>
-        <ul className="list-inside list-disc space-y-1.5 text-trim-dim marker:text-trafon">
+        <h2 className="mb-3 font-display text-xl">{t("feedback.whatToInclude")}</h2>
+        <ul className="list-inside list-disc space-y-2 text-trim-dim marker:text-trafon">
           <li>{t("feedback.include1")}</li>
           <li>{t("feedback.include2")}</li>
           <li>{t("feedback.include3")}</li>

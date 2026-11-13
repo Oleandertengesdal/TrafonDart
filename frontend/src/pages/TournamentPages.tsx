@@ -11,11 +11,15 @@ import { PlayerLink } from "../components/PlayerName";
 import { Button, ConfirmButton, EmptyState, ErrorNotice, Field, LinkButton, PageHeader, SectionTitle, Segmented, Spinner, Toggle } from "../components/ui";
 import { date, rulesSummary } from "../lib/format";
 import { useTopic } from "../realtime/useTopic";
+import { usePageTitle } from "../lib/pageTitle";
+import { NotFound } from "./NotFoundPage";
+import { isNotFound } from "../lib/errors";
 
 // ------------------------------------------------------------------ list
 
 export function TournamentsPage() {
   const { t } = useTranslation();
+  usePageTitle(t("tournament.title"));
   const q = useTournaments();
   return (
     <>
@@ -32,7 +36,7 @@ export function TournamentsPage() {
             <li key={x.id}>
               <Link to={`/tournaments/${x.id}`} className="panel flex h-full flex-col gap-2 p-5 hover:border-trim-faint">
                 <div className="flex items-start justify-between gap-3">
-                  <h2 className="font-display text-3xl font-bold uppercase leading-none">{x.name}</h2>
+                  <h2 className="font-display text-3xl leading-none">{x.name}</h2>
                   <StatusPill status={x.status} />
                 </div>
                 <p className="text-sm text-trim-dim">
@@ -56,13 +60,14 @@ function StatusPill({ status }: { status: string }) {
   const { t } = useTranslation();
   const tone =
     status === "IN_PROGRESS" ? "bg-trafon text-trim" : status === "COMPLETED" ? "bg-brass/20 text-brass" : status === "CANCELLED" ? "bg-masonry-2 text-trim-faint" : "bg-masonry-2 text-trim-dim";
-  return <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${tone}`}>{t(`tournament.statuses.${status}`)}</span>;
+  return <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-bold   ${tone}`}>{t(`tournament.statuses.${status}`)}</span>;
 }
 
 // ------------------------------------------------------------------ create
 
 export function NewTournamentPage() {
   const { t } = useTranslation();
+  usePageTitle(t("tournament.new"));
   const players = usePlayers();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -123,13 +128,13 @@ export function NewTournamentPage() {
         </section>
         <section className="panel flex flex-col gap-3 p-5">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-display text-2xl font-bold uppercase">{t("tournament.participants")}</h2>
+            <h2 className="font-display text-2xl">{t("tournament.participants")}</h2>
             <span className="text-sm text-trim-dim">{t("tournament.participantsCount", { count: selected.length })}</span>
           </div>
           {players.isLoading ? (
             <Spinner />
           ) : (
-            <ul className="grid gap-1.5 sm:grid-cols-2">
+            <ul className="grid gap-2 sm:grid-cols-2">
               {(players.data ?? []).map((p) => {
                 const on = selected.includes(p.id);
                 return (
@@ -138,7 +143,7 @@ export function NewTournamentPage() {
                       type="button"
                       aria-pressed={on}
                       onClick={() => toggle(p.id)}
-                      className={`flex w-full items-center justify-between gap-2 rounded-md border px-3 py-2.5 text-left transition-colors ${
+                      className={`flex w-full items-center justify-between gap-2 rounded-md border px-3 py-3 text-left transition-colors ${
                         on ? "border-trafon bg-trafon/15" : "border-mortar hover:border-trim-faint"
                       }`}
                     >
@@ -179,9 +184,12 @@ export function TournamentPage() {
   const [busy, setBusy] = useState(false);
 
   useTopic(`/topic/tournaments/${id}`, () => void qc.invalidateQueries({ queryKey: keys.tournament(id) }));
+  usePageTitle(q.data?.summary.name);
 
   if (q.isLoading) return <Spinner />;
-  if (q.error || !q.data) return <ErrorNotice error={q.error} onRetry={() => q.refetch()} />;
+  if (q.error || !q.data) {
+    return isNotFound(q.error) ? <NotFound what="tournament" /> : <ErrorNotice error={q.error} onRetry={() => q.refetch()} resource />;
+  }
   const d = q.data;
   const s = d.summary;
   const canManage = !!me && (me.id === d.organiserId || me.role === "ADMIN");
@@ -214,7 +222,7 @@ export function TournamentPage() {
             <StatusPill status={s.status} />
             <span className="text-sm text-trim-faint">{t(`tournament.formats.${s.format}`)}</span>
           </div>
-          <h1 className="mt-2 font-display text-[clamp(2.75rem,7vw,5rem)] font-extrabold uppercase leading-[0.9]">{s.name}</h1>
+          <h1 className="mt-2 font-display text-5xl leading-none sm:text-6xl">{s.name}</h1>
           <p className="mt-2 text-trim-dim">
             {rulesSummary(s.config)}
             {s.rated ? "" : `, ${t("common.unrated").toLowerCase()}`}
@@ -224,8 +232,8 @@ export function TournamentPage() {
         {s.winner && (
           <div className="arch flex flex-col items-center border-2 border-brass bg-masonry px-8 pb-4 pt-10 text-center">
             <Trophy className="size-8 text-brass" aria-hidden />
-            <span className="mt-1 text-xs font-bold uppercase tracking-wider text-brass">{t("tournament.champion")}</span>
-            <span className="font-display text-3xl font-bold uppercase">{s.winner.realName}</span>
+            <span className="mt-1 text-xs font-bold text-brass">{t("tournament.champion")}</span>
+            <span className="font-display text-3xl">{s.winner.realName}</span>
           </div>
         )}
       </header>
@@ -278,7 +286,7 @@ function Standings({ d }: { d: TournamentDetail }) {
       <SectionTitle>{t("tournament.standings")}</SectionTitle>
       <div className="panel overflow-x-auto">
         <table className="w-full min-w-[30rem]">
-          <thead className="text-left text-xs uppercase tracking-wider text-trim-faint">
+          <thead className="text-left text-xs text-trim-faint">
             <tr>
               <th className="w-10 px-4 py-3">#</th>
               <th className="px-2 py-3">{t("players.player")}</th>
@@ -293,7 +301,7 @@ function Standings({ d }: { d: TournamentDetail }) {
           <tbody>
             {d.standings.map((r, i) => (
               <tr key={r.player.id} className="border-t border-mortar/60">
-                <td className={`numerals px-4 py-2.5 text-xl font-bold ${i === 0 ? "text-brass" : "text-trim-faint"}`}>{i + 1}</td>
+                <td className={`numerals px-4 py-3 text-xl font-bold ${i === 0 ? "text-brass" : "text-trim-faint"}`}>{i + 1}</td>
                 <td className="px-2">
                   <PlayerLink player={r.player} showUsername={false} />
                 </td>
@@ -336,8 +344,8 @@ function FixtureCard({ f, canPlay, onPlay, busy }: { f: FixtureView; canPlay: bo
       {side(1)}
       <div className="border-t border-mortar/60" />
       {side(2)}
-      <div className="flex items-center justify-between gap-2 border-t border-mortar/60 bg-night/40 px-3 py-1.5">
-        <span className={`text-[11px] font-bold uppercase tracking-wider ${f.status === "IN_PROGRESS" ? "text-trafon-bright" : "text-trim-faint"}`}>
+      <div className="flex items-center justify-between gap-2 border-t border-mortar/60 bg-night/40 px-3 py-2">
+        <span className={`text-xs font-bold   ${f.status === "IN_PROGRESS" ? "text-trafon-bright" : "text-trim-faint"}`}>
           {t(`tournament.fixtureStatus.${f.status}`)}
         </span>
         {f.matchId && f.status !== "READY" ? (
@@ -363,7 +371,7 @@ function FixtureRounds({ d, canPlay, onPlay, busy }: { d: TournamentDetail; canP
       <div className="flex flex-col gap-6">
         {rounds.map((r) => (
           <div key={r}>
-            <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-trim-faint">{t("tournament.round", { n: r })}</h3>
+            <h3 className="mb-2 text-sm font-bold text-trim-faint">{t("tournament.round", { n: r })}</h3>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {d.fixtures
                 .filter((f) => f.round === r)
@@ -397,7 +405,7 @@ function Bracket({ d, canPlay, onPlay, busy }: { d: TournamentDetail; canPlay: (
         <div className="grid min-w-max auto-cols-[15rem] grid-flow-col gap-6">
           {rounds.map((r) => (
             <div key={r} className="flex flex-col">
-              <h3 className="mb-3 text-sm font-bold uppercase tracking-wider text-trim-faint">{roundName(t, r, d.rounds)}</h3>
+              <h3 className="mb-3 text-sm font-bold text-trim-faint">{roundName(t, r, d.rounds)}</h3>
               <div className="flex flex-1 flex-col justify-around gap-4">
                 {d.fixtures
                   .filter((f) => f.round === r)

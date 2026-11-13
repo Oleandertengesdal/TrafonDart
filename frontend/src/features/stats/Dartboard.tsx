@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { palette } from "../../lib/palette";
 import type { HeatCell } from "../../api/types";
 import { num, pct } from "../../lib/format";
 
@@ -58,8 +59,9 @@ export function DartboardHeatmap({ cells, size = 320 }: { cells: HeatCell[]; siz
       <path
         key={key}
         d={d}
-        fill={n === 0 ? (dark ? "#1d1110" : "#2a1915") : `rgba(224, 57, 44, ${0.18 + 0.82 * heat})`}
-        stroke="#4a2c25"
+        fill={n === 0 ? (dark ? palette.night : palette.masonry) : palette.heat}
+        fillOpacity={n === 0 ? 1 : 0.18 + 0.82 * heat}
+        stroke={palette.mortar}
         strokeWidth={0.6}
         onMouseEnter={() => setFocus(text)}
         onMouseLeave={() => setFocus(null)}
@@ -87,14 +89,14 @@ export function DartboardHeatmap({ cells, size = 320 }: { cells: HeatCell[]; siz
   return (
     <figure className="flex flex-col items-center gap-3">
       <svg viewBox="-200 -200 400 400" width={size} height={size} role="img" aria-label={t("analysis.heatmap")} className="max-w-full">
-        <circle r={198} fill="#170d0c" />
+        <circle r={198} fill={palette.night} />
         {beds}
         {bed("ob", `M${R.outerBull} 0A${R.outerBull} ${R.outerBull} 0 1 1 ${-R.outerBull} 0A${R.outerBull} ${R.outerBull} 0 1 1 ${R.outerBull} 0Z`, 25, 1, false)}
         {bed("b", `M${R.bull} 0A${R.bull} ${R.bull} 0 1 1 ${-R.bull} 0A${R.bull} ${R.bull} 0 1 1 ${R.bull} 0Z`, 25, 2, true)}
         {ORDER.map((segment, i) => {
           const [x, y] = polar(185, i * 18);
           return (
-            <text key={segment} x={x} y={y} textAnchor="middle" dominantBaseline="central" fill="#bfaea3" fontSize="15" fontFamily="var(--font-display)" fontWeight="700">
+            <text key={segment} x={x} y={y} textAnchor="middle" dominantBaseline="central" fill={palette.trimDim} fontSize="16" fontFamily="var(--font-score)" fontWeight="700">
               {segment}
             </text>
           );
@@ -106,7 +108,11 @@ export function DartboardHeatmap({ cells, size = 320 }: { cells: HeatCell[]; siz
         </span>
         <span className="flex items-center gap-2">
           {t("analysis.few")}
-          <span className="h-2 w-28 rounded-full" style={{ background: "linear-gradient(to right, rgba(224,57,44,0.18), rgba(224,57,44,1))" }} />
+          <span className="flex h-2 w-28 overflow-hidden rounded-full" aria-hidden>
+            {[0.18, 0.38, 0.58, 0.78, 1].map((o) => (
+              <span key={o} className="h-full flex-1" style={{ background: palette.heat, opacity: o }} />
+            ))}
+          </span>
           {t("analysis.many")}
         </span>
       </figcaption>

@@ -2,22 +2,9 @@ import { useTranslation } from "react-i18next";
 import { Bar, BarChart, CartesianGrid, ComposedChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { AveragePoint, Band, RatingPoint, TurnRow } from "../../api/types";
 import { num, shortDate, date } from "../../lib/format";
+import { chart as C } from "../../lib/palette";
 
-/*
- * Chart colours were validated with the dataviz palette checker against the masonry surface (#24140f):
- * lightness band, chroma floor, colour-vision-deficiency separation and contrast all pass.
- *   rating line      #e0392c (trafon-bright)
- *   3-dart average   #d9735c (warm brick)
- *   first-9 average  #4c94cc (dusk blue)
- */
-const C = {
-  rating: "#e0392c",
-  avg: "#d9735c",
-  first9: "#4c94cc",
-  grid: "#4a2c25",
-  axis: "#8c7a70",
-  surface: "#24140f",
-};
+// Chart colours live in lib/palette.ts (validated for colour-vision deficiency and contrast).
 
 const axisProps = {
   stroke: C.axis,
@@ -93,7 +80,7 @@ export function AverageChart({ points }: { points: AveragePoint[] }) {
             <XAxis dataKey="i" {...axisProps} tickFormatter={(i: number) => shortDate(data[i]?.at)} minTickGap={32} />
             <YAxis {...axisProps} width={40} tickFormatter={(v: number) => num(v)} />
             <Tooltip
-              cursor={{ fill: "rgba(243,233,220,0.05)" }}
+              cursor={{ fill: C.cursor }}
               content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
                 const p = payload[0].payload as AveragePoint;
@@ -163,7 +150,7 @@ export function BandChart({ series }: { series: { name: string; bands: Band[] }[
             <XAxis dataKey="label" {...axisProps} interval={0} tick={{ fill: C.axis, fontSize: 11 }} />
             <YAxis {...axisProps} allowDecimals={false} width={40} />
             <Tooltip
-              cursor={{ fill: "rgba(243,233,220,0.05)" }}
+              cursor={{ fill: C.cursor }}
               content={({ active, payload, label }) => {
                 if (!active || !payload?.length) return null;
                 return (

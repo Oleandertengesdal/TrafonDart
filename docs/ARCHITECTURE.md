@@ -95,12 +95,13 @@ no.trafondart
 frontend/src
 ├── main.tsx              QueryClient, router, error handlers, service worker registration (production)
 ├── App.tsx               routes (heavy pages lazy-loaded)
-├── index.css             Tailwind 4 theme tokens ("Trafon after dark"), arch + numerals utilities
+├── index.css             Tailwind 4 theme: colour scales and roles, fonts, type and radii ("Trafon at dusk"), arch + numerals utilities
 ├── api/                  fetch client (CSRF), DTO types, React Query hooks
 ├── realtime/             one shared STOMP connection with ticket auth, useTopic hook
-├── auth/                 current user, route guards, account language
+├── auth/                 current user, route guards, account language, sessionExpiry (the login page's "session ran out" note)
 ├── i18n/                 i18next setup, locales/nb.json + en.json
-├── lib/                  Intl formatting, sound (Web Audio + speech synthesis), wakeLock, errorReport + reporting
+├── lib/                  Intl formatting, sound (Web Audio + speech synthesis), wakeLock, errorReport + reporting,
+│                         errors (every error sorted into a kind), pageTitle (tab titles), palette (chart colours), useOnline
 ├── components/           Layout, Logo, Facade illustration, UI kit, MatchRow, PlayerName
 ├── features/match/       ArchScore, Keypad, TurnStrip, Celebration, MatchStatsTable, useScorer (dart queue)
 ├── features/match/…      AnalysisTabs, MatchAnalysis (turn by turn, analysis, head-to-head; lazy-loaded with the charts)
@@ -112,6 +113,10 @@ frontend/src
 ├── features/achievements/ the cabinet; features/recap/ recap facts; features/challenges/ button + home card
 └── pages/                one file per screen
 ```
+
+### Errors
+
+`lib/errors.ts` sorts every error into a kind (offline, waking, session, forbidden, not found, rate limited, server, conflict, invalid, unknown) and says whether a retry can help and what the way out is; `ErrorNotice` shows it. The `QueryCache`/`MutationCache` in `main.tsx` watch for a request refused as "not logged in" and forget the user, so `RequireAuth` sends them to the login page. Detail pages show their own "not found" (`pages/NotFoundPage.tsx`) for a 404 or a malformed id. How it looks is in [DESIGN.md](DESIGN.md#errors-and-not-found).
 
 ### The scorer's dart queue (and offline scoring)
 

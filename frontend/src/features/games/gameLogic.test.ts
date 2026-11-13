@@ -1,7 +1,7 @@
 // Client-side helpers for party games: who can play what, how a doubles lineup is sent, and what the boards show.
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
-import { CRICKET_TARGETS, lineupError, markSymbol, playerIdsForRequest, sideLabel, sideMembers, slotsOfSide, clockTargetLabel } from "./gameLogic.ts";
+import { CRICKET_TARGETS, lineupError, markLevel, playerIdsForRequest, sideLabel, sideMembers, slotsOfSide, clockTargetLabel } from "./gameLogic.ts";
 import type { GameView, PlayerSlot } from "../../api/types";
 
 const p = (id: number, name = `P${id}`) => ({ id, username: `u${id}`, realName: name, rating: 1500, rd: 100, provisional: false });
@@ -58,9 +58,10 @@ describe("sides", () => {
 });
 
 describe("board symbols", () => {
-  it("cricket marks: one slash, a cross, a closed circle", () => {
-    assert.deepEqual([0, 1, 2, 3].map(markSymbol), ["", "/", "X", "⊗"]);
-    assert.equal(markSymbol(5), "⊗");
+  it("cricket marks: none, a slash, a cross, a closed circle (drawn as SVG, never as a symbol character)", () => {
+    assert.deepEqual([0, 1, 2, 3].map(markLevel), [0, 1, 2, 3]);
+    assert.equal(markLevel(5), 3);
+    assert.equal(markLevel(-1), 0);
   });
   it("cricket is played on 20 down to 15 and the bull", () => {
     assert.deepEqual(CRICKET_TARGETS, [20, 19, 18, 17, 16, 15, 25]);
@@ -68,7 +69,7 @@ describe("board symbols", () => {
   it("around the clock ends on the bull", () => {
     assert.equal(clockTargetLabel(1), "1");
     assert.equal(clockTargetLabel(20), "20");
-    assert.equal(clockTargetLabel(25), "BULL");
-    assert.equal(clockTargetLabel(null), "✓");
+    assert.equal(clockTargetLabel(25), "Bull");
+    assert.equal(clockTargetLabel(null), "", "finished is shown with an icon");
   });
 });

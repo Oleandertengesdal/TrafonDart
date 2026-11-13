@@ -7,9 +7,11 @@ import { useCurrentUser } from "../auth/auth";
 import { EmptyState, ErrorNotice, PageHeader, SectionTitle, Spinner } from "../components/ui";
 import { AWARD_ORDER, Medal, useAwardValue } from "../features/awards/Medal";
 import { monthName, num, signed } from "../lib/format";
+import { usePageTitle } from "../lib/pageTitle";
 
 export function AwardsPage() {
   const { t } = useTranslation();
+  usePageTitle(t("awards.title"));
   const race = useAwardRace();
   const hall = useHallOfFame();
 
@@ -59,12 +61,12 @@ function Champions({ month }: { month: MonthResult }) {
   const rest = month.awards.filter((a) => a.award !== "PLAYER_OF_MONTH");
   return (
     <section className="grid items-end gap-8 md:grid-cols-[auto_1fr]">
-      <div className="arch mx-auto flex w-72 flex-col items-center border-2 border-brass bg-gradient-to-b from-[#3b2a12] to-masonry px-6 pb-6 pt-12 text-center shadow-[0_0_50px_-16px_rgba(205,163,73,0.7)] md:mx-0">
+      <div className="arch mx-auto flex w-72 flex-col items-center border-2 border-t-[6px] border-brass bg-masonry px-6 pb-6 pt-12 text-center md:mx-0">
         <Crown className="size-10 text-brass" aria-hidden />
         <p className="mt-3 text-sm font-semibold text-brass">{t("awards.reigning", { month: monthName(month.period) })}</p>
         {potm?.player ? (
           <>
-            <Link to={`/players/${potm.player.username}`} className="mt-2 font-display text-4xl font-extrabold uppercase leading-[0.95] hover:underline">
+            <Link to={`/players/${potm.player.username}`} className="mt-2 font-display text-4xl leading-[0.95] hover:underline">
               {potm.player.realName}
             </Link>
             <p className="mt-2 text-sm text-trim-dim">{t("awards.reigningPoints", { points: num(Math.round(potm.value)) })}</p>
@@ -130,7 +132,7 @@ function RaceTable({ race }: { race: AwardRace }) {
                   style={{ width: `${(Math.max(0, s.points.total) / top) * 100}%` }}
                 />
               </div>
-              <p className="mt-1.5 text-xs text-trim-dim">
+              <p className="mt-2 text-xs text-trim-dim">
                 {t("awards.matches")} {s.stats.matches}, {t("awards.wins").toLowerCase()} {s.stats.wins}
                 {s.stats.ratingChange !== null && `, ${t("awards.ratingChange").toLowerCase()} ${signed(s.stats.ratingChange)}`}
                 {s.stats.priorAverage !== null && s.stats.monthAverage > 0 && `, ${t("awards.avgChange").toLowerCase()} ${signed(s.stats.monthAverage - s.stats.priorAverage, 1)}`}
@@ -165,7 +167,7 @@ function Leaders({ race }: { race: AwardRace }) {
           return (
             <li key={award} className={`panel flex flex-col items-center gap-2 px-3 pb-4 pt-5 text-center ${award === "PLAYER_OF_MONTH" ? "col-span-2 sm:col-span-1" : ""}`}>
               <Medal award={award} size="lg" />
-              <p className="mt-1 font-display text-lg font-bold uppercase leading-tight">{t(`awards.types.${award}`)}</p>
+              <p className="mt-1 font-display text-lg leading-tight">{t(`awards.types.${award}`)}</p>
               <p className="text-xs text-trim-faint">{t(`awards.typeHints.${award}`)}</p>
               {l ? (
                 <>
@@ -192,7 +194,7 @@ function HallOfFame({ months }: { months: MonthResult[] }) {
     <ol className="flex flex-col gap-3">
       {months.map((m) => (
         <li key={m.period} className="panel p-4">
-          <h3 className="font-display text-xl font-bold uppercase">{monthName(m.period)}</h3>
+          <h3 className="font-display text-xl">{monthName(m.period)}</h3>
           {m.awards.length === 0 ? (
             <p className="mt-1 text-sm text-trim-faint">{t("awards.nobody")}</p>
           ) : (
@@ -260,7 +262,7 @@ function YearSection() {
   const top = r.standings.slice(0, 8);
   const past = (years.data ?? []).filter((y) => y.award?.player);
   return (
-    <section className="grid gap-8 rounded-2xl border border-brass/50 bg-gradient-to-br from-brass/10 to-masonry p-5 lg:grid-cols-[1.4fr_1fr] [&>*]:min-w-0">
+    <section className="grid gap-8 rounded-xl border border-brass/40 bg-masonry p-5 lg:grid-cols-[1.4fr_1fr] [&>*]:min-w-0">
       <div>
         <SectionTitle>{t("awards.yearRaceTitle", { year: r.year })}</SectionTitle>
         <p className="mb-3 text-sm text-trim-dim">{t("awards.yearRaceLead", { count: r.minMatches })}</p>
@@ -296,7 +298,7 @@ function YearSection() {
               <li key={y.year} className="panel flex items-center gap-3 px-4 py-3">
                 <Medal award="PLAYER_OF_YEAR" size="md" />
                 <span className="numerals text-3xl font-bold text-brass">{y.year}</span>
-                <Link to={`/players/${y.award!.player!.username}`} className="flex-1 truncate font-display text-2xl font-bold uppercase hover:underline">
+                <Link to={`/players/${y.award!.player!.username}`} className="flex-1 truncate font-display text-2xl hover:underline">
                   {y.award!.player!.realName}
                 </Link>
               </li>

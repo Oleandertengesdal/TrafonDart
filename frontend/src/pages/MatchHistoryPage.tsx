@@ -2,9 +2,11 @@ import { useTranslation } from "react-i18next";
 import { useRecentMatches } from "../api/queries";
 import { MatchRow } from "../components/MatchRow";
 import { EmptyState, LinkButton, ErrorNotice, PageHeader, Spinner } from "../components/ui";
+import { usePageTitle } from "../lib/pageTitle";
 
 export function MatchHistoryPage() {
   const { t } = useTranslation();
+  usePageTitle(t("match.historyTitle"));
   const q = useRecentMatches(undefined, 100);
   return (
     <>

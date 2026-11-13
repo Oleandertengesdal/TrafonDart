@@ -51,7 +51,7 @@ export function ChallengeButton({ opponent }: { opponent: PlayerSummary }) {
           <Segmented label={t("match.outRule")} value={outRule} onChange={setOutRule} options={(["STRAIGHT", "DOUBLE", "MASTER"] as OutRule[]).map((v) => ({ value: v, label: t(`match.out.${v}`) }))} />
           <Segmented label={t("match.legsToWin")} value={legsToWin} onChange={setLegsToWin} options={[1, 2, 3, 4, 5].map((v) => ({ value: v, label: String(v) }))} />
           <Toggle label={t("match.rated")} checked={rated} onChange={setRated} />
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             <label htmlFor="challenge-msg" className="text-sm font-medium text-trim-dim">
               {t("challenges.message")} <span className="text-trim-faint">({t("common.optional")})</span>
             </label>
@@ -113,7 +113,7 @@ function Row({ c, incoming }: { c: ChallengeView; incoming: boolean }) {
         <Swords className="size-5 shrink-0 text-trafon-bright" aria-hidden />
         <span className="font-semibold">{c.status === "ACCEPTED" ? `${c.challenger.realName} ${t("common.vs")} ${c.opponent.realName}` : status}</span>
         {c.status === "ACCEPTED" && (
-          <span className="rounded bg-board/30 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-board-bright">{status}</span>
+          <span className="rounded bg-board/30 px-2 py-0.5 text-xs font-bold text-board-bright">{status}</span>
         )}
         <span className="text-sm text-trim-faint">
           {rulesSummary(c)}
@@ -164,7 +164,7 @@ export function ChallengesCard() {
   const order = (list: ChallengeView[]) => [...list].sort((a, b) => Number(b.status === "ACCEPTED") - Number(a.status === "ACCEPTED"));
   return (
     <section aria-labelledby="challenges-title">
-      <h2 id="challenges-title" className="mb-3 font-display text-2xl font-bold uppercase tracking-wide">
+      <h2 id="challenges-title" className="mb-3 font-display text-2xl">
         {t("challenges.title")}
       </h2>
       <ul className="flex flex-col gap-2">

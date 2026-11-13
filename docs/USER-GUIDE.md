@@ -291,7 +291,13 @@ Det sendes ingen e-post. Si fra til en admin, som lager en **passordlenke** til 
 
 ## 18. Fant du en feil?
 
-Krasjer en side, får du opp **«Noe gikk i stykker»**. Feilen blir rapportert automatisk (uten navnet ditt), så adminene får vite om den. Last inn siden på nytt.
+Krasjer en side, får du opp **«Noe gikk i stykker»**. Feilen blir rapportert automatisk (uten navnet ditt), så adminene får vite om den. Last inn siden på nytt. Står det **«Ny versjon er ute»**, er TrafonDart oppdatert mens siden var åpen: last inn på nytt, så er alt i orden.
+
+Andre feilmeldinger sier hva som skjedde og hva du kan gjøre:
+
+- **Du er frakoblet** eller **Serveren våkner**: vent litt og trykk **Prøv igjen**. Gratisserveren sover når ingen spiller, og bruker opptil et minutt på å våkne. Mister du nettet, står det også en linje under menyen.
+- **Du er logget ut**: økten har gått ut. Logg inn igjen, så kommer du tilbake dit du var.
+- **Bom på skiva** eller **Fant ikke kampen**: siden, kampen, spilleren eller turneringen finnes ikke (kanskje er lenken gammel). Gå til forsiden eller velg et annet sted.
 
 Vil du fortelle mer, trykk **Meld fra om feil** nederst på siden. Siden lager en ferdig e-post til adminene (adminsjef@uka.no) med siden du kom fra og hvilken nettleser du bruker. Skriv hva du gjorde, hva du forventet og hva som skjedde.
 

@@ -144,7 +144,7 @@ Read [docs/SECURITY.md](docs/SECURITY.md) before you deploy.
 | [ACHIEVEMENTS.md](docs/ACHIEVEMENTS.md) | Every lifetime achievement and its rule |
 | [PRIVACY.md](docs/PRIVACY.md) | What is stored, data download and account deletion |
 | [OPERATIONS.md](docs/OPERATIONS.md) | Error alerts with Sentry |
-| [TESTING.md](docs/TESTING.md) | The 399 tests, how to run them, and the flaws they found |
+| [TESTING.md](docs/TESTING.md) | The 428 tests, how to run them, and the flaws they found |
 | [SECURITY.md](docs/SECURITY.md) | Threat model and mitigations |
 | [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Neon + Render + Vercel, step by step |
 | [LOCAL-DEVELOPMENT.md](docs/LOCAL-DEVELOPMENT.md) | Running, testing and seeding locally |

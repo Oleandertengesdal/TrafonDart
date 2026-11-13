@@ -36,12 +36,13 @@ export function sideLabel(game: Lineup, side: number): string {
 
 export const CRICKET_TARGETS = [20, 19, 18, 17, 16, 15, 25];
 
-export function markSymbol(marks: number): string {
-  return marks <= 0 ? "" : marks === 1 ? "/" : marks === 2 ? "X" : "⊗";
+/** Cricket marks on a number, 0–3: none, a slash, a cross, a closed circle. Drawn by CricketMark. */
+export function markLevel(marks: number): 0 | 1 | 2 | 3 {
+  return marks <= 0 ? 0 : marks >= 3 ? 3 : (marks as 1 | 2);
 }
 
 /** Around the Clock: 1 to 20, then the bull; null once finished. */
 export function clockTargetLabel(target: number | null): string {
-  if (target === null) return "✓";
-  return target === 25 ? "BULL" : String(target);
+  if (target === null) return "";
+  return target === 25 ? "Bull" : String(target);
 }

@@ -1,9 +1,10 @@
-import { Crown, Home, LogOut, Settings, Shield, Swords, Trophy, Tv, Users, CircleUser, History } from "lucide-react";
+import { Crown, Home, LogOut, Settings, Shield, Swords, Trophy, Tv, Users, CircleUser, History, WifiOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import { api } from "../api/client";
 import { useAccountLanguage, useAuthActions, useCurrentUser } from "../auth/auth";
 import i18n, { LANGUAGES, currentLanguage, type LanguageCode } from "../i18n";
+import { useOnline } from "../lib/useOnline";
 import { Logo } from "./Logo";
 
 export function LanguageSwitch({ persist = true }: { persist?: boolean }) {
@@ -29,6 +30,21 @@ export function LanguageSwitch({ persist = true }: { persist?: boolean }) {
           {l.short}
         </button>
       ))}
+    </div>
+  );
+}
+
+/** Says so when this device loses its connection, so stale numbers aren't mistaken for live ones. */
+function OfflineBanner() {
+  const { t } = useTranslation();
+  const online = useOnline();
+  if (online) return null;
+  return (
+    <div role="status" className="border-t border-mortar bg-masonry">
+      <p className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2 text-sm text-trim-dim">
+        <WifiOff className="size-4 shrink-0" aria-hidden />
+        {t("offline.banner")}
+      </p>
     </div>
   );
 }
@@ -81,7 +97,7 @@ export function Layout() {
               <>
                 <Link
                   to={`/players/${me.username}`}
-                  className="hidden items-center gap-2 rounded-md px-2 py-1.5 text-sm text-trim-dim hover:text-trim sm:flex"
+                  className="hidden items-center gap-2 rounded-md px-2 py-2 text-sm text-trim-dim hover:text-trim sm:flex"
                   title={t("nav.profile")}
                 >
                   <CircleUser className="size-5" aria-hidden />
@@ -108,6 +124,7 @@ export function Layout() {
             )}
           </div>
         </div>
+        <OfflineBanner />
       </header>
 
       <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 pb-10 pt-8">
@@ -133,7 +150,7 @@ export function Layout() {
                 to={l.to}
                 end={l.end}
                 className={({ isActive }) =>
-                  `flex flex-col items-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold ${isActive ? "text-trim" : "text-trim-faint"}`
+                  `flex flex-col items-center gap-0.5 px-0.5 py-2 text-xs font-semibold ${isActive ? "text-trim" : "text-trim-faint"}`
                 }
               >
                 {({ isActive }) => (

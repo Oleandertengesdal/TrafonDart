@@ -42,7 +42,7 @@ export function MatchSocial({ matchId }: { matchId: string }) {
       <KudosBar s={s} onToggle={() => mutate(() => (s.kudos.mine ? api.del<SocialView>(apiPath`/api/matches/${matchId}/kudos`) : api.put<SocialView>(apiPath`/api/matches/${matchId}/kudos`)))} />
 
       <div className="panel p-5">
-        <h2 className="mb-4 flex items-center gap-2 font-display text-2xl font-bold uppercase">
+        <h2 className="mb-4 flex items-center gap-2 font-display text-2xl">
           <MessageCircle className="size-5 text-trim-faint" aria-hidden />
           {t("social.comments")}
           {s.commentCount > 0 && <span className="text-base text-trim-faint">({s.commentCount})</span>}
@@ -89,7 +89,7 @@ function KudosBar({ s, onToggle }: { s: SocialView; onToggle: () => void }) {
         <button
           onClick={onToggle}
           aria-pressed={k.mine}
-          className={`flex h-12 items-center gap-2 rounded-full border-2 px-5 font-display text-xl font-bold uppercase tracking-wide transition-transform active:scale-95 ${
+          className={`flex h-12 items-center gap-2 rounded-full border-2 px-5 font-display text-xl    transition-transform active:scale-95 ${
             k.mine ? "border-brass bg-brass text-night" : "border-brass/60 text-brass hover:bg-brass/10"
           }`}
         >
@@ -97,13 +97,13 @@ function KudosBar({ s, onToggle }: { s: SocialView; onToggle: () => void }) {
           {k.mine ? t("social.removeKudos") : t("social.giveKudos")}
         </button>
       ) : (
-        <span className="flex h-12 items-center gap-2 rounded-full border-2 border-mortar px-5 font-display text-xl font-bold uppercase text-trim-faint" title={t("social.ownMatch")}>
+        <span className="flex h-12 items-center gap-2 rounded-full border-2 border-mortar px-5 font-display text-xl text-trim-faint" title={t("social.ownMatch")}>
           <PartyPopper className="size-5" aria-hidden />
           {t("social.kudos")}
         </span>
       )}
       <div className="text-sm">
-        <span className="font-display text-2xl font-bold text-brass">{t("social.kudosCount", { count: k.count })}</span>
+        <span className="font-display text-2xl text-brass">{t("social.kudosCount", { count: k.count })}</span>
         {k.givers.length > 0 && (
           <p className="text-trim-dim">
             {t("social.kudosFrom", { names: "" })}
@@ -188,7 +188,7 @@ function Comment({ c, matchId, mutate, replyTo }: {
 
   return (
     <article className="flex gap-3">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-masonry-2 font-display text-lg font-bold uppercase text-trim-dim" aria-hidden>
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-masonry-2 font-display text-lg text-trim-dim" aria-hidden>
         {c.author?.realName.charAt(0) ?? "?"}
       </span>
       <div className="min-w-0 flex-1">
@@ -222,7 +222,7 @@ function Comment({ c, matchId, mutate, replyTo }: {
         ) : (
           <p className="mt-0.5 whitespace-pre-wrap break-words text-trim">{c.body}</p>
         )}
-        <div className="mt-1.5 flex flex-wrap items-center gap-1 text-xs">
+        <div className="mt-2 flex flex-wrap items-center gap-1 text-xs">
           <button
             onClick={() => mutate(() => (c.likedByMe ? api.del<SocialView>(apiPath`/api/comments/${c.id}/like`) : api.put<SocialView>(apiPath`/api/comments/${c.id}/like`)))}
             aria-pressed={c.likedByMe}

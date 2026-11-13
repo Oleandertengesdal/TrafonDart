@@ -31,9 +31,9 @@ export function TurnStrip({ match, pending = [] }: { match: LiveMatch; pending?:
   const ended = showing && showing !== turn;
 
   return (
-    <div className="panel flex flex-wrap items-center gap-3 px-3 py-2.5">
+    <div className="panel flex flex-wrap items-center gap-3 px-3 py-3">
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-semibold uppercase tracking-wider text-trim-faint">
+        <p className="truncate text-xs font-semibold text-trim-faint">
           {owner.realName}
           {ended && showing!.bust && <span className="ml-2 text-salmon">{t("match.bust")}</span>}
         </p>
@@ -51,7 +51,7 @@ export function TurnStrip({ match, pending = [] }: { match: LiveMatch; pending?:
         </div>
       </div>
       <div className="text-right">
-        <p className="text-xs font-semibold uppercase tracking-wider text-trim-faint">{t("match.thisTurn")}</p>
+        <p className="text-xs font-semibold text-trim-faint">{t("match.thisTurn")}</p>
         <p className={`numerals text-4xl font-extrabold leading-none ${showing?.bust ? "text-salmon line-through" : "text-trim"}`}>{total}</p>
       </div>
     </div>
@@ -64,7 +64,7 @@ export function CheckoutHint({ match }: { match: LiveMatch }) {
   if (match.status !== "IN_PROGRESS" || !match.checkout) return null;
   return (
     <div className="flex items-center gap-3 rounded-md border border-board/60 bg-board/15 px-3 py-2">
-      <span className="text-xs font-bold uppercase tracking-wider text-board-bright">{t("match.checkout")}</span>
+      <span className="text-xs font-bold text-board-bright">{t("match.checkout")}</span>
       <span className="numerals flex gap-2 text-2xl font-bold text-trim">
         {match.checkout.map((d, i) => (
           <span key={i}>{dartLabel(d)}</span>

@@ -40,7 +40,8 @@
     "optional": "valgfritt",
     "never": "Aldri",
     "none": "Ingen",
-    "darts": "piler"
+    "darts": "piler",
+    "dartsHeading": "Piler"
   },
   "auth": {
     "loginTitle": "Logg inn",
@@ -63,7 +64,8 @@
     "register": "Opprett konto",
     "registering": "Oppretter konto …",
     "haveAccount": "Har du allerede en konto?",
-    "logout": "Logg ut"
+    "logout": "Logg ut",
+    "expired": "Økten din har utløpt. Logg inn igjen, så er du tilbake der du var."
   },
   "home": {
     "liveNow": "Direkte nå",
@@ -399,8 +401,25 @@
   },
   "notFound": {
     "title": "Bom på skiva",
-    "lead": "Den siden finnes ikke.",
-    "home": "Til forsiden"
+    "lead": "Den siden finnes ikke. Kanskje lenken er gammel, eller har fått en skrivefeil.",
+    "home": "Til forsiden",
+    "elsewhere": "Eller prøv",
+    "match": {
+      "title": "Fant ikke kampen",
+      "lead": "Kampen finnes ikke, eller så er den slettet."
+    },
+    "game": {
+      "title": "Fant ikke spillet",
+      "lead": "Spillet finnes ikke, eller så er det slettet."
+    },
+    "player": {
+      "title": "Fant ikke spilleren",
+      "lead": "Ingen i gjengen har det brukernavnet."
+    },
+    "tournament": {
+      "title": "Fant ikke turneringen",
+      "lead": "Turneringen finnes ikke, eller så er den slettet."
+    }
   },
   "errors": {
     "VALIDATION_FAILED": "Noen av feltene må sjekkes på nytt.",
@@ -450,7 +469,55 @@
     "ACCOUNT_DELETED": "Denne kontoen er slettet.",
     "CHALLENGE_NOT_OPEN": "Den utfordringen er ikke åpen lenger.",
     "CHALLENGE_EXISTS": "Dere har allerede en åpen utfordring.",
-    "CHALLENGE_LIMIT": "Du har allerede 5 åpne utfordringer. Vent på noen svar først."
+    "CHALLENGE_LIMIT": "Du har allerede 5 åpne utfordringer. Vent på noen svar først.",
+    "kind": {
+      "offline": {
+        "title": "Du er frakoblet",
+        "body": "Enheten har ikke nett. Sjekk wifi eller mobildata, og prøv igjen."
+      },
+      "waking": {
+        "title": "Serveren våkner",
+        "body": "Gratisserveren sover når ingen spiller, og bruker opptil et minutt på å stå opp. Vi prøver igjen av oss selv."
+      },
+      "session": {
+        "title": "Du er logget ut",
+        "body": "Økten har utløpt. Logg inn igjen for å fortsette."
+      },
+      "forbidden": {
+        "title": "Ingen tilgang",
+        "body": "Du har ikke tilgang til dette."
+      },
+      "notFound": {
+        "title": "Fant det ikke",
+        "body": "Det finnes ikke, eller så er det slettet."
+      },
+      "rateLimited": {
+        "title": "Litt for mange forsøk",
+        "body": "Vent et halvt minutt, så prøver du igjen."
+      },
+      "server": {
+        "title": "Serveren fikk en feil",
+        "body": "Feilen er meldt. Prøv igjen om litt."
+      },
+      "conflict": {
+        "title": "Noe ble endret i mellomtiden",
+        "body": "Last inn på nytt for å se det siste."
+      },
+      "invalid": {
+        "title": "Det gikk ikke",
+        "body": "Sjekk det du fylte inn, og prøv igjen."
+      },
+      "unknown": {
+        "title": "Noe gikk galt",
+        "body": "Prøv igjen. Skjer det igjen, så meld fra om feilen."
+      }
+    },
+    "action": {
+      "login": "Logg inn",
+      "home": "Til forsiden",
+      "reload": "Last inn på nytt",
+      "report": "Meld fra om feilen"
+    }
   },
   "social": {
     "kudos": "Kudos",
@@ -653,12 +720,15 @@
   "offline": {
     "title": "Ingen forbindelse.",
     "waiting_one": "{{count}} pil er lagret på nettbrettet og sendes når forbindelsen er tilbake.",
-    "waiting_other": "{{count}} piler er lagret på nettbrettet og sendes når forbindelsen er tilbake."
+    "waiting_other": "{{count}} piler er lagret på nettbrettet og sendes når forbindelsen er tilbake.",
+    "banner": "Du er frakoblet. Det du ser kan være utdatert."
   },
   "crash": {
     "title": "Noe gikk i stykker",
     "lead": "Siden krasjet. Vi har fått beskjed. Last inn på nytt, så går det som regel bra.",
-    "reload": "Last inn på nytt"
+    "reload": "Last inn på nytt",
+    "updateTitle": "Ny versjon er ute",
+    "updateLead": "TrafonDart er oppdatert siden du åpnet siden. Last inn på nytt for å få den nye versjonen."
   },
   "waking": {
     "title": "Vekker serveren",

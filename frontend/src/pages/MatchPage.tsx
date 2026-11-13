@@ -27,6 +27,9 @@ import { num, rulesSummary } from "../lib/format";
 import { useLiveStatus, useTopic } from "../realtime/useTopic";
 import { OfflineNotice } from "../features/scoring/OfflineNotice";
 import { useWakeLock } from "../lib/wakeLock";
+import { NotFound } from "./NotFoundPage";
+import { isNotFound } from "../lib/errors";
+import { matchTitle, usePageTitle } from "../lib/pageTitle";
 
 export function MatchPage() {
   const { id = "" } = useParams();
@@ -43,14 +46,24 @@ export function MatchPage() {
 
   const match = q.data;
   const moment = useMoments(match);
+  const { t } = useTranslation();
+  usePageTitle(
+    match &&
+      matchTitle(
+        [match.players[0].realName, match.players[1].realName],
+        match.status === "IN_PROGRESS" ? match.remaining : match.legsWon,
+        match.status !== "ABANDONED",
+        t("games.versus").trim(),
+      ),
+  );
   // Keep the tablet awake while the match is on.
   useWakeLock(match?.status === "IN_PROGRESS");
 
   if (q.isLoading) return <Spinner />;
   if (q.error || !match) {
     return (
-      <div className="mx-auto max-w-xl p-6">
-        <ErrorNotice error={q.error} onRetry={() => q.refetch()} />
+      <div className="mx-auto flex min-h-dvh max-w-5xl items-center p-6 [&>*]:w-full">
+        {isNotFound(q.error) ? <NotFound what="match" /> : <ErrorNotice error={q.error} onRetry={() => q.refetch()} resource />}
       </div>
     );
   }
@@ -94,7 +107,7 @@ function MatchTopBar({
   };
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-mortar bg-night/95 px-3 backdrop-blur">
-      <Link to="/" className="flex items-center gap-2 rounded-md p-1.5 text-trim-dim hover:text-trim" aria-label={t("common.back")}>
+      <Link to="/" className="flex items-center gap-2 rounded-md p-2 text-trim-dim hover:text-trim" aria-label={t("common.back")}>
         <ArrowLeft className="size-5" />
         <LogoMark className="size-7" />
       </Link>
@@ -109,12 +122,12 @@ function MatchTopBar({
         </p>
       </div>
       {match.status === "IN_PROGRESS" ? (
-        <span className={`hidden items-center gap-1.5 text-xs font-bold uppercase tracking-wider sm:flex ${connected ? "text-trafon-bright" : "text-trim-faint"}`}>
+        <span className={`hidden items-center gap-2 text-xs font-bold   sm:flex ${connected ? "text-trafon-bright" : "text-trim-faint"}`}>
           <Radio className={`size-4 ${connected ? "animate-pulse" : ""}`} aria-hidden />
           {connected ? t("match.connection.live") : t("match.connection.reconnecting")}
         </span>
       ) : (
-        <span className="rounded bg-masonry-2 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-trim-dim">{t(`match.status.${match.status}`)}</span>
+        <span className="rounded bg-masonry-2 px-2 py-0.5 text-xs font-bold text-trim-dim">{t(`match.status.${match.status}`)}</span>
       )}
       {canScore && (
         <div className="flex rounded-md border border-mortar p-0.5 text-xs font-bold">
@@ -250,12 +263,12 @@ function WatchView({ match }: { match: LiveMatch }) {
       {tab === "overview" && (
       <div className={`mt-6 grid gap-6 ${finishedLegs.length > 0 ? "lg:grid-cols-[1.4fr_1fr]" : ""}`}>
         <section className="panel p-4">
-          <h2 className="mb-2 font-display text-xl font-bold uppercase tracking-wide">{t("match.statsTitle")}</h2>
+          <h2 className="mb-2 font-display text-xl">{t("match.statsTitle")}</h2>
           <MatchStatsTable match={match} />
         </section>
         {finishedLegs.length > 0 && (
         <section className="panel p-4">
-          <h2 className="mb-2 font-display text-xl font-bold uppercase tracking-wide">{t("match.legHistory")}</h2>
+          <h2 className="mb-2 font-display text-xl">{t("match.legHistory")}</h2>
           <ol className="flex flex-col gap-2">
             {finishedLegs.map((l) => (
                 <li key={l.legNo} className="flex items-center justify-between gap-2 border-b border-mortar/60 pb-2 text-sm last:border-0">
@@ -282,15 +295,15 @@ function WinnerBanner({ match }: { match: LiveMatch }) {
   const { t } = useTranslation();
   const w = match.winnerIndex!;
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-4 rounded-xl border border-brass/60 bg-gradient-to-r from-brass/20 to-transparent px-5 py-4">
+    <div className="mb-6 flex flex-wrap items-center gap-4 rounded-xl border border-brass/60 bg-brass/10 px-5 py-4">
       <Trophy className="size-8 text-brass" aria-hidden />
       <div className="flex-1">
-        <p className="font-display text-3xl font-extrabold uppercase leading-none">{t("match.matchWon", { name: match.players[w].realName })}</p>
+        <p className="font-display text-3xl leading-none">{t("match.matchWon", { name: match.players[w].realName })}</p>
         <p className="numerals mt-1 text-xl text-trim-dim">
           {match.legsWon[0]}–{match.legsWon[1]}, {t("match.average")} {num(match.stats[w].average, 2)}
         </p>
       </div>
-      {match.disputed && <span className="rounded bg-salmon/20 px-2 py-1 text-xs font-bold uppercase text-salmon">{t("match.disputed")}</span>}
+      {match.disputed && <span className="rounded bg-salmon/20 px-2 py-1 text-xs font-bold text-salmon">{t("match.disputed")}</span>}
     </div>
   );
 }
@@ -329,7 +342,7 @@ function DisputeAndRematch({ match }: { match: LiveMatch }) {
       {sent && <p className="text-sm text-board-bright">{t("match.disputeSent")}</p>}
       <Modal open={open} onClose={() => setOpen(false)} title={t("match.dispute")}>
         <p className="mb-4 text-sm text-trim-dim">{t("match.disputeLead")}</p>
-        <label className="mb-1.5 block text-sm font-medium text-trim-dim" htmlFor="dispute-reason">
+        <label className="mb-2 block text-sm font-medium text-trim-dim" htmlFor="dispute-reason">
           {t("match.disputeReason")}
         </label>
         <textarea

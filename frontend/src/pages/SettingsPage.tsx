@@ -10,11 +10,12 @@ import { LanguageSwitch } from "../components/Layout";
 import { Button, ConfirmButton, ErrorNotice, Field, Modal, PageHeader, Toggle } from "../components/ui";
 import { live } from "../realtime/stomp";
 import { soundPrefs } from "../lib/sound";
+import { usePageTitle } from "../lib/pageTitle";
 
 function Card({ title, children, danger = false }: { title: string; children: ReactNode; danger?: boolean }) {
   return (
     <section className={`panel flex flex-col gap-4 p-5 ${danger ? "border-trafon-deep" : ""}`}>
-      <h2 className="font-display text-2xl font-bold uppercase">{title}</h2>
+      <h2 className="font-display text-2xl">{title}</h2>
       {children}
     </section>
   );
@@ -22,6 +23,7 @@ function Card({ title, children, danger = false }: { title: string; children: Re
 
 export function SettingsPage() {
   const { t } = useTranslation();
+  usePageTitle(t("settings.title"));
   const { me } = useCurrentUser();
   const qc = useQueryClient();
   const navigate = useNavigate();

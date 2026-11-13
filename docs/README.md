@@ -32,7 +32,7 @@ Start with the guide that matches what you want to do.
 | [RATINGS.md](RATINGS.md) | how Glicko-2 is applied |
 | [AWARDS.md](AWARDS.md) | Player of the Month (the five awards, month points), Player of the Year, the year recap |
 | [ACHIEVEMENTS.md](ACHIEVEMENTS.md) | the lifetime achievements and which matches count |
-| [DESIGN.md](DESIGN.md) | the "Trafon after dark" visual language |
+| [DESIGN.md](DESIGN.md) | the "Trafon at dusk" visual language: colour scales, type, spacing, icons, the illustration, error pages |
 | [I18N.md](I18N.md) | adding or changing Norwegian and English text |
 
 ## Working on it

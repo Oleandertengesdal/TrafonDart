@@ -5,9 +5,11 @@ import { RatingBadge } from "../components/PlayerName";
 import { ErrorNotice, PageHeader, Spinner } from "../components/ui";
 import { CrownMark, useReigning } from "../features/awards/Medal";
 import { num, pct } from "../lib/format";
+import { usePageTitle } from "../lib/pageTitle";
 
 export function PlayersPage() {
   const { t } = useTranslation();
+  usePageTitle(t("players.title"));
   const board = useLeaderboard();
   const reigning = useReigning();
   return (
@@ -20,7 +22,7 @@ export function PlayersPage() {
       ) : (
         <div className="panel overflow-x-auto">
           <table className="w-full min-w-[36rem]">
-            <thead className="text-left text-xs uppercase tracking-wider text-trim-faint">
+            <thead className="text-left text-xs text-trim-faint">
               <tr>
                 <th className="w-12 px-4 py-3 font-semibold">#</th>
                 <th className="px-2 py-3 font-semibold">{t("players.player")}</th>
@@ -38,7 +40,7 @@ export function PlayersPage() {
                   <td className={`numerals px-4 py-3 text-2xl font-bold ${r.rank === 1 ? "text-brass" : "text-trim-faint"}`}>{r.rank}</td>
                   <td className="px-2 py-3">
                     <Link to={`/players/${r.player.username}`} className="flex flex-col leading-tight hover:underline">
-                      <span className="flex items-center gap-1.5 font-semibold">
+                      <span className="flex items-center gap-2 font-semibold">
                         {r.player.realName}
                         {reigning?.id === r.player.id && <CrownMark period={reigning.period} />}
                       </span>

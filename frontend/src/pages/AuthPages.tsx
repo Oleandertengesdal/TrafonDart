@@ -1,15 +1,17 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react-router";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, LogIn } from "lucide-react";
 import { ApiError, api, apiPath } from "../api/client";
 import type { Me } from "../api/types";
 import { useAuthActions, useCurrentUser } from "../auth/auth";
+import { clearSessionExpired, wasSessionExpired } from "../auth/sessionExpiry";
 import { Facade } from "../components/Facade";
 import { LanguageSwitch } from "../components/Layout";
 import { Logo } from "../components/Logo";
 import { Button, ErrorNotice, Field } from "../components/ui";
 import { currentLanguage } from "../i18n";
+import { usePageTitle } from "../lib/pageTitle";
 
 function AuthShell({ title, lead, children }: { title: string; lead: string; children: ReactNode }) {
   const { t } = useTranslation();
@@ -17,8 +19,8 @@ function AuthShell({ title, lead, children }: { title: string; lead: string; chi
     <div className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
       <aside className="relative hidden overflow-hidden border-r border-mortar bg-masonry lg:flex lg:flex-col lg:justify-between lg:p-12">
         <Logo />
-        <Facade className="mx-auto w-full max-w-sm drop-shadow-[0_30px_60px_rgba(200,35,31,0.25)]" />
-        <p className="max-w-sm font-display text-3xl font-bold uppercase leading-tight tracking-wide text-trim">{t("app.tagline")}</p>
+        <Facade scene className="mx-auto w-full max-w-md rounded-xl" />
+        <p className="max-w-sm font-display text-3xl leading-tight text-trim">{t("app.tagline")}</p>
       </aside>
       <div className="flex flex-col px-6 py-6 sm:px-12">
         <div className="flex items-center justify-between lg:justify-end">
@@ -28,7 +30,7 @@ function AuthShell({ title, lead, children }: { title: string; lead: string; chi
           <LanguageSwitch persist={false} />
         </div>
         <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-10">
-          <h1 className="font-display text-5xl font-extrabold uppercase leading-none">{title}</h1>
+          <h1 className="font-display text-5xl leading-none">{title}</h1>
           <p className="mb-8 mt-3 text-trim-dim">{lead}</p>
           {children}
         </div>
@@ -49,6 +51,9 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  const [expired] = useState(wasSessionExpired);
+  useEffect(clearSessionExpired, []);
+  usePageTitle(t("auth.loginTitle"));
 
   if (me) return <Navigate to={from} replace />;
 
@@ -68,6 +73,12 @@ export function LoginPage() {
 
   return (
     <AuthShell title={t("auth.loginTitle")} lead={t("auth.loginLead")}>
+      {expired && !justDeleted && (
+        <p role="status" className="mb-4 flex items-start gap-3 rounded-md border border-mortar bg-masonry px-4 py-3 text-sm text-trim-dim">
+          <LogIn className="mt-0.5 size-4 shrink-0" aria-hidden />
+          {t("auth.expired")}
+        </p>
+      )}
       {justDeleted && (
         <p role="status" className="mb-4 rounded-md border border-mortar bg-masonry px-4 py-3 text-sm text-trim-dim">
           {t("settings.deletedDone")}
@@ -106,6 +117,7 @@ export function RegisterPage() {
   const [form, setForm] = useState({ inviteCode: params.get("code") ?? "", username: "", realName: "", password: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  usePageTitle(t("auth.registerTitle"));
   const [invite, setInvite] = useState<{ state: "idle" | "checking" | "ok" | "bad"; reason?: string }>({ state: "idle" });
 
   // Check the invite code as soon as it looks complete (12 characters, dashes optional).
@@ -162,15 +174,15 @@ export function RegisterPage() {
             autoCapitalize="characters"
             autoComplete="off"
             placeholder="XXXX-XXXX-XXXX"
-            className="[&_input]:font-mono [&_input]:uppercase [&_input]:tracking-widest"
+            className="[&_input]:font-mono [&_input]: [&_input]:"
             error={invite.state === "bad" ? t(`errors.${invite.reason}`) : fieldError("inviteCode")}
           />
           {invite.state === "ok" && (
-            <p className="mt-1.5 flex items-center gap-1.5 text-sm text-board-bright">
+            <p className="mt-2 flex items-center gap-2 text-sm text-board-bright">
               <CheckCircle2 className="size-4" aria-hidden /> {t("auth.inviteValid")}
             </p>
           )}
-          {invite.state === "checking" && <p className="mt-1.5 text-sm text-trim-faint">{t("auth.inviteChecking")}</p>}
+          {invite.state === "checking" && <p className="mt-2 text-sm text-trim-faint">{t("auth.inviteChecking")}</p>}
         </div>
         <Field label={t("auth.realName")} hint={t("auth.realNameHint")} autoComplete="name" value={form.realName} onChange={set("realName")} error={fieldError("realName")} />
         <Field label={t("auth.username")} hint={t("auth.usernameHint")} autoComplete="username" autoCapitalize="none" value={form.username} onChange={set("username")} error={fieldError("username")} />
