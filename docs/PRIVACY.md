@@ -10,6 +10,7 @@ TrafonDart stores real names, so every member can see what is stored about them 
 | Username, real name, preferred language | To show who played and greet you in your language |
 | Password hash (BCrypt), session version | To log you in; the password itself is never stored |
 | Matches and party games with every dart | The scores, statistics, ratings and awards are all computed from the darts |
+| Practice matches against Trafo, the bot, with every dart | Your record against the bot on your profile |
 | Rating history | The rating chart |
 | Comments, kudos, likes | The social side of matches |
 | Awards and challenges | The trophy cabinet and invitations |
@@ -20,7 +21,7 @@ Error reports (see [OPERATIONS.md](OPERATIONS.md)) carry no name, username, IP o
 ## Download your data
 
 **Last ned dataene mine** downloads one JSON file with everything about you: profile, every match with the darts you
-threw, party games, your comments, kudos and likes you gave, rating history, awards, achievements and challenges.
+threw, party games, practice matches against Trafo, your comments, kudos and likes you gave, rating history, awards, achievements and challenges.
 Nothing about other people beyond their usernames as your opponents. At most 5 downloads an hour.
 
 ## Delete your account
@@ -33,6 +34,7 @@ Nothing about other people beyond their usernames as your opponents. At most 5 d
   working, and admins can neither re-enable the account nor send it a reset link.
 - Your **comments are deleted** (the text is wiped; a thread with replies keeps a "deleted" placeholder), and your
   **kudos and likes are removed**. Open **challenges** to or from you are called off.
+- Your **practice matches against Trafo are deleted**: they are nobody else's history.
 - **Matches and results stay.** They are your opponents' history too: their records, ratings and awards would change if
   your matches disappeared. They show "Deleted player" as the opponent.
 

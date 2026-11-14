@@ -23,7 +23,8 @@ More screens, in Norwegian and English: [docs/SCREENSHOTS.md](docs/SCREENSHOTS.m
 - **Touch scorepad.** Big keys for 1–20, Double, Treble, 25, Bull, Miss and Undo. Works on a tablet in landscape and on a phone in portrait.
 - **Installable app.** Add it to the tablet's home screen: its own icon, full screen, the screen stays awake during a match, and **darts typed while the Wi-Fi drops are kept and sent when it's back** (even after a reload). It opens instantly while a sleeping server wakes up.
 - **Party games.** X01 for three or four players or two against two, **Cricket** with its own scoreboard, **Killer** and **Around the Clock**. Never rated; own statistics and achievements. See [docs/GAME-RULES.md](docs/GAME-RULES.md#party-games-selskapsspill).
-- **X01 rules engine.** 301, 501 and 701, with Straight or Double in and Straight, Double or Master out. Busts are detected automatically: a score below zero, a dead 1, or finishing on the wrong dart.
+- **Practice against Trafo, a darts bot.** Five levels from beginner (average about 30) to pro (about 88). It aims like a player and its misses land where yours would. Practice matches never touch ratings or match stats; they have their own record with win streaks. See [docs/GAME-RULES.md](docs/GAME-RULES.md#trafo-the-practice-bot).
+- **X01 rules engine.** 301, 401, 501 and 701, with Straight or Double in and Straight, Double or Master out. Busts are detected automatically: a score below zero, a dead 1, or finishing on the wrong dart.
 - **Checkout assistant.** The best route for the darts left this turn, for example `120 → T20 20 D20`.
 - **Live spectating.** Every dart is pushed over WebSockets (STOMP). Anyone in the group can open the match link and watch.
 - **Callouts.** A flash, a chime and a spoken *"One hundred and eighty!"* (or *"Hundreåtti!"*) for 180s, 100+ finishes, busts and game shots. There's also an optional "voice caller" that reads out every turn score.
@@ -107,8 +108,8 @@ The plan (phases, checklists, costs, risks, monitoring, backups and rollback) is
 ## Testing
 
 ```bash
-cd backend  && mvn verify          # 305 tests: unit, property and fuzz tests + end-to-end API and socket tests against Postgres
-cd frontend && npm run i18n:check && npm test && npm run typecheck:test && npm run lint && npm run build   # 94 tests
+cd backend  && mvn verify          # 359 tests: unit, property and fuzz tests + end-to-end API and socket tests against Postgres
+cd frontend && npm run i18n:check && npm test && npm run typecheck:test && npm run lint && npm run build   # 131 tests
 python3 scripts/check-docs.py      # docs match the code: endpoints, env vars, links, images
 ```
 
@@ -144,7 +145,7 @@ Read [docs/SECURITY.md](docs/SECURITY.md) before you deploy.
 | [ACHIEVEMENTS.md](docs/ACHIEVEMENTS.md) | Every lifetime achievement and its rule |
 | [PRIVACY.md](docs/PRIVACY.md) | What is stored, data download and account deletion |
 | [OPERATIONS.md](docs/OPERATIONS.md) | Error alerts with Sentry |
-| [TESTING.md](docs/TESTING.md) | The 428 tests, how to run them, and the flaws they found |
+| [TESTING.md](docs/TESTING.md) | The 490 tests, how to run them, and the flaws they found |
 | [SECURITY.md](docs/SECURITY.md) | Threat model and mitigations |
 | [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Neon + Render + Vercel, step by step |
 | [LOCAL-DEVELOPMENT.md](docs/LOCAL-DEVELOPMENT.md) | Running, testing and seeding locally |
@@ -155,4 +156,4 @@ Read [docs/SECURITY.md](docs/SECURITY.md) before you deploy.
 
 ### Norsk kortversjon
 
-TrafonDart er en privat app for gjengen. Den fører dartkamper live fra et nettbrett ved skiva (også når nettet faller ut, og kan installeres som app), regner ut Glicko-2-rating og statistikk, kårer månedens og årets spiller, lager en årsoppsummering for hver spiller, har selskapsspill (X01 for flere, to mot to, Cricket, Killer, Rundt klokka), utfordringer, prestasjoner og TV-modus, og kjører serier og cuper automatisk. Brukerveiledningen ligger i [docs/USER-GUIDE.md](docs/USER-GUIDE.md), og adminveiledningen i [docs/ADMIN-GUIDE.md](docs/ADMIN-GUIDE.md). Hele grensesnittet finnes på norsk og engelsk. Se *Quick start* over for å kjøre den lokalt, og [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for å publisere den gratis på Vercel, Render og Neon. Ingen hemmeligheter skal i Git. Bruk `.env`, som er ignorert, og miljøvariabler i Render og Vercel.
+TrafonDart er en privat app for gjengen. Den fører dartkamper live fra et nettbrett ved skiva (også når nettet faller ut, og kan installeres som app), regner ut Glicko-2-rating og statistikk, kårer månedens og årets spiller, lager en årsoppsummering for hver spiller, har selskapsspill (X01 for flere, to mot to, Cricket, Killer, Rundt klokka), en dartbot å øve mot, utfordringer, prestasjoner og TV-modus, og kjører serier og cuper automatisk. Brukerveiledningen ligger i [docs/USER-GUIDE.md](docs/USER-GUIDE.md), og adminveiledningen i [docs/ADMIN-GUIDE.md](docs/ADMIN-GUIDE.md). Hele grensesnittet finnes på norsk og engelsk. Se *Quick start* over for å kjøre den lokalt, og [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for å publisere den gratis på Vercel, Render og Neon. Ingen hemmeligheter skal i Git. Bruk `.env`, som er ignorert, og miljøvariabler i Render og Vercel.

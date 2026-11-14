@@ -110,6 +110,7 @@ describe("persisting across a reload", () => {
     assert.equal(storageKey("match", "abc"), "td.pending.match.abc");
     assert.equal(storageKey("game", "abc"), "td.pending.game.abc");
     assert.notEqual(storageKey("match", "a"), storageKey("game", "a"));
+    assert.equal(storageKey("bot", "abc"), "td.pending.bot.abc");
   });
 
   it("round-trips, misses included", () => {

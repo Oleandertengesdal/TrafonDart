@@ -2,6 +2,21 @@
 
 All notable changes to TrafonDart. Versions follow [semantic versioning](https://semver.org/). Database migrations are listed, because they are the one thing that can't simply be rolled back.
 
+## 1.6.0: Practice against Trafo, and 401
+
+### Added
+
+- **Play against Trafo, a dartbot**, when there's no one to play against (**Spill → Mot Trafo**). Five levels, each playing at a typical 3-dart average: Nybegynner (about 30), Hobbyspiller (about 42), Klubbspiller (about 55), Ligaspiller (about 70) and Proff (about 88). Trafo aims like a player (treble 20, a set-up shot, then the double) with a hand as steady as its level, so a miss lands in a neighbouring bed. You score your own darts as in a normal match; Trafo throws its turn at once and its darts appear one by one.
+- Undo takes back your last dart and Trafo's answer to it. Trafo answers the same dart the same way, so undo can't be used to re-roll it. Giving up counts as a loss once you've thrown. One match against Trafo at a time.
+- **Your own record against Trafo**, on the profile and the setup page: won and lost per level, current and longest win streak, the hardest level beaten, and your average, first 9, checkout percentage, 180s and highest finish in these matches.
+- Practice matches **don't count** anywhere else: not on your rating, the leaderboard, your match history, head-to-head, your statistics, Player of the Month, achievements or the year recap. They are in your data export and are deleted with your account.
+- **401** as a start score, for matches, party games, tournaments and challenges.
+- 62 new tests (490 in all), among them a simulation that checks each level plays at the average it promises.
+
+### Database
+
+- `V5__bot_matches_and_401.sql`: allows 401 as a start score, and adds `bot_matches` and `bot_match_darts`, kept apart from `matches` so nothing that reads matches can see them.
+
 ## 1.5.0: Trafon at dusk
 
 ### Changed

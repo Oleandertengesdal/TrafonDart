@@ -517,7 +517,8 @@
       "home": "Go home",
       "reload": "Reload",
       "report": "Report the bug"
-    }
+    },
+    "BOT_MATCH_IN_PROGRESS": "You already have a match going against Trafo. Carry on with it, or give up first."
   },
   "social": {
     "kudos": "Kudos",
@@ -990,5 +991,77 @@
     "decline": "Decline",
     "cancel": "Call off",
     "expires": "expires {{when}}"
+  },
+  "bot": {
+    "nav": "Play Trafo",
+    "title": "Play against Trafo",
+    "lead": "Trafo is a darts bot that throws its own darts. Practise as much as you like: these matches don't count towards your rating or match stats, but they get a record of their own.",
+    "level": "Level",
+    "average": "Averages about {{n}}",
+    "levels": {
+      "BEGINNER": {
+        "name": "Beginner",
+        "hint": "Rarely hits a double. Good for getting started."
+      },
+      "CASUAL": {
+        "name": "Casual",
+        "hint": "Throws unevenly, but can surprise you."
+      },
+      "CLUB": {
+        "name": "Club player",
+        "hint": "An even match for most of the crew."
+      },
+      "LEAGUE": {
+        "name": "League player",
+        "hint": "Scores well and punishes missed doubles."
+      },
+      "PRO": {
+        "name": "Pro",
+        "hint": "180s and big finishes. Good luck."
+      }
+    },
+    "you": "Me",
+    "start": "Start the match",
+    "starting": "Starting …",
+    "beaten": "Beaten",
+    "levelRecord": "{{won}} of {{played}} won",
+    "open": "You have a match going against Trafo.",
+    "carryOn": "Carry on",
+    "forfeit": "Give up",
+    "forfeitConfirm": "Give up the match? If you've thrown, it counts as a loss.",
+    "throwing": "Trafo is throwing",
+    "skip": "Skip",
+    "won": "You beat Trafo",
+    "lost": "Trafo won",
+    "forfeited": "You gave up",
+    "resultLine": "{{legs}}, your average {{mine}}, Trafo's average {{trafo}}",
+    "playAgain": "Play again",
+    "tryLevel": "Try {{level}}",
+    "changeSettings": "Change settings",
+    "practice": "Practice, not rated",
+    "record": {
+      "title": "Against Trafo",
+      "lead": "Practice matches against the bot. They don't count towards rating, the leaderboard or match stats.",
+      "played": "Matches",
+      "won": "Won–lost",
+      "winRate": "Win rate",
+      "streak": "Current streak",
+      "bestStreak": "Best streak",
+      "hardest": "Hardest beaten",
+      "none": "None yet",
+      "average": "Average vs Trafo",
+      "first9": "First 9",
+      "checkout": "Checkout",
+      "oneEighties": "180s",
+      "highestCheckout": "Highest checkout",
+      "trafoAverage": "Trafo's average",
+      "levels": "By level",
+      "recent": "Recent matches",
+      "emptyMine": "You haven't played Trafo yet.",
+      "empty": "{{name}} hasn't played Trafo yet.",
+      "challenge": "Play Trafo",
+      "mine": "Your record against Trafo",
+      "seeAll": "See the whole record"
+    }
   }
 }

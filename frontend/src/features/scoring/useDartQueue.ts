@@ -19,7 +19,7 @@ interface Scoreable {
 }
 
 export interface DartQueueOptions<S extends Scoreable> {
-  kind: "match" | "game";
+  kind: "match" | "game" | "bot";
   id: string;
   queryKey: readonly unknown[];
   throwPath: string;

@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Crown, Radio, Sparkles, Trophy, Tv, Users } from "lucide-react";
+import { Bot, Crown, Radio, Sparkles, Trophy, Tv, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { keys, useAwardRace, useLeaderboard, useLiveGames, useLiveMatches, useRecentMatches, useTournaments } from "../api/queries";
@@ -143,6 +143,10 @@ function QuietHero() {
           <LinkButton to="/games/new" size="lg" variant="secondary">
             <Users className="size-5" aria-hidden />
             {t("games.partyGame")}
+          </LinkButton>
+          <LinkButton to="/bot" size="lg" variant="secondary">
+            <Bot className="size-5" aria-hidden />
+            {t("bot.nav")}
           </LinkButton>
           <LinkButton to="/tv" size="lg" variant="ghost">
             <Tv className="size-5" aria-hidden />

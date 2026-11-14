@@ -14,6 +14,7 @@ import { useTopic } from "../realtime/useTopic";
 import { usePageTitle } from "../lib/pageTitle";
 import { NotFound } from "./NotFoundPage";
 import { isNotFound } from "../lib/errors";
+import { startScoreOptions } from "../lib/x01";
 
 // ------------------------------------------------------------------ list
 
@@ -120,7 +121,7 @@ export function NewTournamentPage() {
             hint={t(`tournament.formatHints.${format}`)}
             options={(["ROUND_ROBIN", "SINGLE_ELIMINATION"] as TournamentFormat[]).map((v) => ({ value: v, label: t(`tournament.formats.${v}`) }))}
           />
-          <Segmented label={t("match.startScore")} value={startScore} onChange={setStartScore} options={[301, 501, 701].map((v) => ({ value: v, label: String(v) }))} />
+          <Segmented label={t("match.startScore")} value={startScore} onChange={setStartScore} options={startScoreOptions} />
           <Segmented label={t("match.inRule")} value={inRule} onChange={setInRule} options={(["STRAIGHT", "DOUBLE"] as InRule[]).map((v) => ({ value: v, label: t(`match.in.${v}`) }))} />
           <Segmented label={t("match.outRule")} value={outRule} onChange={setOutRule} options={(["STRAIGHT", "DOUBLE", "MASTER"] as OutRule[]).map((v) => ({ value: v, label: t(`match.out.${v}`) }))} />
           <Segmented label={t("match.legsToWin")} value={legsToWin} onChange={setLegsToWin} options={[1, 2, 3, 4, 5].map((v) => ({ value: v, label: String(v) }))} />

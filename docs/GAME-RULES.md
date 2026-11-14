@@ -15,7 +15,7 @@ Implemented in `backend/src/main/java/no/trafondart/game/` and covered by `X01En
 
 ## X01
 
-- Start at **301, 501 or 701**. The first player to reach exactly **0** wins the leg.
+- Start at **301, 401, 501 or 701**. The first player to reach exactly **0** wins the leg.
 - A match is **first to N legs** (1–11).
 - The starting player alternates every leg. The first leg starts with the chosen player, or a random one.
 
@@ -107,7 +107,7 @@ the throwing order is A1, B1, A2, B2. Partners share one score.
 
 ### X01 for a group, and doubles
 
-Exactly the X01 rules above (start 301/501/701, straight or double in, straight/double/master out, busts), with each
+Exactly the X01 rules above (start 301/401/501/701, straight or double in, straight/double/master out, busts), with each
 player or team in turn. Legs to win 1–3; the first leg's starter rotates each leg.
 
 ### Cricket
@@ -140,6 +140,35 @@ player or team in turn. Legs to win 1–3; the first leg's starter rotates each 
 
 Per player and game type: games played and won, darts thrown, and a "best": X01 best average, Cricket best marks per
 round, Killer most lives taken in a game, Around the Clock fewest darts in a win.
+
+## Trafo, the practice bot
+
+Trafo is a bot you can play X01 against on your own (any start score and rules). It plays like a person:
+
+- **Where it aims:** a double to get in (double in); the first dart of the checkout route when it can finish with the
+  darts it has left; otherwise the first dart of the three-dart route, which sets up a finish; and with no finish in
+  reach, treble 20. The routes are the [checkout assistant's](#checkout-assistant).
+- **Where it hits:** each dart lands around the aim point with a normal (Gaussian) spread on a regulation board in
+  millimetres. A miss lands in a neighbouring bed, as yours would: the single 20, the 1 or the 5 around treble 20, and
+  outside the double ring is a miss.
+- **Levels:** the spread is the level. Each was tuned by simulating hundreds of legs of 501, double out, so that it
+  averages what its name promises (checked in `BotPlayerTest`):
+
+| Level | Spread | 3-dart average | Checkout % |
+|---|---|---|---|
+| Nybegynner (Beginner) | 34 mm | about 30 | about 5 |
+| Hobbyspiller (Casual) | 22 mm | about 42 | about 11 |
+| Klubbspiller (Club player) | 16 mm | about 55 | about 18 |
+| Ligaspiller (League player) | 12 mm | about 70 | about 24 |
+| Proff (Pro) | 8.5 mm | about 88 | about 33 |
+
+- **Fair undo:** each of Trafo's darts is drawn from a random generator seeded with the match's seed and the dart's
+  number. Undoing your dart and throwing the same again gets the same answer, so undo can't be used to re-roll Trafo.
+- **Its own record:** practice matches never count towards rating, the leaderboard, head-to-head, match stats, awards,
+  achievements, the recap or your match win streak. They get a record of their own on your profile: wins and losses per
+  level, current and best win streak, the hardest level beaten, and your throwing in these matches.
+- **Giving up** counts as a loss once you have thrown a dart (so a streak can't be saved by quitting). Before that, the
+  match is simply removed. You can have one unfinished match against Trafo at a time.
 
 ## Match lifecycle
 

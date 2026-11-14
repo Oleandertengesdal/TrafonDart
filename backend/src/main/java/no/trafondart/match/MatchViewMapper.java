@@ -109,7 +109,7 @@ public class MatchViewMapper {
                 disputes.existsByMatchIdAndStatus(match.getId(), MatchRecords.Dispute.Status.OPEN));
     }
 
-    private static MatchViews.TurnView turnView(X01Engine.Turn t) {
+    public static MatchViews.TurnView turnView(X01Engine.Turn t) {
         if (t == null) return null;
         List<MatchViews.DartView> ds = t.darts().stream()
                 .map(r -> new MatchViews.DartView(r.dart().segment(), r.dart().multiplier(), r.dart().label(), r.counted()))

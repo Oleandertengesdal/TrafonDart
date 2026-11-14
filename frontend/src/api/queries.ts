@@ -27,6 +27,8 @@ import type {
   Cabinet,
   Recap,
   ChallengeList,
+  BotMatch,
+  BotRecord,
 } from "./types";
 
 export const keys = {
@@ -36,6 +38,8 @@ export const keys = {
   liveMatches: ["matches", "live"] as const,
   recentMatches: (user?: string) => ["matches", "recent", user ?? "all"] as const,
   match: (id: string) => ["match", id] as const,
+  botMatch: (id: string) => ["bot-match", id] as const,
+  botRecord: (u: string) => ["bot-record", u.toLowerCase()] as const,
   profile: (u: string) => ["profile", u.toLowerCase()] as const,
   h2h: (u: string) => ["h2h", u.toLowerCase()] as const,
   tournaments: ["tournaments"] as const,
@@ -142,6 +146,16 @@ export const useRecentMatches = (user?: string, limit = 20) =>
 
 export const useMatch = (id: string) =>
   useQuery({ queryKey: keys.match(id), queryFn: () => api.get<LiveMatch>(apiPath`/api/matches/${id}`) });
+
+export const useBotMatch = (id: string) =>
+  useQuery({ queryKey: keys.botMatch(id), queryFn: () => api.get<BotMatch>(apiPath`/api/bot-matches/${id}`) });
+
+export const useBotRecord = (username: string | undefined) =>
+  useQuery({
+    queryKey: keys.botRecord(username ?? ""),
+    queryFn: () => api.get<BotRecord>(apiPath`/api/users/${username!}/bot-record`),
+    enabled: !!username,
+  });
 
 export const useProfile = (username: string) =>
   useQuery({

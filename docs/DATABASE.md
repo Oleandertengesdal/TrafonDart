@@ -53,7 +53,7 @@ erDiagram
   }
   matches {
     uuid id PK
-    int start_score "301|501|701"
+    int start_score "301|401|501|701"
     varchar in_rule
     varchar out_rule
     int legs_to_win
@@ -162,6 +162,18 @@ Awards are **derived data**, like ratings. The month points themselves are never
 
 There is **no achievements table**: achievements are computed from matches, games and awards on request, so voiding a
 match updates them automatically ([ACHIEVEMENTS.md](ACHIEVEMENTS.md)). The year recap is computed the same way.
+
+## Practice against Trafo, and 401 (V5)
+
+| Table / column | Purpose |
+|---|---|
+| `start_score` checks | `matches`, `tournaments` and `challenges` accept 301, 401, 501 and 701 |
+| `bot_matches` | a practice match against the bot: `id (uuid), user_id, level (BEGINNER … PRO), start_score, in_rule, out_rule, legs_to_win, starting_player (0 = the player, 1 = Trafo), seed, status (IN_PROGRESS, COMPLETED, FORFEITED), won, created_at, completed_at, version`, plus the player's numbers stored when it ends (legs won and lost, darts, points, first 9, 180/140/100, highest turn and checkout, checkout attempts and hits, Trafo's average). Check: `won` is set exactly when the match is over. Partial unique index: one unfinished match per player |
+| `bot_match_darts` | `(match_id → bot_matches cascade, seq)` primary key, `segment, multiplier`: both sides' darts in order (who threw each follows from the order) |
+
+Kept in their own tables on purpose: nothing that reads `matches` (rating, leaderboard, head-to-head, awards,
+achievements, recap, the live feed) can see them. They go with the account when it is deleted, and are in the data
+export.
 
 ## Design notes
 

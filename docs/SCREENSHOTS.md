@@ -28,6 +28,20 @@ The home page shows challenges (one waiting for an answer, one accepted and read
 
 ![Offline](images/offline.png)
 
+## Practice against Trafo
+
+**Setting up:** pick Trafo's level (each one says the average it plays at and how you've done against it), who throws first, the game and the rules. Your record against Trafo is underneath.
+
+![Playing against Trafo](images/bot-setup.png)
+
+**Trafo's turn:** you score your own darts as usual; Trafo throws at once, and its darts appear one by one.
+
+![Trafo throwing](images/bot-match.png)
+
+**The record:** on the profile, apart from the real statistics: won and lost per level, streaks, the hardest level beaten and the throwing numbers from these matches.
+
+![The record against Trafo](images/profile-trafo.png)
+
 ## Party games
 
 **New party game:** pick the game, tap the players in throwing order (or four for two against two), set the options.

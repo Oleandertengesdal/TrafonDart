@@ -12,6 +12,7 @@ import { ChallengeButton } from "../features/challenges/Challenges";
 import { sideLabel } from "../features/games/gameLogic";
 import { AverageChart, RatingChart } from "../features/stats/Charts";
 import { DartNerd } from "../features/stats/DartNerd";
+import { BotRecordSection } from "../features/bot/BotRecordSection";
 import { AWARD_ORDER, Medal, ReigningChip, useAwardValue, useReigning } from "../features/awards/Medal";
 import { date, monthName, num, pct, relative } from "../lib/format";
 import { NotFound } from "./NotFoundPage";
@@ -80,6 +81,8 @@ export function ProfilePage() {
       <AchievementCabinet username={s.player.username} />
 
       <PartyGames username={s.player.username} playerId={s.player.id} />
+
+      <BotRecordSection username={s.player.username} isMe={me?.id === s.player.id} />
 
       <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] [&>*]:min-w-0">
         <section>

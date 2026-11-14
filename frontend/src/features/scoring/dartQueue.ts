@@ -55,7 +55,7 @@ export function wasApplied(expected: number, dart: QueuedDart, server: { dartCou
   return serverLastLabel === null || serverLastLabel === dartLabelOf(dart);
 }
 
-export function storageKey(kind: "match" | "game", id: string): string {
+export function storageKey(kind: "match" | "game" | "bot", id: string): string {
   return `td.pending.${kind}.${id}`;
 }
 

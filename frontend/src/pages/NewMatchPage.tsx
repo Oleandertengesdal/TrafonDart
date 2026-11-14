@@ -1,13 +1,14 @@
 import { useId, useMemo, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router";
-import { ArrowLeftRight, Users } from "lucide-react";
+import { ArrowLeftRight, Bot, Users } from "lucide-react";
 import { api } from "../api/client";
 import { usePlayers } from "../api/queries";
 import type { InRule, LiveMatch, OutRule, PlayerSummary } from "../api/types";
 import { useCurrentUser } from "../auth/auth";
 import { Button, ErrorNotice, LinkButton, PageHeader, Segmented, Spinner, Toggle } from "../components/ui";
 import { usePageTitle } from "../lib/pageTitle";
+import { startScoreOptions } from "../lib/x01";
 
 export function PlayerSelect({
   label,
@@ -119,10 +120,16 @@ export function NewMatchPage() {
         title={t("match.newTitle")}
         lead={t("match.newLead")}
         action={
-          <LinkButton to="/games/new" variant="secondary">
-            <Users className="size-4" aria-hidden />
-            {t("games.moreThanTwo")}
-          </LinkButton>
+          <div className="flex flex-wrap gap-2">
+            <LinkButton to="/bot" variant="secondary">
+              <Bot className="size-4" aria-hidden />
+              {t("bot.nav")}
+            </LinkButton>
+            <LinkButton to="/games/new" variant="secondary">
+              <Users className="size-4" aria-hidden />
+              {t("games.moreThanTwo")}
+            </LinkButton>
+          </div>
         }
       />
       <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1fr_1fr] [&>*]:min-w-0">
@@ -159,7 +166,7 @@ export function NewMatchPage() {
         </section>
 
         <section className="panel flex flex-col gap-5 p-5">
-          <Segmented label={t("match.startScore")} value={startScore} onChange={setStartScore} options={[301, 501, 701].map((v) => ({ value: v, label: String(v) }))} />
+          <Segmented label={t("match.startScore")} value={startScore} onChange={setStartScore} options={startScoreOptions} />
           <Segmented
             label={t("match.inRule")}
             value={inRule}

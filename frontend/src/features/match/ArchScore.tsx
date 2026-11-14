@@ -17,6 +17,7 @@ export function ArchScore({
   needsDouble,
   bust,
   size = "md",
+  handle,
 }: {
   player: PlayerSummary;
   remaining: number;
@@ -28,6 +29,8 @@ export function ArchScore({
   needsDouble?: boolean;
   bust?: boolean;
   size?: "sm" | "md" | "lg";
+  /** The line under the name; "@username" unless given (Trafo shows its level). */
+  handle?: string;
 }) {
   const { t } = useTranslation();
   const numberSize = { sm: "text-score-md", md: "text-score-lg", lg: "text-score-xl" }[size];
@@ -45,7 +48,7 @@ export function ArchScore({
     >
       <div className="flex w-full flex-col items-center text-center">
         <span className={`max-w-full truncate font-display ${size === "sm" ? "text-lg" : "text-2xl"}`}>{player.realName}</span>
-        <span className={`text-xs ${active ? "text-brick-100" : "text-trim-faint"}`}>@{player.username}</span>
+        <span className={`text-xs ${active ? "text-brick-100" : "text-trim-faint"}`}>{handle ?? `@${player.username}`}</span>
       </div>
 
       <div

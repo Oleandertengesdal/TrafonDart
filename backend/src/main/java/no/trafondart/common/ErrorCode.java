@@ -38,6 +38,8 @@ public enum ErrorCode {
     MATCH_PLAYERS_SAME(HttpStatus.BAD_REQUEST),
     MATCH_NOT_IN_PROGRESS(HttpStatus.CONFLICT),
     MATCH_OUT_OF_SYNC(HttpStatus.CONFLICT),
+    /** You already have a match against Trafo going (its id is in the details). */
+    BOT_MATCH_IN_PROGRESS(HttpStatus.CONFLICT),
     MATCH_NOTHING_TO_UNDO(HttpStatus.CONFLICT),
     MATCH_NOT_SCORER(HttpStatus.FORBIDDEN),
     DISPUTE_NOT_ALLOWED(HttpStatus.CONFLICT),

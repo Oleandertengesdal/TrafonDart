@@ -645,3 +645,59 @@ export interface ChallengeList {
   incoming: ChallengeView[];
   outgoing: ChallengeView[];
 }
+
+// ------------------------------------------------------------------ Trafo, the practice bot
+
+export type BotLevel = "BEGINNER" | "CASUAL" | "CLUB" | "LEAGUE" | "PRO";
+export type BotMatchStatus = "IN_PROGRESS" | "COMPLETED" | "FORFEITED";
+
+/** A practice match: the same scoreboard as a match (you are player 0, Trafo player 1), plus Trafo's latest turns. */
+export interface BotMatch extends Omit<LiveMatch, "status"> {
+  status: BotMatchStatus;
+  level: BotLevel;
+  typicalAverage: number;
+  /** Your latest turn, finished or not (null before your first dart). */
+  playerTurn: TurnView | null;
+  /** Trafo's turns since your last dart, to show dart by dart. */
+  botTurns: TurnView[];
+}
+
+export interface BotRecord {
+  player: PlayerSummary;
+  played: number;
+  won: number;
+  lost: number;
+  winRate: number;
+  currentStreak: number;
+  bestStreak: number;
+  hardestBeaten: BotLevel | null;
+  levels: { level: BotLevel; typicalAverage: number; played: number; won: number }[];
+  throwing: {
+    average: number;
+    first9Average: number;
+    bestAverage: number;
+    count180: number;
+    count140: number;
+    count100: number;
+    highestTurn: number;
+    highestCheckout: number;
+    checkoutAttempts: number;
+    checkoutsHit: number;
+    checkoutPercentage: number;
+    trafoAverage: number;
+  };
+  recent: {
+    id: string;
+    level: BotLevel;
+    status: BotMatchStatus;
+    won: boolean;
+    legsWon: number;
+    legsLost: number;
+    average: number;
+    trafoAverage: number;
+    startScore: number;
+    completedAt: string;
+  }[];
+  /** Your own unfinished match against Trafo; always null on someone else's record. */
+  openMatchId: string | null;
+}

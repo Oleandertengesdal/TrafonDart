@@ -7,6 +7,10 @@ import no.trafondart.awards.AwardEntities;
 import no.trafondart.awards.MonthlyAwardRepository;
 import no.trafondart.awards.YearEntities;
 import no.trafondart.awards.YearlyAwardRepository;
+import no.trafondart.bot.BotDart;
+import no.trafondart.bot.BotDartRepository;
+import no.trafondart.bot.BotMatch;
+import no.trafondart.bot.BotMatchRepository;
 import no.trafondart.challenge.Challenge;
 import no.trafondart.challenge.ChallengeRepository;
 import no.trafondart.challenge.ChallengeService;
@@ -66,7 +70,7 @@ public class AccountService {
     public record Export(String format, Instant exportedAt, Profile profile, List<MatchRow> matches, List<GameRow> games,
                          List<CommentRow> comments, List<KudosRow> kudosGiven, List<LikeRow> commentLikes,
                          List<RatingRow> ratingHistory, List<AwardRow> awards, List<AchievementService.Achievement> achievements,
-                         List<ChallengeRow> challenges) {
+                         List<ChallengeRow> challenges, List<BotMatchRow> botMatches) {
     }
 
     public record Profile(Long id, String username, String realName, String role, String preferredLocale, Instant memberSince,
@@ -104,6 +108,11 @@ public class AccountService {
     public record AwardRow(String period, String award, double value) {
     }
 
+    /** A practice match against Trafo; {@code won} is null while it's unfinished. */
+    public record BotMatchRow(UUID id, String level, String status, Boolean won, int startScore, String inRule, String outRule,
+                              int legsToWin, int legsWon, int legsLost, Instant createdAt, Instant completedAt, List<String> myDarts) {
+    }
+
     public record ChallengeRow(Long id, String role, String otherPlayer, String status, Instant createdAt, UUID matchId, String message) {
     }
 
@@ -122,6 +131,8 @@ public class AccountService {
     private final ChallengeRepository challengeRepo;
     private final ChallengeService challenges;
     private final PasswordResetTokenRepository resetTokens;
+    private final BotMatchRepository botMatches;
+    private final BotDartRepository botDarts;
     private final PasswordEncoder encoder;
     private final RateLimiter rateLimiter;
     private final SecureRandom random = new SecureRandom();
@@ -130,7 +141,8 @@ public class AccountService {
                           GameResultRepository gameResults, CommentRepository comments, KudosRepository kudos, CommentLikeRepository likes,
                           RatingHistoryRepository ratings, MonthlyAwardRepository monthly, YearlyAwardRepository yearly,
                           AchievementService achievements, ChallengeRepository challengeRepo, ChallengeService challenges,
-                          PasswordResetTokenRepository resetTokens, PasswordEncoder encoder, RateLimiter rateLimiter) {
+                          PasswordResetTokenRepository resetTokens, BotMatchRepository botMatches, BotDartRepository botDarts,
+                          PasswordEncoder encoder, RateLimiter rateLimiter) {
         this.users = users;
         this.matches = matches;
         this.stats = stats;
@@ -146,6 +158,8 @@ public class AccountService {
         this.challengeRepo = challengeRepo;
         this.challenges = challenges;
         this.resetTokens = resetTokens;
+        this.botMatches = botMatches;
+        this.botDarts = botDarts;
         this.encoder = encoder;
         this.rateLimiter = rateLimiter;
     }
@@ -209,10 +223,28 @@ public class AccountService {
                     c.getCreatedAt(), c.getMatchId(), c.getMessage());
         }).toList();
 
+        List<BotMatch> practice = botMatches.findAllByUserIdOrderByCreatedAt(userId);
+        Map<UUID, List<BotDart>> practiceDarts = practice.isEmpty() ? Map.of()
+                : botDarts.findAllByMatchIdInOrderByMatchIdAscSeqAsc(practice.stream().map(BotMatch::getId).toList()).stream()
+                .collect(Collectors.groupingBy(BotDart::getMatchId));
+        List<BotMatchRow> botRows = new ArrayList<>();
+        for (BotMatch m : practice) {
+            List<Dart> all = practiceDarts.getOrDefault(m.getId(), List.of()).stream().map(BotDart::toDart).toList();
+            List<String> myDarts = new ArrayList<>();
+            for (X01Engine.Leg leg : X01Engine.replay(m.config(), m.getStartingPlayer(), all).legs()) {
+                for (X01Engine.Turn t : leg.turns()) {
+                    if (t.playerIndex() == BotMatch.PLAYER) t.darts().forEach(d -> myDarts.add(d.dart().label()));
+                }
+            }
+            botRows.add(new BotMatchRow(m.getId(), m.getLevel().name(), m.getStatus().name(), m.getWon(), m.config().startScore(),
+                    m.config().inRule().name(), m.config().outRule().name(), m.config().legsToWin(), m.getLegsWon(), m.getLegsLost(),
+                    m.getCreatedAt(), m.getCompletedAt(), myDarts));
+        }
+
         Profile profile = new Profile(me.getId(), me.getUsername(), me.getRealName(), me.getRole().name(), me.getPreferredLocale(),
                 me.getCreatedAt(), me.getRating(), me.getRatingDeviation(), me.getLastRatedAt());
         return new Export("trafondart-export/1", Instant.now(), profile, matchRows, gameRows, commentRows, kudosRows, likeRows,
-                ratingRows, awardRows, unlocked, challengeRows);
+                ratingRows, awardRows, unlocked, challengeRows, botRows);
     }
 
     @Transactional
@@ -235,6 +267,8 @@ public class AccountService {
         likes.deleteByUser(userId);
         challenges.cancelAllFor(userId);
         resetTokens.invalidateOpenFor(userId, now);
+        // Practice against Trafo is nobody else's history: it goes with the account (darts go by cascade).
+        botMatches.deleteAllForUser(userId);
         byte[] secret = new byte[32];
         random.nextBytes(secret);
         user.markDeleted(encoder.encode(Base64.getEncoder().encodeToString(secret)), now);

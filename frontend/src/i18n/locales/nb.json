@@ -517,7 +517,8 @@
       "home": "Til forsiden",
       "reload": "Last inn på nytt",
       "report": "Meld fra om feilen"
-    }
+    },
+    "BOT_MATCH_IN_PROGRESS": "Du har allerede en kamp i gang mot Trafo. Fortsett den eller gi opp først."
   },
   "social": {
     "kudos": "Kudos",
@@ -990,5 +991,77 @@
     "decline": "Avslå",
     "cancel": "Avlys",
     "expires": "utløper {{when}}"
+  },
+  "bot": {
+    "nav": "Mot Trafo",
+    "title": "Spill mot Trafo",
+    "lead": "Trafo er en dartbot som kaster sine egne piler. Øv så mye du vil: kampene teller ikke på ratingen eller kampstatistikken din, men de får en egen rekord.",
+    "level": "Nivå",
+    "average": "Snitt rundt {{n}}",
+    "levels": {
+      "BEGINNER": {
+        "name": "Nybegynner",
+        "hint": "Treffer sjelden dobbelen. Fin for å komme i gang."
+      },
+      "CASUAL": {
+        "name": "Hobbyspiller",
+        "hint": "Kaster ujevnt, men kan overraske."
+      },
+      "CLUB": {
+        "name": "Klubbspiller",
+        "hint": "En jevn motstander for de fleste i gjengen."
+      },
+      "LEAGUE": {
+        "name": "Ligaspiller",
+        "hint": "Scorer godt og straffer bom på dobbel."
+      },
+      "PRO": {
+        "name": "Proff",
+        "hint": "180 og høye utganger. Lykke til."
+      }
+    },
+    "you": "Meg",
+    "start": "Start kampen",
+    "starting": "Starter …",
+    "beaten": "Slått",
+    "levelRecord": "{{won}} av {{played}} vunnet",
+    "open": "Du har en kamp i gang mot Trafo.",
+    "carryOn": "Fortsett kampen",
+    "forfeit": "Gi opp",
+    "forfeitConfirm": "Gi opp kampen? Har du kastet, teller den som tap.",
+    "throwing": "Trafo kaster",
+    "skip": "Hopp over",
+    "won": "Du slo Trafo",
+    "lost": "Trafo vant",
+    "forfeited": "Du ga opp",
+    "resultLine": "{{legs}}, ditt snitt {{mine}}, Trafos snitt {{trafo}}",
+    "playAgain": "Spill igjen",
+    "tryLevel": "Prøv {{level}}",
+    "changeSettings": "Andre innstillinger",
+    "practice": "Øving, teller ikke på rating",
+    "record": {
+      "title": "Mot Trafo",
+      "lead": "Øvingskamper mot boten. De teller ikke på rating, tabell eller kampstatistikk.",
+      "played": "Kamper",
+      "won": "Seire–tap",
+      "winRate": "Vinnerprosent",
+      "streak": "Seiersrekke nå",
+      "bestStreak": "Lengste seiersrekke",
+      "hardest": "Vanskeligste slått",
+      "none": "Ingen ennå",
+      "average": "Snitt mot Trafo",
+      "first9": "Første 9",
+      "checkout": "Checkout",
+      "oneEighties": "180",
+      "highestCheckout": "Høyeste utgang",
+      "trafoAverage": "Trafos snitt",
+      "levels": "Per nivå",
+      "recent": "Siste kamper",
+      "emptyMine": "Du har ikke spilt mot Trafo ennå.",
+      "empty": "{{name}} har ikke spilt mot Trafo ennå.",
+      "challenge": "Spill mot Trafo",
+      "mine": "Din rekord mot Trafo",
+      "seeAll": "Se hele rekorden"
+    }
   }
 }

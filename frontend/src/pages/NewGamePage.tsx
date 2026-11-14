@@ -9,6 +9,7 @@ import { useCurrentUser } from "../auth/auth";
 import { Button, ErrorNotice, PageHeader, Segmented, Spinner, Toggle } from "../components/ui";
 import { lineupError, playerIdsForRequest } from "../features/games/gameLogic";
 import { usePageTitle } from "../lib/pageTitle";
+import { startScoreOptions } from "../lib/x01";
 
 const TYPES: GameType[] = ["X01", "CRICKET", "KILLER", "AROUND_THE_CLOCK"];
 
@@ -80,7 +81,7 @@ export function NewGamePage() {
 
           {type === "X01" && (
             <>
-              <Segmented label={t("match.startScore")} value={startScore} onChange={setStartScore} options={[301, 501, 701].map((v) => ({ value: v, label: String(v) }))} />
+              <Segmented label={t("match.startScore")} value={startScore} onChange={setStartScore} options={startScoreOptions} />
               <Segmented
                 label={t("match.outRule")}
                 value={outRule}

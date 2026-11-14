@@ -44,7 +44,7 @@ The base path is `/api`. All bodies are JSON and all timestamps are ISO-8601 UTC
 
 | Method | Path | Body → Response |
 |---|---|---|
-| POST | `/` | `{player1Id, player2Id, startScore: 301\|501\|701, inRule: STRAIGHT\|DOUBLE, outRule: STRAIGHT\|DOUBLE\|MASTER, legsToWin: 1–11, startingPlayer: 0\|1\|null (random), rated}` → 201 `LiveMatch` |
+| POST | `/` | `{player1Id, player2Id, startScore: 301\|401\|501\|701, inRule: STRAIGHT\|DOUBLE, outRule: STRAIGHT\|DOUBLE\|MASTER, legsToWin: 1–11, startingPlayer: 0\|1\|null (random), rated}` → 201 `LiveMatch` |
 | GET | `/live` | `MatchSummary[]` in progress |
 | GET | `/recent?user=&limit=` | `MatchSummary[]` completed/voided, newest first |
 | GET | `/{id}` | `LiveMatch` |
@@ -172,6 +172,21 @@ The `MATCH_*` error codes are reused (`MATCH_OUT_OF_SYNC` with the current `Game
 ```
 
 Fields a game type doesn't use are `null`. `score` means X01 points, Cricket marks, Killer lives taken and Around the Clock targets hit.
+
+## Practice against Trafo: `/api/bot-matches`
+
+Matches against Trafo, the bot. You score your own darts; when the turn passes to Trafo, it throws its turn in the same request. Stored apart from matches: never rated, and never in the leaderboard, head-to-head, match stats, awards, achievements or the recap. How the bot plays: [GAME-RULES.md](GAME-RULES.md#trafo-the-practice-bot).
+
+| Method | Path | Body → Response |
+|---|---|---|
+| POST | `/` | `{level: BEGINNER\|CASUAL\|CLUB\|LEAGUE\|PRO, startScore, inRule, outRule, legsToWin: 1–11, startingPlayer: 0 (you)\|1 (Trafo)\|null (random)}` → 201 `BotMatch`. One unfinished match per player: otherwise `BOT_MATCH_IN_PROGRESS` (409) with `{id}` in `details` |
+| GET | `/{id}` | `BotMatch` (your own matches only; anyone else gets 404) |
+| POST | `/{id}/throws` | `{segment, multiplier, expectedDartCount}` → `BotMatch`, with Trafo's answer already thrown |
+| POST | `/{id}/undo` | `{expectedDartCount}` → `BotMatch`. Takes back your last dart and everything Trafo threw after it. Trafo's darts are drawn from the match's seed, so the same dart gets the same answer |
+| POST | `/{id}/forfeit` | → 200 `BotMatch` (`FORFEITED`, a loss) once you've thrown; 204 and the match is removed if you haven't |
+| GET | `/api/users/{username}/bot-record` | `BotRecord`: played, won, lost, `winRate`, `currentStreak`, `bestStreak`, `hardestBeaten`, `levels[]` `{level, typicalAverage, played, won}`, `throwing` (your average, first 9, 180s, checkout % and Trafo's average in these matches), `recent[]` (last 10), `openMatchId` (your own unfinished match; null on others' records) |
+
+`BotMatch` has every field of `LiveMatch` (you are player 0, Trafo player 1 with id 0), and also `level`, `typicalAverage`, `playerTurn` (your latest turn) and `botTurns` (Trafo's turns since your last dart, for showing them dart by dart). `status` is `IN_PROGRESS`, `COMPLETED` or `FORFEITED`. The `MATCH_*` error codes are reused as for party games.
 
 ## Challenges: `/api/challenges`
 

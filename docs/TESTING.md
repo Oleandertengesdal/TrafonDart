@@ -1,6 +1,6 @@
 # Testing
 
-TrafonDart has **428 automated tests**: 305 in the backend (JUnit 5, against a real PostgreSQL) and 123 in the frontend (Node's built-in test runner). CI runs all of them on every push, together with ESLint, a type check, the translation checks, the documentation check and a secret scan.
+TrafonDart has **490 automated tests**: 359 in the backend (JUnit 5, against a real PostgreSQL) and 131 in the frontend (Node's built-in test runner). CI runs all of them on every push, together with ESLint, a type check, the translation checks, the documentation check and a secret scan.
 
 The suite was written to **find flaws**, not just to confirm the happy path: it forges tokens, races requests against each other, sends hostile input, walks every endpoint without permission, and plays hundreds of random matches to check that the statistics add up. The flaws it found are listed at the end.
 
@@ -57,6 +57,7 @@ The integration tests wipe and re-migrate the **`trafondart_test`** database whe
 | `ClientIpResolverTest` | 9 | `X-Forwarded-For` counted from the right; prepended fake addresses ignored; direct calls to Render; blank, absurdly long and non-address headers |
 | `TextInputTest` | 13 | NUL bytes, control characters, ANSI escapes, bidirectional overrides, byte-order marks and broken surrogates are refused; emoji, accents and HTML-looking text are kept as typed |
 | `InviteCodeFormatTest` | 5 | 20 000 codes without repeats, only unambiguous characters, sloppy typing normalised, Turkish locale doesn't break codes, only a hash is stored |
+| `BotPlayerTest` | 46 | Trafo, the practice bot: **a point on the board scores what a real board would** (every ring and segment edge), every target's aim point is inside it, **it aims like a player** (treble 20 to score, a set-up shot, then the checkout route, a double to get in), a steady hand hits what it aims at and a shaky one misses into the neighbouring beds, **the same match gives the same darts** (so an undo can't re-roll Trafo), and **each level averages about what it promises over many simulated legs**, every level better than the one below |
 | `StompTopicsTest` | 18 | the topic allow-list, including traversal, wildcards, case and trailing characters; socket tickets work once |
 
 ### Backend integration tests (real HTTP and PostgreSQL)
@@ -79,7 +80,9 @@ The integration tests wipe and re-migrate the **`trafondart_test`** database whe
 | `YearIT` | 3 | the year race sums the month points; **a year is decided once** and gives a `PLAYER_OF_YEAR` badge; voiding re-decides it; the recap adds up (matches, darts, nemesis, favourite opponent, streak, best match, favourite finish, weekday) with no `NaN`; empty years; years out of range; unknown players |
 | `ChallengesIT` | 5 | invite → accept → start creates exactly one match with the agreed settings; outsiders get 404 and can't act; you can't accept your own; decline, cancel and who may do which; bad settings, long or hostile messages, disabled opponents; **one open challenge per pair, five per sender**; pending and accepted challenges expire |
 | `AccountIT` | 4 | **the export contains everything about you and nothing secret or about others**, is a download and isn't cached; exports are rate-limited; **deleting needs the password**, ends every session, anonymises the account everywhere, removes comments, kudos and likes, calls off challenges, keeps the matches, can't be undone by an admin (enable, role or reset link), frees the username for a newcomer who inherits nothing; the last admin can't delete themselves |
+| `BotIT` | 6 | practice against Trafo: it throws its own turns at once, undo takes back your last dart and Trafo's answer to it, **wins and losses go to the bot record and nowhere else** (your rating, stats, form, win streak, the leaderboard and your match history are unchanged), the record's streaks, hardest level beaten and throwing numbers add up, giving up counts as a loss once you've thrown, settings are validated and **nobody else can play your match**, and your bot matches are in your data export and are deleted with your account |
 | `ClientErrorsIT` | 4 | browser error reports work before login, need the CSRF token and JSON, refuse oversized or odd reports and are rate-limited per client |
+| `FourOhOneIT` | 2 | a match of 401 is played to the end, and party X01 games, tournaments and challenges take 401 |
 | `TrafonDartApiIntegrationTest` | 12 | the original end-to-end story: sign-up, a full match over the socket, ratings, stats, disputes, tournaments, social, password links, Player of the Month |
 
 ### Frontend
@@ -87,6 +90,8 @@ The integration tests wipe and re-migrate the **`trafondart_test`** database whe
 | File | Tests | What it proves |
 |---|---|---|
 | `src/api/client.test.ts` | 16 | CSRF cookie fetched once before the first call, token on every state-changing method but never on `GET`, same-origin credentials only, **one retry after `CSRF_INVALID` and no endless loop**, error mapping (JSON, HTML 502, empty 404, network down), **no request leaves the same-origin API: absolute URLs, `//host`, `..`, `%2e%2e` and backslashes are refused**, `apiPath` encodes every segment and refuses `.`, `..` and empty values, and a bad link is never retried (it shows a message instead of loading forever); deleted players are shown as "Deleted player" in every response; `DELETE` can carry a body |
+| `src/features/bot/botLogic.test.ts` | 6 | Trafo's levels in order with the next level up, when to show Trafo's darts one by one (its answer to your dart, nothing after an undo, its first turn when it starts), and a given-up match reads as abandoned on the shared scoreboard |
+| `src/lib/x01.test.ts` | 2 | the start scores are 301, 401, 501 and 701 as the server allows, and **every start-score picker takes them from one list** (no hard-coded lists) |
 | `src/lib/format.test.ts` | 9 | Norwegian and English numbers, percentages, signed numbers (a value that rounds to zero has no minus sign), month names (and a whole year for Player of the Year), relative dates, dart labels, rule summaries |
 | `src/features/scoring/dartQueue.test.ts` | 16 | the offline queue: labels match the server's, only real darts (a miss is `0,0`) are kept, network and server errors keep the queue while conflicts and refusals drop it, backoff never above 15 s, **a lost answer is recognised as a dart that landed but anything else is a conflict**, the saved queue survives a reload, **tampered or oversized saved queues are ignored**, and only the darts the server hasn't seen are resent |
 | `src/lib/wakeLock.test.ts` | 5 | the screen lock is taken and released, taken again after the lock screen, not when turned off, and harmless where unsupported or refused |

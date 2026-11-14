@@ -82,6 +82,8 @@ no.trafondart
 │                 YearAwardService (Player of the Year), AwardController
 ├── party/        party games: PartyRules + PartyEngine (pure: X01 group/doubles, Cricket, Killer, Around the Clock),
 │                 Game entities, GameService, GameController
+├── bot/          Trafo, the practice bot: Dartboard + BotPlayer + BotLevel (pure: board geometry, aiming, scatter),
+│                 BotMatch entities in their own tables, BotMatchService (plays Trafo's turns, the record), BotController
 ├── history/      PlayerHistoryService (one player's matches + games), AchievementService, RecapService
 ├── challenge/    challenge a friend: Challenge, ChallengeService, ChallengeController
 ├── account/      AccountService: data export and account deletion
@@ -110,6 +112,7 @@ frontend/src
 ├── features/awards/      Medal (arched award badge), ReigningChip, CrownMark, useReigning
 ├── features/scoring/     dartQueue (pure) + useDartQueue: the offline-capable dart queue, OfflineNotice
 ├── features/games/       gameLogic (pure), Boards (X01, Cricket, Killer, Around the Clock scoreboards)
+├── features/bot/         botLogic (pure: levels, which of Trafo's darts to show), BotRecordSection (profile)
 ├── features/achievements/ the cabinet; features/recap/ recap facts; features/challenges/ button + home card
 └── pages/                one file per screen
 ```
@@ -135,6 +138,7 @@ When the network or the server is down, the queue is **kept**: it is saved in `l
 
 - `party/PartyEngine` is pure, like `X01Engine`: `replay(type, settings, sides, darts)` → `PartyState`. `GameService` stores darts in `game_darts`, replays on every request, writes `game_results` when a game completes and broadcasts `GameView` on `/topic/games/{id}`. Games never reach the rating or award code.
 - `history/PlayerHistoryService` loads one player's finished matches (with replays, stats, legs and ratings before) and games for a period. `AchievementService` walks them in order to find when each achievement was first unlocked; `RecapService` aggregates one year. Nothing is cached or stored ([ACHIEVEMENTS.md](ACHIEVEMENTS.md), [AWARDS.md](AWARDS.md)).
+- `bot/`: a practice match is X01 against Trafo, replayed from `bot_match_darts` with the same `X01Engine`. After each of your darts, `BotMatchService` lets Trafo throw for as long as it is its turn: `BotPlayer.aim` picks the target (a double to get in, the checkout route, a set-up shot, or T20) and `throwAt` adds a Gaussian scatter of the level's spread on a millimetre `Dartboard`. The random generator is seeded with the match seed and the dart number, so undo can't re-roll Trafo. The tables are separate from `matches`, so rating, stats, awards, achievements and the recap can't see them; the player's numbers are copied into `bot_matches` when a match ends, and `record()` sums them for the profile. The frontend (`pages/BotPage`, `pages/BotMatchPage`, `features/bot/`) reuses the match scoreboard and shows Trafo's darts one by one from `botTurns`.
 - `challenge/ChallengeService`: pending → accepted → started (creates the match through `MatchService.createInternal`), or declined / cancelled / expired (48 h, expired lazily on read). Limits: one open challenge per pair, five open sent per player, serialised per challenger with a row lock.
 
 ## Error alerts

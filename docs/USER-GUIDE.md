@@ -17,14 +17,15 @@ Alt du trenger for å komme i gang med TrafonDart, fra første innlogging til å
 9. [Månedens spiller](#9-månedens-spiller)
 10. [Turneringer](#10-turneringer)
 11. [Selskapsspill: flere enn to](#11-selskapsspill-flere-enn-to)
-12. [Utfordre en venn](#12-utfordre-en-venn)
-13. [TV-modus](#13-tv-modus)
-14. [Årets spiller og årsoppsummeringen](#14-årets-spiller-og-årsoppsummeringen)
-15. [Prestasjoner](#15-prestasjoner)
-16. [Innstillinger og dine data](#16-innstillinger-og-dine-data)
-17. [Glemt passord](#17-glemt-passord)
-18. [Fant du en feil?](#18-fant-du-en-feil)
-19. [Ord og uttrykk](#19-ord-og-uttrykk)
+12. [Øv mot Trafo, dartboten](#12-øv-mot-trafo-dartboten)
+13. [Utfordre en venn](#13-utfordre-en-venn)
+14. [TV-modus](#14-tv-modus)
+15. [Årets spiller og årsoppsummeringen](#15-årets-spiller-og-årsoppsummeringen)
+16. [Prestasjoner](#16-prestasjoner)
+17. [Innstillinger og dine data](#17-innstillinger-og-dine-data)
+18. [Glemt passord](#18-glemt-passord)
+19. [Fant du en feil?](#19-fant-du-en-feil)
+20. [Ord og uttrykk](#20-ord-og-uttrykk)
 
 ---
 
@@ -65,7 +66,7 @@ Gå til **Spill**.
 
 1. Velg **spiller 1** og **spiller 2**. Pilen mellom dem bytter plass.
 2. Velg hvem som **kaster først**, eller la appen trekke tilfeldig.
-3. Velg **spill** (301, 501 eller 701), **start** (rett inn eller dobbel inn), **avslutning** (rett ut, dobbel ut eller master ut) og hvor mange **legg** som trengs for å vinne.
+3. Velg **spill** (301, 401, 501 eller 701), **start** (rett inn eller dobbel inn), **avslutning** (rett ut, dobbel ut eller master ut) og hvor mange **legg** som trengs for å vinne.
 4. **Teller på ratingen** er på som standard. Slå den av for treningskamper. Treningskamper teller ikke på ratingen eller i kåringen av månedens spiller, men vises i statistikken din.
 5. Trykk **Start kampen**.
 
@@ -148,10 +149,11 @@ Trykk på navnet ditt øverst, eller på en spiller i en liste.
 - **Tall:** kamper, legg, 3-pilssnitt, snitt første 9, utgangsprosent, høyeste utgang, 180-ere, 140+, 100+ og høyeste runde.
 - **Grafer:** rating over tid og snittet i de siste kampene.
 - **Dartnerdens hjørne:** varmekart over alle pilene du har kastet, trippel-, dobbel- og bullprosent, bomprosent, beste legg, piler per vunne legg, hold- og breakprosent, vanligste runde, favorittall, rundepoeng, beste utganger og favorittutganger.
-- **Ditt 2026:** årsoppsummeringen din (se [kapittel 14](#14-årets-spiller-og-årsoppsummeringen)).
-- **Utfordre:** på andres profil (se [kapittel 12](#12-utfordre-en-venn)).
+- **Ditt 2026:** årsoppsummeringen din (se [kapittel 15](#15-årets-spiller-og-årsoppsummeringen)).
+- **Utfordre:** på andres profil (se [kapittel 13](#13-utfordre-en-venn)).
 - **Troféskap:** alle månedskåringene og årets spiller-kåringene du har vunnet.
-- **Prestasjoner:** milepælene dine (se [kapittel 15](#15-prestasjoner)).
+- **Prestasjoner:** milepælene dine (se [kapittel 16](#16-prestasjoner)).
+- **Mot Trafo:** rekorden din mot dartboten, holdt utenfor all annen statistikk (se [kapittel 12](#12-øv-mot-trafo-dartboten)).
 - **Selskapsspill:** spilt og vunnet per spilltype, og de siste spillene.
 - **Innbyrdes** mot hver motstander, og **siste kamper**.
 
@@ -232,9 +234,30 @@ Selskapsspill er **bare for moro skyld**: de teller ikke på rating, månedens s
 
 ![Ferdig Killer-parti](images/game-killer.png)
 
-## 12. Utfordre en venn
+## 12. Øv mot Trafo, dartboten
 
-Gå til profilen til den du vil utfordre og trykk **Utfordre**. Velg spill (301/501/701), avslutning, antall legg, om kampen skal telle på ratingen, og skriv gjerne en melding.
+Ingen å spille mot? **Spill → Mot Trafo** (eller knappen på forsiden når ingen kamper pågår). Trafo er en dartbot som kaster sine egne piler.
+
+1. Velg **nivå**. Hvert nivå spiller på et vanlig snitt: **Nybegynner** rundt 30, **Hobbyspiller** rundt 42, **Klubbspiller** rundt 55, **Ligaspiller** rundt 70 og **Proff** rundt 88.
+2. Velg hvem som kaster først, spill (301, 401, 501 eller 701), start, avslutning og antall legg, og trykk **Start kampen**.
+
+![Spill mot Trafo](images/bot-setup.png)
+
+Du fører pilene dine som i en vanlig kamp. Når det er Trafos tur, kaster den med en gang: pilene dukker opp én og én, og poengsummen teller ned. Trykk på feltet for å **hoppe over**. Trafo sikter som en spiller (trippel 20, så oppsett og dobbel), og bom havner i feltene ved siden av, akkurat som dine.
+
+![Trafo kaster](images/bot-match.png)
+
+- **Angre** tar tilbake din siste pil og det Trafo kastet etterpå. Kaster du den samme pila igjen, svarer Trafo likt, så angre gir ikke nye sjanser.
+- **Gi opp** teller som tap når du har kastet minst én pil. Før det blir kampen bare borte. Du kan ha én kamp mot Trafo om gangen.
+- Etter kampen kan du **spille igjen**, eller **prøve nivået over** hvis du vant.
+
+Kampene mot Trafo er **øving**: de teller ikke på ratingen, tabellen, innbyrdes oppgjør, kampstatistikken, månedens spiller, prestasjoner eller årsoppsummeringen. De har en **egen rekord** under **Mot Trafo** på profilen: seire og tap per nivå, seiersrekke nå og lengste seiersrekke, vanskeligste nivå du har slått, og snittet ditt, 180-ere og utganger i disse kampene. Hvordan Trafo spiller står i [GAME-RULES.md](GAME-RULES.md#trafo-the-practice-bot).
+
+![Rekorden mot Trafo på profilen](images/profile-trafo.png)
+
+## 13. Utfordre en venn
+
+Gå til profilen til den du vil utfordre og trykk **Utfordre**. Velg spill (301/401/501/701), avslutning, antall legg, om kampen skal telle på ratingen, og skriv gjerne en melding.
 
 ![Utfordring](images/challenge.png)
 
@@ -242,7 +265,7 @@ Gå til profilen til den du vil utfordre og trykk **Utfordre**. Velg spill (301/
 - En godtatt utfordring står på forsiden til dere begge som **Klar til å spille**. Trykk **Start** når dere står ved skiva, så opprettes kampen og føringen åpner seg.
 - Du kan **avlyse** din egen utfordring, og begge kan avlyse en godtatt en. Du kan ha fem åpne utfordringer om gangen, og bare én med hver person.
 
-## 13. TV-modus
+## 14. TV-modus
 
 Har dere en storskjerm der dere spiller? Åpne **TV-modus** (TV-ikonet øverst, eller `/tv`) på en PC eller smart-TV koblet til skjermen og trykk på fullskjermknappen.
 
@@ -252,7 +275,7 @@ Har dere en storskjerm der dere spiller? Åpne **TV-modus** (TV-ikonet øverst, 
 
 ![TV-modus](images/tv.png)
 
-## 14. Årets spiller og årsoppsummeringen
+## 15. Årets spiller og årsoppsummeringen
 
 **Årets spiller** kåres 1. januar: månedspoengene for hele året legges sammen. Du må ha minst **10 kamper som teller på ratingen** i løpet av året. Kampen om tittelen og tidligere vinnere står på **Kåringer**, og vinneren får en stjerne i troféskapet.
 
@@ -260,13 +283,13 @@ Har dere en storskjerm der dere spiller? Åpne **TV-modus** (TV-ikonet øverst, 
 
 <img src="images/phone-recap.png" alt="Årsoppsummering på mobil" width="320">
 
-## 15. Prestasjoner
+## 16. Prestasjoner
 
 Under troféskapet på profilen ligger **prestasjonene**: milepæler du har for alltid, som første 180, en utgang på 100+, en nipiler, bull-utgang, 100 kamper og ti tusen piler. Låste prestasjoner viser hvordan du får dem, og de med telling viser hvor langt du har kommet. Trykk på en opplåst prestasjon for å se kampen der det skjedde. Hele lista står i [ACHIEVEMENTS.md](ACHIEVEMENTS.md).
 
 Bare kamper som teller på ratingen, eller som en av spillerne selv satte opp, gir prestasjoner. Blir en kamp annullert, forsvinner det den ga.
 
-## 16. Innstillinger og dine data
+## 17. Innstillinger og dine data
 
 Tannhjulet øverst til høyre.
 
@@ -279,7 +302,7 @@ Tannhjulet øverst til høyre.
 
 ![Innstillinger](images/settings.png)
 
-## 17. Glemt passord
+## 18. Glemt passord
 
 Det sendes ingen e-post. Si fra til en admin, som lager en **passordlenke** til deg og sender den, for eksempel på Messenger.
 
@@ -289,7 +312,7 @@ Det sendes ingen e-post. Si fra til en admin, som lager en **passordlenke** til 
 
 <img src="images/phone-reset.png" alt="Velg nytt passord" width="320">
 
-## 18. Fant du en feil?
+## 19. Fant du en feil?
 
 Krasjer en side, får du opp **«Noe gikk i stykker»**. Feilen blir rapportert automatisk (uten navnet ditt), så adminene får vite om den. Last inn siden på nytt. Står det **«Ny versjon er ute»**, er TrafonDart oppdatert mens siden var åpen: last inn på nytt, så er alt i orden.
 
@@ -303,11 +326,11 @@ Vil du fortelle mer, trykk **Meld fra om feil** nederst på siden. Siden lager e
 
 ![Meld fra om feil](images/feedback.png)
 
-## 19. Ord og uttrykk
+## 20. Ord og uttrykk
 
 | Ord | Betyr |
 |---|---|
-| **Legg** | ett spill fra 501 (eller 301/701) ned til null. Først til et visst antall legg vinner kampen |
+| **Legg** | ett spill fra 501 (eller 301/401/701) ned til null. Først til et visst antall legg vinner kampen |
 | **3-pilssnitt** | gjennomsnittlig poeng per runde med tre piler |
 | **Snitt første 9** | snittet på de ni første pilene i hvert legg, før man begynner å sikte på utgang |
 | **Utgang** | pila (eller rundene) som tar deg ned til akkurat null |

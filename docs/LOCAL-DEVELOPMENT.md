@@ -55,11 +55,11 @@ Leave `SENTRY_DSN` empty: errors (including browser errors posted to `/api/clien
 ```bash
 cd backend
 set -a; source ../.env; set +a      # so the tests can reach the Docker database
-mvn verify                          # all 305 backend tests
+mvn verify                          # all 359 backend tests
 mvn verify -Punit-only              # skip the database tests
 
 cd ../frontend
-npm test                            # 94 unit, translation, service worker and static security tests
+npm test                            # 131 unit, translation, service worker and static security tests
 npm run typecheck:test && npm run lint && npm run build
 ```
 

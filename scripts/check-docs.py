@@ -173,6 +173,8 @@ def check_links() -> int:
 
 def check_error_codes() -> int:
     src = next(JAVA.rglob("ErrorCode.java")).read_text(encoding="utf-8")
+    # Comments may contain anything (a ";" would end the enum body early), so drop them first.
+    src = re.sub(r"/\*.*?\*/|//[^\n]*", "", src, flags=re.S)
     start = src.index("{", src.index("enum ErrorCode")) + 1
     body = src[start: src.index(";", start)]
     codes = re.findall(r"^\s*([A-Z][A-Z0-9_]+)\s*\(", body, flags=re.M)

@@ -9,6 +9,7 @@ import type { ChallengeView, OutRule, PlayerSummary } from "../../api/types";
 import { useCurrentUser } from "../../auth/auth";
 import { Button, ErrorNotice, Modal, Segmented, Toggle, useErrorText } from "../../components/ui";
 import { relative, rulesSummary } from "../../lib/format";
+import { startScoreOptions } from "../../lib/x01";
 
 /** "Challenge" on someone's profile: pick the format, add a line, send. */
 export function ChallengeButton({ opponent }: { opponent: PlayerSummary }) {
@@ -47,7 +48,7 @@ export function ChallengeButton({ opponent }: { opponent: PlayerSummary }) {
       </Button>
       <Modal open={open} onClose={() => setOpen(false)} title={t("challenges.titleFor", { name: opponent.realName })}>
         <div className="flex flex-col gap-4">
-          <Segmented label={t("match.startScore")} value={startScore} onChange={setStartScore} options={[301, 501, 701].map((v) => ({ value: v, label: String(v) }))} />
+          <Segmented label={t("match.startScore")} value={startScore} onChange={setStartScore} options={startScoreOptions} />
           <Segmented label={t("match.outRule")} value={outRule} onChange={setOutRule} options={(["STRAIGHT", "DOUBLE", "MASTER"] as OutRule[]).map((v) => ({ value: v, label: t(`match.out.${v}`) }))} />
           <Segmented label={t("match.legsToWin")} value={legsToWin} onChange={setLegsToWin} options={[1, 2, 3, 4, 5].map((v) => ({ value: v, label: String(v) }))} />
           <Toggle label={t("match.rated")} checked={rated} onChange={setRated} />

@@ -13,7 +13,7 @@
 
     <groupId>no.trafondart</groupId>
     <artifactId>trafondart-backend</artifactId>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
     <name>TrafonDart backend</name>
     <description>REST + STOMP backend for TrafonDart: live darts scoring, Glicko-2 ratings and tournaments</description>
 

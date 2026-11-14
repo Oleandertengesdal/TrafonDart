@@ -9,7 +9,7 @@ import java.util.List;
  * Settings for a party game. Each game uses only some of the fields; {@link PartyRules#normalise} fills in defaults,
  * checks ranges and clears the fields a game doesn't use, so two equal games always have equal settings.
  *
- * @param startScore      X01: 301, 501 or 701
+ * @param startScore      X01: 301, 401, 501 or 701
  * @param inRule          X01: straight or double in
  * @param outRule         X01: straight, double or master out
  * @param legsToWin       X01 and Cricket: 1–11

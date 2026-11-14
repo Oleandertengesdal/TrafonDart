@@ -27,6 +27,8 @@ const TvPage = lazy(() => import("./pages/TvPage").then((m) => ({ default: m.TvP
 const AwardsPage = lazy(() => import("./pages/AwardsPage").then((m) => ({ default: m.AwardsPage })));
 const TournamentsPage = lazy(() => import("./pages/TournamentPages").then((m) => ({ default: m.TournamentsPage })));
 const NewTournamentPage = lazy(() => import("./pages/TournamentPages").then((m) => ({ default: m.NewTournamentPage })));
+const BotPage = lazy(() => import("./pages/BotPage").then((m) => ({ default: m.BotPage })));
+const BotMatchPage = lazy(() => import("./pages/BotMatchPage").then((m) => ({ default: m.BotMatchPage })));
 const TournamentPage = lazy(() => import("./pages/TournamentPages").then((m) => ({ default: m.TournamentPage })));
 
 /** Public pages get the full app chrome when someone is logged in, and a minimal shell otherwise. */
@@ -50,6 +52,7 @@ export const router = createBrowserRouter([
       // The match and game screens are full-bleed (no site chrome) so the scoreboard and keypad get every pixel.
       { path: "/matches/:id", element: <MatchPage />, errorElement: <RouteError /> },
       { path: "/games/:id", element: L(<GamePage />), errorElement: <RouteError /> },
+      { path: "/bot/:id", element: L(<BotMatchPage />), errorElement: <RouteError /> },
       // TV mode: a read-only scoreboard for a big screen at the venue.
       { path: "/tv", element: L(<TvPage />), errorElement: <RouteError /> },
       {
@@ -63,6 +66,7 @@ export const router = createBrowserRouter([
           { path: "/players/:username", element: L(<ProfilePage />) },
           { path: "/players/:username/recap", element: L(<RecapPage />) },
           { path: "/games/new", element: L(<NewGamePage />) },
+          { path: "/bot", element: L(<BotPage />) },
           { path: "/awards", element: L(<AwardsPage />) },
           { path: "/tournaments", element: L(<TournamentsPage />) },
           { path: "/tournaments/new", element: L(<NewTournamentPage />) },

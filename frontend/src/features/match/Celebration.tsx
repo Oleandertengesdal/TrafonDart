@@ -3,12 +3,56 @@ import { useTranslation } from "react-i18next";
 import type { LiveMatch } from "../../api/types";
 import { chime, soundPrefs, speak } from "../../lib/sound";
 
-type Moment =
+import type { TFunction } from "i18next";
+import type { TurnView } from "../../api/types";
+
+export type Moment =
   | { kind: "oneEighty" }
   | { kind: "highFinish"; score: number }
   | { kind: "bust"; name: string }
   | { kind: "legWon"; name: string }
   | { kind: "matchWon"; name: string };
+
+/**
+ * A finished turn as a moment: the flash to show, with its chime and (optionally) a spoken callout played now. A high
+ * finish is followed by the leg or match banner through {@code later}.
+ */
+export function celebrate(turn: TurnView, name: string, matchOver: boolean, t: TFunction, later: (m: Moment) => void): Moment | null {
+  if (turn.bust) {
+    chime("bust");
+    if (soundPrefs.caller) speak(t("callouts.bust"));
+    return { kind: "bust", name };
+  }
+  if (turn.checkout) {
+    if (turn.total >= 100) {
+      chime("finish");
+      speak(t("callouts.highFinish", { score: turn.total }));
+      setTimeout(() => later(matchOver ? { kind: "matchWon", name } : { kind: "legWon", name }), 1700);
+      return { kind: "highFinish", score: turn.total };
+    }
+    chime("leg");
+    speak(t(matchOver ? "callouts.matchWon" : "callouts.gameShot"));
+    return matchOver ? { kind: "matchWon", name } : { kind: "legWon", name };
+  }
+  if (turn.total === 180) {
+    chime("oneEighty");
+    speak(t("callouts.oneEighty"));
+    return { kind: "oneEighty" };
+  }
+  if (soundPrefs.caller) speak(t("callouts.score", { score: turn.total }));
+  return null;
+}
+
+/** The moment on screen, cleared after a while. */
+export function useMomentState(): [Moment | null, (m: Moment | null) => void] {
+  const [moment, setMoment] = useState<Moment | null>(null);
+  useEffect(() => {
+    if (!moment) return;
+    const h = setTimeout(() => setMoment(null), moment.kind === "matchWon" ? 4000 : 1700);
+    return () => clearTimeout(h);
+  }, [moment]);
+  return [moment, setMoment];
+}
 
 /**
  * Watches the match state and turns notable moments into a flash overlay, a chime and (optionally) a spoken
@@ -17,7 +61,7 @@ type Moment =
 export function useMoments(match: LiveMatch | undefined): Moment | null {
   const { t } = useTranslation();
   const prev = useRef<number | null>(null);
-  const [moment, setMoment] = useState<Moment | null>(null);
+  const [moment, setMoment] = useMomentState();
 
   useEffect(() => {
     if (!match) return;
@@ -25,43 +69,10 @@ export function useMoments(match: LiveMatch | undefined): Moment | null {
     prev.current = match.dartCount;
     // Only react to a new dart arriving (not first load, not undo).
     if (before === null || match.dartCount <= before || !match.turnJustEnded || !match.lastCompletedTurn) return;
-
     const turn = match.lastCompletedTurn;
-    const name = match.players[turn.playerIndex].realName;
-    let next: Moment | null = null;
-
-    if (turn.bust) {
-      next = { kind: "bust", name };
-      chime("bust");
-      if (soundPrefs.caller) speak(t("callouts.bust"));
-    } else if (turn.checkout) {
-      const matchOver = match.lastEvent === "MATCH_WON";
-      if (turn.total >= 100) {
-        chime("finish");
-        speak(t("callouts.highFinish", { score: turn.total }));
-        next = { kind: "highFinish", score: turn.total };
-        // Follow the high finish with the leg/match banner.
-        setTimeout(() => setMoment(matchOver ? { kind: "matchWon", name } : { kind: "legWon", name }), 1700);
-      } else {
-        chime("leg");
-        speak(t(matchOver ? "callouts.matchWon" : "callouts.gameShot"));
-        next = matchOver ? { kind: "matchWon", name } : { kind: "legWon", name };
-      }
-    } else if (turn.total === 180) {
-      chime("oneEighty");
-      speak(t("callouts.oneEighty"));
-      next = { kind: "oneEighty" };
-    } else if (soundPrefs.caller) {
-      speak(t("callouts.score", { score: turn.total }));
-    }
+    const next = celebrate(turn, match.players[turn.playerIndex].realName, match.lastEvent === "MATCH_WON", t, setMoment);
     if (next) setMoment(next);
-  }, [match, t]);
-
-  useEffect(() => {
-    if (!moment) return;
-    const h = setTimeout(() => setMoment(null), moment.kind === "matchWon" ? 4000 : 1700);
-    return () => clearTimeout(h);
-  }, [moment]);
+  }, [match, t, setMoment]);
 
   return moment;
 }
