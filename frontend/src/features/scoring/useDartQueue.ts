@@ -36,13 +36,17 @@ function storage(): Storage | null {
   }
 }
 
+/** Online, darts wait only for the request in flight: one turn, plus the start of the next player's. */
+const MAX_WAITING_ONLINE = 6;
+
 /**
  * Sends darts one at a time, in order, while the scorer keeps tapping – and keeps them when the connection drops.
  *
  * Each request carries the dart count the client expects, so a double tap, a retry or a second tablet can never record
  * a dart twice. Darts tapped while a request is in flight wait in the queue ("pending" in the turn strip). When the
  * network or server is down, the queue is kept in localStorage and resent with backoff (and at once when the browser
- * says it is online again); up to {@link MAX_QUEUED} darts can wait. If a retry is refused because the earlier attempt
+ * says it is online again); up to {@link MAX_QUEUED} darts can wait. {@code throwDart} answers false when a dart was
+ * not taken (the queue is full), so the keypad can say so instead of confirming a dart that went nowhere. If a retry is refused because the earlier attempt
  * did land (only its answer was lost), the dart counts as sent. Any other conflict: the server's state wins.
  */
 export function useDartQueue<S extends Scoreable>(opts: DartQueueOptions<S>) {
@@ -169,14 +173,15 @@ export function useDartQueue<S extends Scoreable>(opts: DartQueueOptions<S>) {
   }, [pump]);
 
   const throwDart = useCallback(
-    (segment: number, multiplier: number) => {
+    (segment: number, multiplier: number): boolean => {
       setError(null);
-      // Online, the queue never holds more than a turn; offline, a whole leg can wait.
-      const cap = offline ? MAX_QUEUED : 3;
-      if (queue.current.length >= cap) return;
+      // Online, the queue holds a couple of turns at most; offline, a whole leg can wait.
+      const cap = offline ? MAX_QUEUED : MAX_WAITING_ONLINE;
+      if (queue.current.length >= cap) return false;
       queue.current.push({ segment, multiplier });
       sync();
       void pump();
+      return true;
     },
     [pump, sync, offline],
   );

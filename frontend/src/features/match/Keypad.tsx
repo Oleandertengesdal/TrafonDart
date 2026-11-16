@@ -15,7 +15,8 @@ export function Keypad({
   disabled,
   canUndo,
 }: {
-  onDart: (segment: number, multiplier: number) => void;
+  /** Answers false when the dart was not taken (too many are already waiting to be sent). */
+  onDart: (segment: number, multiplier: number) => boolean | void;
   onUndo: () => void;
   disabled: boolean;
   canUndo: boolean;
@@ -25,9 +26,13 @@ export function Keypad({
 
   const hit = (segment: number, multiplier: number) => {
     if (disabled) return;
+    if (onDart(segment, multiplier) === false) {
+      // Not taken: a long buzz and no chime, and the modifier stays so the same tap can simply be repeated.
+      vibrate(60);
+      return;
+    }
     vibrate(8);
     chime("tap");
-    onDart(segment, multiplier);
     setMod(1);
   };
 

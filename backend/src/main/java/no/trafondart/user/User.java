@@ -9,10 +9,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import no.trafondart.rating.Glicko2;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.Instant;
 
+/**
+ * {@code @DynamicUpdate}: an UPDATE writes only the columns that changed. Without it every save rewrites the whole
+ * row, so a profile, role or password change that overlaps a finishing match would put the old rating back.
+ */
 @Entity
+@DynamicUpdate
 @Table(name = "users")
 public class User {
 

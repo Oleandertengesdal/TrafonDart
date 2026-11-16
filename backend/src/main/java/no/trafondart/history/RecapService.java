@@ -81,7 +81,8 @@ public class RecapService {
         this.yearly = yearly;
     }
 
-    @Transactional(readOnly = true)
+    /** Not read-only: the achievements cabinet below may have to store a month that just ended. */
+    @Transactional
     public Recap recap(User user, int year) {
         ZoneId zone = awards.zone();
         Instant from = awards.start(YearMonth.of(year, 1));

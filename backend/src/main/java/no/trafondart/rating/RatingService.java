@@ -70,8 +70,10 @@ public class RatingService {
      */
     @Transactional
     public int recomputeAll() {
+        // Lock every player first: a match that finishes while this runs waits for it instead of having its
+        // rating change overwritten (or its history row deleted and never rebuilt).
+        Map<Long, User> byId = users.findAllForUpdate().stream().collect(Collectors.toMap(User::getId, Function.identity()));
         history.deleteEverything();
-        Map<Long, User> byId = users.findAll().stream().collect(Collectors.toMap(User::getId, Function.identity()));
         byId.values().forEach(User::resetRating);
         List<Match> rated = matches.findRatedCompletedInOrder();
         for (Match m : rated) {

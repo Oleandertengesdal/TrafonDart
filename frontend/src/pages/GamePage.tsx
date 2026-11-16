@@ -17,7 +17,7 @@ import { pathOrEmpty } from "../features/match/useScorer";
 import { OfflineNotice } from "../features/scoring/OfflineNotice";
 import { useDartQueue } from "../features/scoring/useDartQueue";
 import { useWakeLock } from "../lib/wakeLock";
-import { useLiveStatus, useTopic } from "../realtime/useTopic";
+import { useLiveStatus, useReconnect, useTopic } from "../realtime/useTopic";
 import { NotFound } from "./NotFoundPage";
 import { isNotFound } from "../lib/errors";
 import { usePageTitle } from "../lib/pageTitle";
@@ -41,6 +41,9 @@ export function GamePage() {
   });
   useTopic<GameView>(id ? `/topic/games/${id}` : null, (state) => {
     if (!scorer.busy()) qc.setQueryData(queryKey, state);
+  });
+  useReconnect(() => {
+    if (!scorer.busy()) void qc.invalidateQueries({ queryKey });
   });
   const game = q.data;
   useWakeLock(game?.status === "IN_PROGRESS");

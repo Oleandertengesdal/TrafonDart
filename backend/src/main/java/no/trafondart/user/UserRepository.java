@@ -26,6 +26,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u where u.id in :ids order by u.id")
     List<User> findAllByIdForUpdate(@Param("ids") java.util.Collection<Long> ids);
 
+    /** Every user, row-locked in id order (the same order as above), for rebuilding all ratings. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select u from User u order by u.id")
+    List<User> findAllForUpdate();
+
     long countByRoleAndEnabledTrue(User.Role role);
 
     List<User> findAllByOrderByRatingDesc();

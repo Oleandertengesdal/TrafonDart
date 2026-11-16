@@ -164,7 +164,8 @@ public class AccountService {
         this.rateLimiter = rateLimiter;
     }
 
-    @Transactional(readOnly = true)
+    /** Not read-only: the achievements cabinet below may have to store a month that just ended. */
+    @Transactional
     public Export export(Long userId) {
         rateLimiter.check(EXPORT_PER_USER, String.valueOf(userId));
         User me = users.findById(userId).orElseThrow(ApiException::notFound);

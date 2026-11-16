@@ -18,3 +18,15 @@ export function useLiveStatus(): boolean {
   useEffect(() => live.onStatus(setConnected), []);
   return connected;
 }
+
+/**
+ * Runs the handler when the live socket comes back after a drop. Pushes sent in the meantime are lost, so a page that
+ * only listens would keep showing the old board (for good, if the dart it missed was the last one).
+ */
+export function useReconnect(handler: () => void) {
+  const ref = useRef(handler);
+  useEffect(() => {
+    ref.current = handler;
+  });
+  useEffect(() => live.onReconnect(() => ref.current()), []);
+}

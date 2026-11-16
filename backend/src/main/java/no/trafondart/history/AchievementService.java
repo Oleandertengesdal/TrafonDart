@@ -80,7 +80,8 @@ public class AchievementService {
         int progress;
     }
 
-    @Transactional(readOnly = true)
+    /** Not read-only: {@link AwardService#ensureFinalized()} below may have to store a month that just ended. */
+    @Transactional
     public Cabinet cabinet(User user) {
         PlayerHistory h = history.load(user, Instant.EPOCH, Instant.now().plusSeconds(60), true);
         Map<Code, Unlock> got = new LinkedHashMap<>();

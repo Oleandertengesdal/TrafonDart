@@ -1,4 +1,4 @@
-import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
+import { Client, ReconnectionTimeMode, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import { api } from "../api/client";
 
 /**
@@ -23,13 +23,18 @@ class LiveConnection {
   private listeners = new Map<string, Set<Listener>>();
   private subscriptions = new Map<string, StompSubscription>();
   private statusListeners = new Set<(connected: boolean) => void>();
+  private reconnectListeners = new Set<() => void>();
+  private hasConnected = false;
   connected = false;
 
   private ensureClient() {
     if (this.client) return;
     this.client = new Client({
       brokerURL: socketUrl(),
+      // 3 s, 6 s, 12 s … up to 30 s: quick after a blip, gentle on a server that is asleep or a session that ended.
       reconnectDelay: 3000,
+      reconnectTimeMode: ReconnectionTimeMode.EXPONENTIAL,
+      maxReconnectDelay: 30_000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
       beforeConnect: async (client) => {
@@ -45,6 +50,9 @@ class LiveConnection {
         this.setConnected(true);
         this.subscriptions.clear();
         for (const topic of this.listeners.keys()) this.subscribeTopic(topic);
+        // Anything pushed while the socket was down is gone for good: let the pages fetch the current state.
+        if (this.hasConnected) this.reconnectListeners.forEach((l) => l());
+        this.hasConnected = true;
       },
       onWebSocketClose: () => this.setConnected(false),
       onStompError: () => this.setConnected(false),
@@ -95,10 +103,17 @@ class LiveConnection {
     return () => this.statusListeners.delete(listener);
   }
 
+  /** Called every time the socket comes back after having been connected before (never for the first connect). */
+  onReconnect(listener: () => void): () => void {
+    this.reconnectListeners.add(listener);
+    return () => this.reconnectListeners.delete(listener);
+  }
+
   /** Called on logout so the next user gets a fresh ticket. */
   async reset() {
     const c = this.client;
     this.client = null;
+    this.hasConnected = false;
     this.subscriptions.clear();
     this.setConnected(false);
     await c?.deactivate();

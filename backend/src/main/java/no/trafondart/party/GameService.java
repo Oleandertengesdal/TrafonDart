@@ -108,7 +108,7 @@ public class GameService {
         }
         players.flush();
         GameView view = view(game, null);
-        publish(view);
+        publish(view, true);
         return view;
     }
 
@@ -130,7 +130,7 @@ public class GameService {
         PartyState state = replay(game, lineup, all);
         if (state.finished()) complete(game, lineup, state);
         GameView view = view(game, lineup, all, state);
-        publish(view);
+        publish(view, state.finished());
         return view;
     }
 
@@ -145,7 +145,7 @@ public class GameService {
         darts.deleteDart(id, stored.size());
         List<GameDart> left = stored.subList(0, stored.size() - 1);
         GameView view = view(game, lineup, left);
-        publish(view);
+        publish(view, false);
         return view;
     }
 
@@ -157,7 +157,7 @@ public class GameService {
         game.setStatus(Status.ABANDONED);
         game.setCompletedAt(Instant.now());
         GameView view = view(game, lineup);
-        publish(view);
+        publish(view, true);
         return view;
     }
 
@@ -178,9 +178,14 @@ public class GameService {
         if (!ok) throw new ApiException(ErrorCode.MATCH_NOT_SCORER);
     }
 
-    private void publish(GameView view) {
+    /**
+     * @param feedChanged the set of live or finished games changed (created, completed, abandoned). An ordinary dart
+     *                    only updates this game's own topic: the home feed shows no scores for games, and a ping there
+     *                    makes every open home page and TV refetch the leaderboard and the awards race.
+     */
+    private void publish(GameView view, boolean feedChanged) {
         events.publishEvent(new GameUpdated(view));
-        events.publishEvent(new MatchEvents.FeedChanged(view.id()));
+        if (feedChanged) events.publishEvent(new MatchEvents.FeedChanged(view.id()));
     }
 
     // ------------------------------------------------------------------ reading

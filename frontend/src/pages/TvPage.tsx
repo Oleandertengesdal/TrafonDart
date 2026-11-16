@@ -14,7 +14,7 @@ import { CelebrationOverlay, useMoments } from "../features/match/Celebration";
 import { CheckoutHint, TurnStrip } from "../features/match/TurnStrip";
 import { monthName, num, rulesSummary } from "../lib/format";
 import { useWakeLock } from "../lib/wakeLock";
-import { useLiveStatus, useTopic } from "../realtime/useTopic";
+import { useLiveStatus, useReconnect, useTopic } from "../realtime/useTopic";
 import { usePageTitle } from "../lib/pageTitle";
 
 const ROTATE_MS = 20_000;
@@ -43,6 +43,11 @@ export function TvPage() {
     void qc.invalidateQueries({ queryKey: keys.leaderboard });
     void qc.invalidateQueries({ queryKey: ["matches", "recent"] });
     void qc.invalidateQueries({ queryKey: keys.awardRace });
+  });
+
+  // The TV never gets focus or a tap, so nothing else would refresh it after the Wi-Fi dropped for a moment.
+  useReconnect(() => {
+    for (const root of ["matches", "games", "match", "game"]) void qc.invalidateQueries({ queryKey: [root] });
   });
 
   const pinned: Live | null = params.get("match") ? { kind: "match", id: params.get("match")! } : params.get("game") ? { kind: "game", id: params.get("game")! } : null;

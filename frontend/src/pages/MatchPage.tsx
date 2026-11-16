@@ -24,7 +24,7 @@ import { MatchSocial } from "../features/social/MatchSocial";
 import { CheckoutHint, TurnStrip } from "../features/match/TurnStrip";
 import { useScorer } from "../features/match/useScorer";
 import { num, rulesSummary } from "../lib/format";
-import { useLiveStatus, useTopic } from "../realtime/useTopic";
+import { useLiveStatus, useReconnect, useTopic } from "../realtime/useTopic";
 import { OfflineNotice } from "../features/scoring/OfflineNotice";
 import { useWakeLock } from "../lib/wakeLock";
 import { NotFound } from "./NotFoundPage";
@@ -42,6 +42,10 @@ export function MatchPage() {
 
   useTopic<LiveMatch>(`/topic/matches/${id}`, (state) => {
     if (!scorer.busy()) qc.setQueryData(keys.match(id), state);
+  });
+  // While our own darts are on their way their answers carry the state; a refetch could only bring an older one.
+  useReconnect(() => {
+    if (!scorer.busy()) void qc.invalidateQueries({ queryKey: keys.match(id) });
   });
 
   const match = q.data;

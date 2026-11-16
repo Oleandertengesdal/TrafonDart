@@ -60,7 +60,10 @@ public class AuthService {
         }
     }
 
-    @Transactional(readOnly = true)
+    /**
+     * Deliberately not transactional: BCrypt takes a few hundred milliseconds, and inside a transaction it would hold
+     * one of the few pooled database connections for all of that time. The one lookup runs in its own short transaction.
+     */
     public User login(LoginRequest req, ClientIpResolver.ClientAddress client) {
         String usernameKey = req.username().toLowerCase(Locale.ROOT);
         rateLimiter.check(RateLimiter.LOGIN_PER_IP, client);
