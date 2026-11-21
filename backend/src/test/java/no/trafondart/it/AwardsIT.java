@@ -79,11 +79,23 @@ class AwardsIT extends IntegrationTestBase {
         assertThat(race.get("endsAt").asString()).isGreaterThan(race.get("startsAt").asString());
     }
 
+    @Autowired
+    org.springframework.jdbc.core.JdbcTemplate jdbc;
+
     @Test
     void finalisingIsIdempotent() {
         java.time.YearMonth past = awards.currentMonth().minusMonths(1);
+        // a month with something to award, so deciding it twice would store the awards twice
+        Member a = member("awIdA"), b = member("awIdB");
+        String id = finishedMatch(a.client(), a.id(), b.id(), true, 0).get("id").asString();
+        java.time.Instant mid = past.atDay(12).atTime(20, 0).atZone(java.time.ZoneId.of("Europe/Oslo")).toInstant();
+        jdbc.update("update matches set completed_at = ?, confirmed_at = ? where id = ?", java.sql.Timestamp.from(mid),
+                java.sql.Timestamp.from(mid), java.util.UUID.fromString(id));
+        awards.invalidateFrom(past);
+
         awards.finalizeMonth(past);
         int before = admin.get("/api/awards?limit=120").body().size();
+        assertThat(before).as("last month has awards").isPositive();
         awards.finalizeMonth(past);
         awards.ensureFinalized();
         assertThat(admin.get("/api/awards?limit=120").body().size()).isEqualTo(before);

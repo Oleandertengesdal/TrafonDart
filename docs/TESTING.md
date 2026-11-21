@@ -133,6 +133,7 @@ The tests were written first and run against the code as it was. These failed, a
 | A **socket ticket could open many connections** within its 60 seconds | `LiveSocketIT` | each ticket works once |
 | Calling Render directly with a **forged `X-Forwarded-For`** gave unlimited per-IP attempts | `AuthAndSessionIT` | a second, shared budget per edge address the caller can't forge |
 | A **casual match made up by someone else** counted towards Player of the Month (fake 180s, wins, activity) | `AwardsIT` | the monthly awards count rated matches only |
+| **Deciding a month's awards twice** stored them twice and failed on the unique constraint (hidden while the test month had no matches; CI found it when the test order changed) | `AwardsIT` | a decided month is left alone until it's invalidated |
 | An organiser of a **rated tournament** could start a fixture between two other players and score it alone | `AccessControlIT` | rated fixtures are started by their players or an admin |
 | **Client-side path traversal**: an id from the address bar went unencoded into API URLs, so a crafted link could aim the app's own CSRF-protected requests at another endpoint (`/matches/..%2Fadmin%2F…`) | `security.test.mjs`, `client.test.ts` | `apiPath` encodes every segment; the client refuses anything outside `/api/` |
 | "−0,0" shown for a change that rounds to zero | `format.test.ts` | rounding happens before choosing the sign |

@@ -255,10 +255,14 @@ public class AwardService {
         return decided;
     }
 
-    /** Stores the winners of {@code month}. Package-visible for tests. */
+    /**
+     * Stores the winners of {@code month}, once: a month that is already decided is left alone (deciding it again
+     * would store its awards twice). To decide a month again, {@link #invalidateFrom} it first. Public for tests.
+     */
     @Transactional
     public void finalizeMonth(YearMonth month) {
         String key = month.toString();
+        if (periods.existsById(key)) return;
         periods.save(new AwardEntities.Period(key));
         decide(standings(month)).forEach((award, s) ->
                 awards.save(new AwardEntities.MonthlyAward(key, award, s.player().id(), valueFor(award, s))));

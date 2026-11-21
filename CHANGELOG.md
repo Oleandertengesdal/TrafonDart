@@ -2,6 +2,13 @@
 
 All notable changes to TrafonDart. Versions follow [semantic versioning](https://semver.org/). Database migrations are listed, because they are the one thing that can't simply be rolled back.
 
+## 1.7.1: Deciding a month twice
+
+### Fixed
+
+- **Deciding a month's awards a second time no longer fails.** It stored the month's awards again and hit the database's unique constraint. That was only reachable by deciding a month directly, but 1.7.0's late confirmations made it show up: CI failed whenever the awards tests happened to run after the confirmation tests. A decided month is now left alone; to decide it again, it's invalidated first (as a late confirmation or a voided match already does).
+- The awards test now puts a counted match in last month itself, so it checks this every time, whatever order the tests run in. The whole backend suite was run in alphabetical, reverse and random order, and in UTC like CI.
+
 ## 1.7.0: Confirmed results, and results without darts
 
 ### Added
