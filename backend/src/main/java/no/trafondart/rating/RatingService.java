@@ -47,7 +47,7 @@ public class RatingService {
                 .stream().collect(Collectors.toMap(User::getId, Function.identity()));
         User p1 = locked.get(match.getPlayer1Id());
         User p2 = locked.get(match.getPlayer2Id());
-        apply(match, p1, p2, match.getCompletedAt());
+        apply(match, p1, p2, match.countedAt());
     }
 
     private void apply(Match match, User p1, User p2, Instant at) {
@@ -65,7 +65,8 @@ public class RatingService {
     }
 
     /**
-     * Rebuilds every rating from scratch by replaying all completed rated matches in order. Used after an admin
+     * Rebuilds every rating from scratch by replaying all completed rated matches in the order they started to count
+     * (confirmed), so the result is the same as applying them one by one as they were confirmed. Used after an admin
      * voids a match. At friend-group scale (hundreds of matches) this takes milliseconds.
      */
     @Transactional
@@ -77,7 +78,7 @@ public class RatingService {
         byId.values().forEach(User::resetRating);
         List<Match> rated = matches.findRatedCompletedInOrder();
         for (Match m : rated) {
-            apply(m, byId.get(m.getPlayer1Id()), byId.get(m.getPlayer2Id()), m.getCompletedAt());
+            apply(m, byId.get(m.getPlayer1Id()), byId.get(m.getPlayer2Id()), m.countedAt());
         }
         log.info("Recomputed ratings from {} matches", rated.size());
         return rated.size();

@@ -9,6 +9,7 @@ export function MatchRow({ match, perspective }: { match: MatchSummary; perspect
   const { t } = useTranslation();
   const voided = match.status === "VOIDED";
   const live = match.status === "IN_PROGRESS";
+  const waiting = match.status === "UNCONFIRMED";
   const won = perspective !== undefined && match.winnerIndex !== null ? match.players[match.winnerIndex].id === perspective : null;
 
   return (
@@ -23,7 +24,7 @@ export function MatchRow({ match, perspective }: { match: MatchSummary; perspect
             <span key={i} className={`flex min-w-0 flex-col ${i === 1 ? "items-end text-right" : ""}`}>
               <span className={`block max-w-full truncate font-semibold ${isWinner || live ? "text-trim" : "text-trim-dim"}`}>{match.players[i].realName}</span>
               <span className="text-xs text-trim-faint">
-                {t("match.average")} {num(match.averages[i], 1)}
+                {match.resultOnly ? t("match.resultOnly") : `${t("match.average")} ${num(match.averages[i], 1)}`}
               </span>
             </span>
           );
@@ -57,6 +58,8 @@ export function MatchRow({ match, perspective }: { match: MatchSummary; perspect
                     <span className="font-bold text-trafon-bright">{t("common.live")}</span>
                   ) : voided ? (
                     t("match.status.VOIDED")
+                  ) : waiting ? (
+                    <span className="font-semibold text-brass">{t("match.status.UNCONFIRMED")}</span>
                   ) : won === null ? (
                     relative(match.completedAt)
                   ) : (

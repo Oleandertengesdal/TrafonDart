@@ -159,10 +159,21 @@ abstract class IntegrationTestBase {
         };
     }
 
-    /** Creates and finishes a match in one go. */
+    /**
+     * Creates, finishes and confirms a match in one go (an admin confirms it), so it counts. Returns the final state.
+     * To test what happens before confirmation, use {@link #quickMatch} and {@link #playToEnd}.
+     */
     JsonNode finishedMatch(ApiClient creator, long p1, long p2, boolean rated, int winnerIndex) {
         String id = quickMatch(creator, p1, p2, rated);
-        return playToEnd(creator, id, winnerIndex);
+        JsonNode end = playToEnd(creator, id, winnerIndex);
+        return "UNCONFIRMED".equals(end.get("status").asString()) ? confirm(id) : end;
+    }
+
+    /** An admin confirms a finished match. */
+    JsonNode confirm(String matchId) {
+        Response r = admin.post("/api/matches/" + matchId + "/confirm", null);
+        assertThat(r.status()).as("confirm %s: %s", matchId, r.body()).isEqualTo(200);
+        return r.body();
     }
 
     /** No error body may ever leak implementation details. */

@@ -176,8 +176,11 @@ class TrafonDartApiIntegrationTest {
         // Alice cannot score with a wrong dart count either; then admin checks out on D20.
         dart(20, 2, n);
         JsonNode done = admin.get("/api/matches/" + matchId).body();
-        assertThat(done.get("status").asString()).isEqualTo("COMPLETED");
+        assertThat(done.get("status").asString()).isEqualTo("UNCONFIRMED");
         assertThat(done.get("winnerIndex").asInt()).isZero();
+        // nothing counts until it's confirmed
+        assertThat(alice.get("/api/users/admin/stats").body().get("matchesWon").asInt()).isZero();
+        assertThat(admin.post("/api/matches/" + matchId + "/confirm", null).body().get("status").asString()).isEqualTo("COMPLETED");
 
         Response afterEnd = admin.post("/api/matches/" + matchId + "/throws", Map.of("segment", 1, "multiplier", 1, "expectedDartCount", n + 1));
         assertThat(afterEnd.code()).isEqualTo("MATCH_NOT_IN_PROGRESS");

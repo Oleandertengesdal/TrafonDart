@@ -28,6 +28,7 @@ const AwardsPage = lazy(() => import("./pages/AwardsPage").then((m) => ({ defaul
 const TournamentsPage = lazy(() => import("./pages/TournamentPages").then((m) => ({ default: m.TournamentsPage })));
 const NewTournamentPage = lazy(() => import("./pages/TournamentPages").then((m) => ({ default: m.NewTournamentPage })));
 const BotPage = lazy(() => import("./pages/BotPage").then((m) => ({ default: m.BotPage })));
+const RegisterResultPage = lazy(() => import("./pages/RegisterResultPage").then((m) => ({ default: m.RegisterResultPage })));
 const BotMatchPage = lazy(() => import("./pages/BotMatchPage").then((m) => ({ default: m.BotMatchPage })));
 const TournamentPage = lazy(() => import("./pages/TournamentPages").then((m) => ({ default: m.TournamentPage })));
 
@@ -61,6 +62,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "/", element: <HomePage /> },
           { path: "/play", element: <NewMatchPage /> },
+          { path: "/play/result", element: L(<RegisterResultPage />) },
           { path: "/matches", element: <MatchHistoryPage /> },
           { path: "/players", element: <PlayersPage /> },
           { path: "/players/:username", element: L(<ProfilePage />) },

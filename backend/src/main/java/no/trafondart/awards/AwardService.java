@@ -280,6 +280,18 @@ public class AwardService {
         return ensureFinalized();
     }
 
+    /**
+     * A match counts from when it's confirmed, but in the month it was played. Confirming one from a month that has
+     * already been decided (played on the 31st, confirmed on the 2nd) decides that month again.
+     */
+    @EventListener
+    public void onMatchCompleted(MatchEvents.MatchCompleted event) {
+        Match m = event.match();
+        if (!m.isRated() || m.getCompletedAt() == null) return;
+        YearMonth played = YearMonth.from(m.getCompletedAt().atZone(zone));
+        if (played.isBefore(currentMonth())) invalidateFrom(played);
+    }
+
     @EventListener
     public void onMatchVoided(MatchEvents.MatchVoided event) {
         Instant at = event.match().getCompletedAt();

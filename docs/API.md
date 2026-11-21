@@ -46,16 +46,23 @@ The base path is `/api`. All bodies are JSON and all timestamps are ISO-8601 UTC
 |---|---|---|
 | POST | `/` | `{player1Id, player2Id, startScore: 301\|401\|501\|701, inRule: STRAIGHT\|DOUBLE, outRule: STRAIGHT\|DOUBLE\|MASTER, legsToWin: 1–11, startingPlayer: 0\|1\|null (random), rated}` → 201 `LiveMatch` |
 | GET | `/live` | `MatchSummary[]` in progress |
-| GET | `/recent?user=&limit=` | `MatchSummary[]` completed/voided, newest first |
+| POST | `/results` | `{player1Id, player2Id, startScore, inRule, outRule, legsToWin, legsWon: [n1, n2], rated, playedOn?: "YYYY-MM-DD"}` → 201 `LiveMatch` with `resultOnly: true`, status `UNCONFIRMED`. Only the result: exactly one player has `legsToWin`. `playedOn` is today or up to 7 days back in Norwegian time (default today). A rated result must include the person registering it, unless an admin |
+| GET | `/to-confirm` | `MatchSummary[]`: finished matches the current user may confirm (and that aren't disputed), newest first |
+| GET | `/recent?user=&limit=` | `MatchSummary[]` unconfirmed/completed/voided, newest first |
 | GET | `/{id}` | `LiveMatch` |
 | POST | `/{id}/throws` | `{segment: 0–20\|25, multiplier: 0–3, expectedDartCount}` → `LiveMatch` |
 | POST | `/{id}/undo` | `{expectedDartCount}` → `LiveMatch` |
 | POST | `/{id}/abandon` | → `LiveMatch` |
-| POST | `/{id}/disputes` | `{reason}` → 201 `DisputeView` (players of a completed match) |
+| POST | `/{id}/confirm` | → `LiveMatch` with status `COMPLETED`. The player who didn't register the match (either player if someone else did), or an admin. `MATCH_CONFIRM_NOT_ALLOWED` (403) for anyone else, `MATCH_NOT_UNCONFIRMED` (409) if it isn't waiting, `DISPUTE_ALREADY_OPEN` (409) for a player while it's disputed. An admin confirming a disputed match also settles the dispute |
+| POST | `/{id}/disputes` | `{reason}` → 201 `DisputeView` (players of an unconfirmed or completed match) |
 
 Valid darts: miss `(0,0)`, `(1–20, 1–3)`, outer bull `(25,1)`, bull `(25,2)`.
 
 `MATCH_OUT_OF_SYNC` (409) means `expectedDartCount` didn't match. `details` then contains the current `LiveMatch`.
+
+**Statuses.** `IN_PROGRESS` → `UNCONFIRMED` (played to the end, or registered as a result: there's a winner, but it doesn't count yet) → `COMPLETED` (counts for rating, statistics, the table, awards and achievements). `ABANDONED`: stopped before the end. `VOIDED`: an admin upheld a dispute. A tournament match goes straight from `IN_PROGRESS` to `COMPLETED`.
+
+A match nobody confirms or disputes confirms itself two days after it finished (`MatchConfirmationJob`, every ten minutes and at start-up). A disputed one waits for an admin: `REJECT` confirms it, `VOID_MATCH` voids it.
 
 ### `LiveMatch` (also pushed on the socket)
 
@@ -74,9 +81,13 @@ Valid darts: miss `(0,0)`, `(1–20, 1–3)`, outer bull `(25,1)`, bull `(25,2)`
   "lastEvent": "NONE|DART|BUST|LEG_WON|MATCH_WON",
   "winnerIndex": null, "dartCount": 37,
   "legs": [{"legNo": 1, "starterIndex": 0, "winnerIndex": 0, "winnerDarts": 18, "checkout": 40}],
-  "createdAt": "…", "completedAt": null, "disputed": false
+  "createdAt": "…", "completedAt": null, "disputed": false,
+  "resultOnly": false,
+  "confirmation": {"registeredBy": "kari", "confirmerIds": [2], "confirmedAt": null, "confirmedBy": null, "autoConfirmAt": "…"} | null
 }
 ```
+
+`confirmation` is null for tournament matches and matches still being played. `confirmerIds` are the players who may confirm (admins always may), `confirmedBy` is null when the match confirmed itself or counted before 1.7.0, and `autoConfirmAt` is when it confirms itself (null once confirmed). For a `resultOnly` match there are no darts: `legsWon` and `winnerIndex` are the registered result, and `dartCount` is 0. `MatchSummary` also has `resultOnly`.
 
 ### Analysis
 
@@ -248,7 +259,7 @@ The frontend reports its own crashes here. With `SENTRY_DSN` set the backend for
 | POST | `/invites` | `{maxUses: 1–100, validHours: 1–2160, note?}` → 201 `{code, invite}`. **The code is only returned here.** |
 | POST | `/invites/{id}/revoke` | → 204 |
 | GET | `/disputes` | `DisputeView[]` |
-| POST | `/disputes/{id}/resolve` | `{outcome: REJECT\|VOID_MATCH, note?}` |
+| POST | `/disputes/{id}/resolve` | `{outcome: REJECT\|VOID_MATCH, note?}`. For an unconfirmed match, `REJECT` confirms it and `VOID_MATCH` voids it (nothing to recompute, it never counted) |
 | POST | `/ratings/recompute` | → `{matches}`. Also re-decides the monthly awards |
 | POST | `/awards/recompute` | → `{months, years}`. Forgets every decided month and year and decides them again from the matches |
 

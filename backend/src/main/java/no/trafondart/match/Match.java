@@ -16,6 +16,9 @@ import java.util.UUID;
 @Table(name = "matches")
 public class Match {
 
+    /** A finished normal match nobody has confirmed or disputed confirms itself after this long. */
+    public static final java.time.Duration CONFIRM_AFTER = java.time.Duration.ofDays(2);
+
     @Id
     private UUID id;
 
@@ -64,6 +67,18 @@ public class Match {
     @Column(name = "completed_at")
     private Instant completedAt;
 
+    /** Registered with only the result: no darts. */
+    @Column(name = "result_only", nullable = false)
+    private boolean resultOnly;
+
+    /** When the match started to count. Ratings are applied and rebuilt in this order. */
+    @Column(name = "confirmed_at")
+    private Instant confirmedAt;
+
+    /** Who confirmed it; null when it confirmed itself (or counted before confirmation existed). */
+    @Column(name = "confirmed_by")
+    private Long confirmedBy;
+
     @Version
     private long version;
 
@@ -85,7 +100,20 @@ public class Match {
         this.tournamentId = tournamentId;
     }
 
-    public enum Status { IN_PROGRESS, COMPLETED, ABANDONED, VOIDED }
+    /** A result registered without darts. Waits for confirmation like any finished normal match. */
+    public static Match resultOnly(GameConfig config, Long player1Id, Long player2Id, boolean rated, Long createdBy,
+                                   Long winnerId, Instant playedAt) {
+        Match m = new Match(config, player1Id, player2Id, 0, rated, createdBy, null);
+        m.resultOnly = true;
+        m.finish(winnerId, playedAt);
+        return m;
+    }
+
+    /**
+     * IN_PROGRESS → UNCONFIRMED (finished, not counted yet) → COMPLETED (counts). ABANDONED: stopped before the end.
+     * VOIDED: an admin upheld a dispute.
+     */
+    public enum Status { IN_PROGRESS, UNCONFIRMED, COMPLETED, ABANDONED, VOIDED }
 
     public GameConfig config() {
         return new GameConfig(startScore, inRule, outRule, legsToWin);
@@ -109,10 +137,44 @@ public class Match {
         return player1Id.equals(userId) ? player2Id : player1Id;
     }
 
-    public void complete(Long winnerId, Instant at) {
-        this.status = Status.COMPLETED;
+    /** The last dart (or the registered result): there is a winner, but the match doesn't count until confirmed. */
+    public void finish(Long winnerId, Instant at) {
+        this.status = Status.UNCONFIRMED;
         this.winnerId = winnerId;
         this.completedAt = at;
+    }
+
+    /** Starts to count. {@code by} is null when it confirmed itself. */
+    public void confirm(Long by, Instant at) {
+        this.status = Status.COMPLETED;
+        this.confirmedBy = by;
+        this.confirmedAt = at;
+    }
+
+    /** Tournament matches count as soon as they are won. */
+    public void complete(Long winnerId, Instant at) {
+        finish(winnerId, at);
+        confirm(null, at);
+    }
+
+    /**
+     * The players who may confirm the match: the one who didn't register (create) it, or either of them if someone
+     * else did. Admins may always confirm, and aren't listed.
+     */
+    public java.util.List<Long> confirmerIds() {
+        if (createdBy.equals(player1Id)) return java.util.List.of(player2Id);
+        if (createdBy.equals(player2Id)) return java.util.List.of(player1Id);
+        return java.util.List.of(player1Id, player2Id);
+    }
+
+    /** Tournament matches count when they're won; every other match is confirmed. */
+    public boolean needsConfirmation() {
+        return tournamentId == null;
+    }
+
+    /** When the rating changes: when the match was confirmed (before 1.7.0: when it finished). */
+    public Instant countedAt() {
+        return confirmedAt != null ? confirmedAt : completedAt;
     }
 
     public UUID getId() { return id; }
@@ -132,4 +194,7 @@ public class Match {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getCompletedAt() { return completedAt; }
     public long getVersion() { return version; }
+    public boolean isResultOnly() { return resultOnly; }
+    public Instant getConfirmedAt() { return confirmedAt; }
+    public Long getConfirmedBy() { return confirmedBy; }
 }

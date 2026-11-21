@@ -9,6 +9,7 @@ import no.trafondart.game.GameConfig;
 import no.trafondart.user.UserDtos.PlayerSummary;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,6 +51,37 @@ public final class MatchViews {
     }
 
     public record DisputeRequest(@NotBlank @Size(max = 500) String reason) {
+    }
+
+    /**
+     * Only the result of a normal match: who won and the legs, no darts.
+     *
+     * @param legsWon  legs won by player 1 and player 2; exactly one of them has {@code legsToWin}
+     * @param playedOn the day it was played (Norwegian time), today or up to 7 days back; null = today
+     */
+    public record RecordResultRequest(
+            @NotNull Long player1Id,
+            @NotNull Long player2Id,
+            @NotNull Integer startScore,
+            @NotNull GameConfig.InRule inRule,
+            @NotNull GameConfig.OutRule outRule,
+            @NotNull @Min(1) @Max(GameConfig.MAX_LEGS_TO_WIN) Integer legsToWin,
+            @NotNull @Size(min = 2, max = 2) List<@NotNull @Min(0) @Max(GameConfig.MAX_LEGS_TO_WIN) Integer> legsWon,
+            Boolean rated,
+            LocalDate playedOn) {
+    }
+
+    /**
+     * Who registered a finished normal match and who may confirm it. Null for tournament matches (they count when
+     * they're won) and for matches still being played.
+     *
+     * @param confirmerIds  the players who may confirm it (the one who didn't register it, or both if someone else
+     *                      did); admins may always confirm
+     * @param confirmedBy   null when it confirmed itself, or counted before confirmation existed
+     * @param autoConfirmAt when it confirms itself if nobody acts (null once confirmed or voided)
+     */
+    public record ConfirmationView(String registeredBy, List<Long> confirmerIds, Instant confirmedAt, String confirmedBy,
+                                   Instant autoConfirmAt) {
     }
 
     public record DartView(int segment, int multiplier, String label, int points) {
@@ -95,7 +127,9 @@ public final class MatchViews {
             List<LegView> legs,
             Instant createdAt,
             Instant completedAt,
-            boolean disputed
+            boolean disputed,
+            boolean resultOnly,
+            ConfirmationView confirmation
     ) {
     }
 
@@ -103,7 +137,7 @@ public final class MatchViews {
     public record MatchSummary(UUID id, String status, ConfigView config, boolean rated,
                                List<PlayerSummary> players, int[] legsWon, double[] averages,
                                Integer winnerIndex, Instant createdAt, Instant completedAt,
-                               TournamentRef tournament, int kudos, int comments) {
+                               TournamentRef tournament, int kudos, int comments, boolean resultOnly) {
     }
 
     public record DisputeView(Long id, UUID matchId, String raisedBy, String reason, String status,

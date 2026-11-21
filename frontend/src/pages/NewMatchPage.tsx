@@ -1,6 +1,6 @@
 import { useId, useMemo, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { ArrowLeftRight, Bot, Users } from "lucide-react";
 import { api } from "../api/client";
 import { usePlayers } from "../api/queries";
@@ -195,6 +195,12 @@ export function NewMatchPage() {
           <Button type="submit" size="lg" busy={busy} disabled={!p1 || !p2 || p1 === p2} className="w-full sm:w-auto sm:self-end">
             {busy ? t("match.starting") : t("match.start")}
           </Button>
+          <p className="text-sm text-trim-faint sm:self-end">
+            {t("result.linkLead")}{" "}
+            <Link to="/play/result" className="font-semibold text-trim underline decoration-trafon decoration-2 underline-offset-4 hover:decoration-trafon-bright">
+              {t("result.link")}
+            </Link>
+          </p>
         </div>
       </form>
     </>

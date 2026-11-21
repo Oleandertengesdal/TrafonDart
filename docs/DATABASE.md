@@ -60,10 +60,13 @@ erDiagram
     bigint player1_id FK
     bigint player2_id FK
     smallint starting_player
-    varchar status "IN_PROGRESS|COMPLETED|ABANDONED|VOIDED"
+    varchar status "IN_PROGRESS|UNCONFIRMED|COMPLETED|ABANDONED|VOIDED"
     boolean rated
     bigint winner_id FK
     uuid tournament_id FK
+    boolean result_only
+    timestamptz confirmed_at
+    bigint confirmed_by FK
     bigint version
   }
   darts {
@@ -175,9 +178,36 @@ Kept in their own tables on purpose: nothing that reads `matches` (rating, leade
 achievements, recap, the live feed) can see them. They go with the account when it is deleted, and are in the data
 export.
 
+## Lookup indexes (V6)
+
+No data changes: indexes for lookups that had none, found in the November 2026 audit.
+
+| Index | Serves |
+|---|---|
+| `ix_rating_history_match` | rating changes of a set of matches (year recap, achievements, win probability in the match breakdown) |
+| `ix_rating_history_rated_at` | rating changes inside a month (monthly standings) |
+| `ix_matches_recent` | latest results, newest finished first (home page, TV, match history) |
+| `ix_disputes_match` | all disputes of one match |
+
+## Match confirmation and results without darts (V7)
+
+| Table / column | Purpose |
+|---|---|
+| `matches.status` | adds `UNCONFIRMED`: finished, with a winner, but not counted yet (see [GAME-RULES.md](GAME-RULES.md#match-lifecycle)) |
+| `matches.result_only` | registered with only the result: no darts or legs, only legs won in `match_player_stats`. Check: never in a tournament |
+| `matches.confirmed_at` | when the match started to count. Ratings are applied, and rebuilt, in this order |
+| `matches.confirmed_by` | who confirmed it; null when it confirmed itself after two days, or counted before 1.7.0 |
+| `ix_matches_unconfirmed` | partial index on `completed_at` where `status = 'UNCONFIRMED'`, for the automatic confirmation |
+
+Every match that already counted when V7 ran keeps counting: `confirmed_at` is set to `completed_at` for
+`COMPLETED` and `VOIDED` matches.
+
+Legs and `match_player_stats` are still written when a match finishes, but everything that reads them starts from
+matches with status `COMPLETED`, so an unconfirmed match is invisible to ratings, statistics, awards and achievements.
+
 ## Design notes
 
-- **`darts` is the only live game state.** Legs, stats and ratings are *derived* and written once, when the match completes. Live views replay the darts, which takes microseconds for a few hundred darts.
+- **`darts` is the only live game state.** Legs and stats are *derived* and written once, when the match finishes; ratings when it's confirmed. Live views replay the darts, which takes microseconds for a few hundred darts.
 - **Check constraints mirror the domain rules.** Examples: valid segment/multiplier pairs, `uses <= max_uses`, distinct players, allowed start scores. A bug in the service layer still can't write nonsense.
 - **Indexes** cover the hot paths: case-insensitive username lookup, matches by player and completion time, the live-match list, rating history per user, fixtures per tournament. A partial unique index allows only one *open* dispute per match.
 - **UUIDs** are used for matches, games and tournaments, which appear in shareable URLs. Everything else uses `bigserial`.

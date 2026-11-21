@@ -11,6 +11,7 @@ import no.trafondart.user.UserDtos.PlayerSummary;
 import no.trafondart.user.UserRepository;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -81,6 +82,18 @@ public class MatchViewMapper {
         // The engine clears the current turn whenever a turn ends (3 darts, bust, leg or match won).
         boolean turnJustEnded = s.dartCount() > 0 && s.currentTurn() == null;
 
+        // A registered result has no darts to replay: the legs and the winner are what was registered.
+        int[] legsWon = s.legsWon();
+        Integer winnerIndex = s.winnerIndex();
+        if (match.isResultOnly()) {
+            legsWon = new int[2];
+            for (MatchRecords.PlayerMatchStats st : statsRepo.findAllByIdMatchIdIn(List.of(match.getId()))) {
+                int i = match.indexOf(st.getId().getUserId());
+                if (i >= 0) legsWon[i] = st.getLegsWon();
+            }
+            winnerIndex = match.getWinnerId() == null ? null : match.indexOf(match.getWinnerId());
+        }
+
         return new MatchViews.LiveMatchView(
                 match.getId(),
                 match.getStatus().name(),
@@ -91,7 +104,7 @@ public class MatchViewMapper {
                 scorers,
                 s.currentLeg().legNo(),
                 s.currentPlayerIndex(),
-                s.legsWon(),
+                legsWon,
                 s.remaining(),
                 s.opened(),
                 turnView(s.currentTurn()),
@@ -101,12 +114,30 @@ public class MatchViewMapper {
                 checkout,
                 s.dartsLeftInTurn(),
                 s.lastEvent().name(),
-                s.winnerIndex(),
+                winnerIndex,
                 s.dartCount(),
                 legs,
                 match.getCreatedAt(),
                 match.getCompletedAt(),
-                disputes.existsByMatchIdAndStatus(match.getId(), MatchRecords.Dispute.Status.OPEN));
+                disputes.existsByMatchIdAndStatus(match.getId(), MatchRecords.Dispute.Status.OPEN),
+                match.isResultOnly(),
+                confirmation(match, p1, p2));
+    }
+
+    /** Null for tournament matches and matches still being played or stopped: there is nothing to confirm. */
+    private MatchViews.ConfirmationView confirmation(Match match, User p1, User p2) {
+        Match.Status st = match.getStatus();
+        if (!match.needsConfirmation() || st == Match.Status.IN_PROGRESS || st == Match.Status.ABANDONED) return null;
+        String registeredBy = match.getCreatedBy().equals(p1.getId()) ? p1.getUsername()
+                : match.getCreatedBy().equals(p2.getId()) ? p2.getUsername()
+                : users.findById(match.getCreatedBy()).map(User::getUsername).orElse(null);
+        String confirmedBy = match.getConfirmedBy() == null ? null
+                : match.getConfirmedBy().equals(p1.getId()) ? p1.getUsername()
+                : match.getConfirmedBy().equals(p2.getId()) ? p2.getUsername()
+                : users.findById(match.getConfirmedBy()).map(User::getUsername).orElse(null);
+        Instant autoAt = st == Match.Status.UNCONFIRMED && match.getCompletedAt() != null
+                ? match.getCompletedAt().plus(Match.CONFIRM_AFTER) : null;
+        return new MatchViews.ConfirmationView(registeredBy, match.confirmerIds(), match.getConfirmedAt(), confirmedBy, autoAt);
     }
 
     public static MatchViews.TurnView turnView(X01Engine.Turn t) {
@@ -164,7 +195,8 @@ public class MatchViewMapper {
                     legsWon, averages, winnerIndex, m.getCreatedAt(), m.getCompletedAt(),
                     t == null ? null : new MatchViews.TournamentRef(t.getId(), t.getName()),
                     socialCounts.getOrDefault(m.getId(), new SocialService.Counts(0, 0)).kudos(),
-                    socialCounts.getOrDefault(m.getId(), new SocialService.Counts(0, 0)).comments()));
+                    socialCounts.getOrDefault(m.getId(), new SocialService.Counts(0, 0)).comments(),
+                    m.isResultOnly()));
         }
         return out;
     }

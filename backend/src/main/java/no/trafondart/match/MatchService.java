@@ -13,10 +13,15 @@ import no.trafondart.user.UserRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -34,11 +39,20 @@ public class MatchService {
     private final MatchViewMapper mapper;
     private final RatingService ratings;
     private final ApplicationEventPublisher events;
+    private final TransactionTemplate tx;
     private final SecureRandom random = new SecureRandom();
+
+    /** Days are Norwegian days: "played on Tuesday" means Tuesday in Oslo. */
+    static final ZoneId ZONE = ZoneId.of("Europe/Oslo");
+    /** A result can be registered for a match played today or up to this many days back. */
+    static final int RESULT_MAX_DAYS_BACK = 7;
+    /** A result for an earlier day is placed in the evening, when darts is played. */
+    static final LocalTime RESULT_TIME = LocalTime.of(20, 0);
 
     public MatchService(MatchRepository matches, DartRepository darts, LegRecordRepository legs,
                         PlayerMatchStatsRepository stats, DisputeRepository disputes, UserRepository users,
-                        MatchViewMapper mapper, RatingService ratings, ApplicationEventPublisher events) {
+                        MatchViewMapper mapper, RatingService ratings, ApplicationEventPublisher events,
+                        PlatformTransactionManager transactions) {
         this.matches = matches;
         this.darts = darts;
         this.legs = legs;
@@ -48,6 +62,7 @@ public class MatchService {
         this.mapper = mapper;
         this.ratings = ratings;
         this.events = events;
+        this.tx = new TransactionTemplate(transactions);
     }
 
     // ------------------------------------------------------------------ create
@@ -101,7 +116,7 @@ public class MatchService {
         if (username != null && !username.isBlank()) {
             userId = users.findByUsernameIgnoreCase(username).map(User::getId).orElseThrow(ApiException::notFound);
         }
-        var statuses = EnumSet.of(Match.Status.COMPLETED, Match.Status.VOIDED);
+        var statuses = EnumSet.of(Match.Status.UNCONFIRMED, Match.Status.COMPLETED, Match.Status.VOIDED);
         return mapper.summaries(matches.findRecent(userId, statuses, PageRequest.of(0, Math.clamp(limit, 1, 100))));
     }
 
@@ -169,11 +184,14 @@ public class MatchService {
         return match;
     }
 
-    /** The completion pipeline: persist legs and stats, update ratings, notify tournaments. One transaction. */
+    /**
+     * The last dart. Legs and stats are stored now; nothing reads them until the match counts. A tournament match
+     * counts straight away; any other match waits for confirmation. One transaction.
+     */
     private void completeMatch(Match match, X01Engine.MatchState state) {
         Instant now = Instant.now();
         Long winnerId = match.playerId(state.winnerIndex());
-        match.complete(winnerId, now);
+        match.finish(winnerId, now);
 
         for (X01Engine.Leg leg : state.legs()) {
             if (leg.winnerIndex() == null) continue;
@@ -183,6 +201,20 @@ public class MatchService {
         for (int i = 0; i < X01Engine.PLAYERS; i++) {
             stats.save(new MatchRecords.PlayerMatchStats(match.getId(), match.playerId(i), state.stats()[i]));
         }
+        if (match.needsConfirmation()) {
+            events.publishEvent(new MatchEvents.FeedChanged(match.getId()));
+        } else {
+            countIt(match, null, now);
+        }
+    }
+
+    /**
+     * The match starts to count: ratings, then everyone who keeps derived results (tournaments, awards for a month
+     * that has already been decided). {@code by} is null when it confirmed itself.
+     */
+    private void countIt(Match match, Long by, Instant at) {
+        match.confirm(by, at);
+        matches.flush();
         if (match.isRated()) {
             ratings.applyMatch(match);
         }
@@ -190,12 +222,105 @@ public class MatchService {
         events.publishEvent(new MatchEvents.FeedChanged(match.getId()));
     }
 
+    // ------------------------------------------------------------------ confirmation
+
+    /** The other player (see {@link Match#confirmerIds()}) or an admin confirms a finished match. */
+    @Transactional
+    public MatchViews.LiveMatchView confirm(UUID id, AuthUser actor) {
+        Match match = matches.findByIdForUpdate(id).orElseThrow(ApiException::notFound);
+        if (!actor.isAdmin() && !match.confirmerIds().contains(actor.id())) {
+            throw new ApiException(ErrorCode.MATCH_CONFIRM_NOT_ALLOWED);
+        }
+        if (match.getStatus() != Match.Status.UNCONFIRMED) throw new ApiException(ErrorCode.MATCH_NOT_UNCONFIRMED);
+        var open = disputes.findFirstByMatchIdAndStatus(id, MatchRecords.Dispute.Status.OPEN);
+        if (open.isPresent()) {
+            // A disputed match is the admins' to decide. An admin confirming it settles the dispute.
+            if (!actor.isAdmin()) throw new ApiException(ErrorCode.DISPUTE_ALREADY_OPEN);
+            open.get().resolve(MatchRecords.Dispute.Status.REJECTED, actor.id(), null);
+            disputes.flush();
+        }
+        countIt(match, actor.id(), Instant.now());
+        MatchViews.LiveMatchView view = mapper.live(match);
+        events.publishEvent(new MatchEvents.MatchUpdated(view));
+        return view;
+    }
+
+    /** Matches the user may confirm now: theirs to confirm, finished, and not disputed. */
+    @Transactional(readOnly = true)
+    public List<MatchViews.MatchSummary> toConfirm(AuthUser actor) {
+        List<Match> mine = matches.findUnconfirmedFor(actor.id()).stream()
+                .filter(m -> m.confirmerIds().contains(actor.id()))
+                .filter(m -> !disputes.existsByMatchIdAndStatus(m.getId(), MatchRecords.Dispute.Status.OPEN))
+                .toList();
+        return mapper.summaries(mine);
+    }
+
+    /**
+     * Confirms every match that finished more than {@link Match#CONFIRM_AFTER} ago and isn't disputed. Each match in
+     * its own transaction, so one that fails doesn't hold up the others. Run by {@link MatchConfirmationJob}.
+     *
+     * @return how many were confirmed
+     */
+    public int autoConfirmDue() {
+        int confirmed = 0;
+        for (UUID id : matches.findUnconfirmedFinishedBefore(Instant.now().minus(Match.CONFIRM_AFTER))) {
+            Boolean done = tx.execute(status -> {
+                Match match = matches.findByIdForUpdate(id).orElse(null);
+                if (match == null || match.getStatus() != Match.Status.UNCONFIRMED) return false;
+                if (match.getCompletedAt().isAfter(Instant.now().minus(Match.CONFIRM_AFTER))) return false;
+                if (disputes.existsByMatchIdAndStatus(id, MatchRecords.Dispute.Status.OPEN)) return false;
+                countIt(match, null, Instant.now());
+                events.publishEvent(new MatchEvents.MatchUpdated(mapper.live(match)));
+                return true;
+            });
+            if (Boolean.TRUE.equals(done)) confirmed++;
+        }
+        return confirmed;
+    }
+
+    // ------------------------------------------------------------------ result only
+
+    /** Registers only the result of a normal match. It waits for confirmation like a scored one. */
+    @Transactional
+    public MatchViews.LiveMatchView recordResult(AuthUser actor, MatchViews.RecordResultRequest req) {
+        GameConfig config = new GameConfig(req.startScore(), req.inRule(), req.outRule(), req.legsToWin());
+        boolean rated = req.rated() == null || req.rated();
+        if (rated && !actor.isAdmin() && !actor.id().equals(req.player1Id()) && !actor.id().equals(req.player2Id())) {
+            // the same rule as for a scored match: rated results must include the person registering them
+            throw ApiException.forbidden();
+        }
+        if (req.player1Id().equals(req.player2Id())) throw new ApiException(ErrorCode.MATCH_PLAYERS_SAME);
+        int l1 = req.legsWon().get(0), l2 = req.legsWon().get(1);
+        int target = config.legsToWin();
+        boolean finished = (l1 == target && l2 < target) || (l2 == target && l1 < target);
+        if (!finished) throw new ApiException(ErrorCode.VALIDATION_FAILED);
+        requireActiveUser(req.player1Id());
+        requireActiveUser(req.player2Id());
+
+        Instant now = Instant.now();
+        LocalDate today = LocalDate.now(ZONE);
+        LocalDate day = req.playedOn() == null ? today : req.playedOn();
+        if (day.isAfter(today) || day.isBefore(today.minusDays(RESULT_MAX_DAYS_BACK))) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED);
+        }
+        Instant playedAt = day.equals(today) ? now : day.atTime(RESULT_TIME).atZone(ZONE).toInstant();
+
+        Long winnerId = l1 == target ? req.player1Id() : req.player2Id();
+        Match match = matches.save(Match.resultOnly(config, req.player1Id(), req.player2Id(), rated, actor.id(), winnerId, playedAt));
+        stats.save(MatchRecords.PlayerMatchStats.resultOnly(match.getId(), req.player1Id(), l1));
+        stats.save(MatchRecords.PlayerMatchStats.resultOnly(match.getId(), req.player2Id(), l2));
+        stats.flush();
+        events.publishEvent(new MatchEvents.FeedChanged(match.getId()));
+        return mapper.live(match);
+    }
+
     // ------------------------------------------------------------------ disputes
 
     @Transactional
     public MatchViews.DisputeView raiseDispute(UUID id, AuthUser actor, MatchViews.DisputeRequest req) {
         Match match = matches.findById(id).orElseThrow(ApiException::notFound);
-        if (match.getStatus() != Match.Status.COMPLETED || !(match.involves(actor.id()) || actor.isAdmin())) {
+        boolean finished = match.getStatus() == Match.Status.COMPLETED || match.getStatus() == Match.Status.UNCONFIRMED;
+        if (!finished || !(match.involves(actor.id()) || actor.isAdmin())) {
             throw new ApiException(ErrorCode.DISPUTE_NOT_ALLOWED);
         }
         if (disputes.existsByMatchIdAndStatus(id, MatchRecords.Dispute.Status.OPEN)) {
@@ -215,7 +340,22 @@ public class MatchService {
         MatchRecords.Dispute d = disputes.findById(disputeId).orElseThrow(ApiException::notFound);
         if (d.getStatus() != MatchRecords.Dispute.Status.OPEN) throw new ApiException(ErrorCode.CONFLICT);
         String note = TextInput.optionalMultiLine(req.note(), 500);
-        if (req.outcome() == MatchViews.ResolveDisputeRequest.Outcome.REJECT) {
+        Match pending = matches.findByIdForUpdate(d.getMatchId())
+                .filter(m -> m.getStatus() == Match.Status.UNCONFIRMED).orElse(null);
+        if (pending != null) {
+            // Disputed before it counted: the admin either confirms it or voids it. Voiding changes nothing else,
+            // because nothing had counted it.
+            boolean keep = req.outcome() == MatchViews.ResolveDisputeRequest.Outcome.REJECT;
+            d.resolve(keep ? MatchRecords.Dispute.Status.REJECTED : MatchRecords.Dispute.Status.UPHELD, admin.id(), note);
+            disputes.flush();
+            if (keep) {
+                countIt(pending, admin.id(), Instant.now());
+            } else {
+                pending.setStatus(Match.Status.VOIDED);
+                events.publishEvent(new MatchEvents.FeedChanged(pending.getId()));
+            }
+            events.publishEvent(new MatchEvents.MatchUpdated(mapper.live(pending)));
+        } else if (req.outcome() == MatchViews.ResolveDisputeRequest.Outcome.REJECT) {
             d.resolve(MatchRecords.Dispute.Status.REJECTED, admin.id(), note);
         } else {
             Match match = matches.findByIdForUpdate(d.getMatchId()).orElseThrow(ApiException::notFound);

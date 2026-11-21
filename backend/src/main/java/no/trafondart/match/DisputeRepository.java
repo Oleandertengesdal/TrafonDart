@@ -19,5 +19,7 @@ public interface DisputeRepository extends JpaRepository<MatchRecords.Dispute, L
 
     boolean existsByMatchIdAndStatus(UUID matchId, MatchRecords.Dispute.Status status);
 
+    java.util.Optional<MatchRecords.Dispute> findFirstByMatchIdAndStatus(UUID matchId, MatchRecords.Dispute.Status status);
+
     List<MatchRecords.Dispute> findAllByMatchIdOrderByCreatedAtDesc(UUID matchId);
 }

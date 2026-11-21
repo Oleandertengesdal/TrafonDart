@@ -173,9 +173,15 @@ Trafo is a bot you can play X01 against on your own (any start score and rules).
 ## Match lifecycle
 
 ```
-IN_PROGRESS ──final dart──► COMPLETED ──admin upholds a dispute──► VOIDED
+IN_PROGRESS ──final dart──► UNCONFIRMED ──confirmed──► COMPLETED ──admin upholds a dispute──► VOIDED
+     │                          ▲    └──disputed, admin voids it──► VOIDED
+     │  result registered ──────┘
      └──────scorer abandons──► ABANDONED
 ```
+
+- **Confirmation:** a finished match counts for nothing (rating, statistics, the table, awards, achievements) until it's confirmed. The player who didn't register it confirms it; if someone else set it up, either player can. An admin can always confirm. If nobody confirms or disputes it, it **confirms itself two days after it finished**. A disputed match waits for an admin, who either keeps the result (it's confirmed) or voids the match. Tournament matches need no confirmation: they count as soon as they're won.
+- **Ratings** change when a match is confirmed, in the order matches were confirmed. Monthly awards count a match in the month it was **played**; confirming one from a month that's already been decided decides that month again.
+- **Result only:** a normal match can be registered with only the result: the players, the game, who won and the legs (one player has the legs to win), played today or up to 7 days back. It's confirmed like any other match and then counts for wins, losses, legs, rating, streaks, form, head-to-head and the monthly awards, but not for anything about the throwing (averages, first 9, checkouts, 180s, the heatmap, the match analysis). Tournament matches can't be registered this way.
 
 - **Who can score:** both players, whoever set the match up, and admins.
 - **Challenges:** a match can also start from an accepted challenge (see the user guide). It is created only when one of the two presses *Start*, with a random starting player.

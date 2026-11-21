@@ -31,6 +31,19 @@ public class MatchController {
         return service.create(AuthUser.current(), req);
     }
 
+    /** Registers only the result of a match (no darts). It waits for confirmation. */
+    @PostMapping("/results")
+    @ResponseStatus(HttpStatus.CREATED)
+    public MatchViews.LiveMatchView recordResult(@Valid @RequestBody MatchViews.RecordResultRequest req) {
+        return service.recordResult(AuthUser.current(), req);
+    }
+
+    /** Finished matches the current user may confirm. */
+    @GetMapping("/to-confirm")
+    public List<MatchViews.MatchSummary> toConfirm() {
+        return service.toConfirm(AuthUser.current());
+    }
+
     @GetMapping("/live")
     public List<MatchViews.MatchSummary> live() {
         return service.live();
@@ -60,6 +73,11 @@ public class MatchController {
     @PostMapping("/{id}/abandon")
     public MatchViews.LiveMatchView abandon(@PathVariable UUID id) {
         return service.abandon(id, AuthUser.current());
+    }
+
+    @PostMapping("/{id}/confirm")
+    public MatchViews.LiveMatchView confirm(@PathVariable UUID id) {
+        return service.confirm(id, AuthUser.current());
     }
 
     @PostMapping("/{id}/disputes")

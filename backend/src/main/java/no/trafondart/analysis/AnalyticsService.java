@@ -139,6 +139,7 @@ public class AnalyticsService {
         DartAnalytics.Accumulator acc = new DartAnalytics.Accumulator();
         List<TopCheckout> checkouts = new ArrayList<>();
         for (Match m : played) {
+            if (m.isResultOnly()) continue; // no darts to analyse
             int me = m.indexOf(user.getId());
             X01Engine.MatchState s = X01Engine.replay(m.config(), m.getStartingPlayer(), byMatch.getOrDefault(m.getId(), List.of()));
             acc.addMatch(s, me);

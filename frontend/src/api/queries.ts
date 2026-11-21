@@ -29,6 +29,7 @@ import type {
   ChallengeList,
   BotMatch,
   BotRecord,
+  RecordResultRequest,
 } from "./types";
 
 export const keys = {
@@ -37,6 +38,7 @@ export const keys = {
   leaderboard: ["leaderboard"] as const,
   liveMatches: ["matches", "live"] as const,
   recentMatches: (user?: string) => ["matches", "recent", user ?? "all"] as const,
+  toConfirm: ["matches", "awaiting-me"] as const,
   match: (id: string) => ["match", id] as const,
   botMatch: (id: string) => ["bot-match", id] as const,
   botRecord: (u: string) => ["bot-record", u.toLowerCase()] as const,
@@ -143,6 +145,27 @@ export const useRecentMatches = (user?: string, limit = 20) =>
     queryKey: [...keys.recentMatches(user), limit],
     queryFn: () => api.get<MatchSummary[]>(user ? apiPath`/api/matches/recent?limit=${limit}&user=${user}` : apiPath`/api/matches/recent?limit=${limit}`),
   });
+
+/** Finished matches the current user may confirm. */
+export const useToConfirm = (enabled = true) =>
+  useQuery({ queryKey: keys.toConfirm, queryFn: () => api.get<MatchSummary[]>("/api/matches/to-confirm"), enabled });
+
+/** Everything a confirmed match changes: the match itself, lists, the table, profiles and the month's race. */
+const counted = [keys.toConfirm, ["matches", "recent"], keys.leaderboard, ["profile"], ["h2h"], keys.awardRace] as const;
+
+export const useConfirmMatch = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.post<LiveMatch>(apiPath`/api/matches/${id}/confirm`),
+    onSuccess: (m) => {
+      qc.setQueryData(keys.match(m.id), m);
+      counted.forEach((key) => void qc.invalidateQueries({ queryKey: key }));
+    },
+  });
+};
+
+export const useRecordResult = () =>
+  useApiMutation((req: RecordResultRequest) => api.post<LiveMatch>("/api/matches/results", req), [["matches", "recent"]]);
 
 export const useMatch = (id: string) =>
   useQuery({ queryKey: keys.match(id), queryFn: () => api.get<LiveMatch>(apiPath`/api/matches/${id}`) });

@@ -20,7 +20,8 @@ class FourOhOneIT extends IntegrationTestBase {
         assertThat(r.status()).as("%s", r.body()).isEqualTo(201);
         assertThat(r.body().get("remaining").get(0).asInt()).isEqualTo(401);
         JsonNode done = playToEnd(a.client(), r.body().get("id").asString(), 0);
-        assertThat(done.get("status").asString()).isEqualTo("COMPLETED");
+        assertThat(done.get("status").asString()).isEqualTo("UNCONFIRMED");
+        assertThat(confirm(r.body().get("id").asString()).get("status").asString()).isEqualTo("COMPLETED");
         assertThat(a.client().post("/api/matches", matchBody(a.id(), b.id(), true, 402, "DOUBLE", 1)).status()).isEqualTo(400);
     }
 

@@ -44,8 +44,11 @@ sequenceDiagram
   A->>A: X01Engine.replay(darts + new dart)
   A->>DB: INSERT dart
   alt match finished
-    A->>DB: legs, match_player_stats, Glicko-2 ratings, rating_history
-    A->>A: TournamentService advances the bracket (same transaction)
+    A->>DB: legs, match_player_stats, status UNCONFIRMED
+    opt tournament match (counts at once)
+      A->>DB: Glicko-2 ratings, rating_history
+      A->>A: TournamentService advances the bracket (same transaction)
+    end
   end
   A-->>T: 200 LiveMatchView
   Note over A,B: after COMMIT
@@ -58,8 +61,8 @@ sequenceDiagram
 1. **Darts are the single source of truth.** The `darts` table stores only `(match, seq, segment, multiplier)`. Every number on screen (remaining, busts, legs won, averages, checkout hint) is recomputed by the pure `X01Engine.replay(...)`. Undo is "delete the last dart and replay", which stays correct even when the dart being undone was a leg-winning checkout.
 2. **Optimistic concurrency per dart.** The client sends the dart count it expects. Double taps and two tablets scoring the same match cannot record a dart twice. The loser gets `MATCH_OUT_OF_SYNC` together with the current state and just re-renders.
 3. **The socket is read-only.** All writes go through REST, which carries CSRF protection, validation and auth. The socket only broadcasts, and only after the database transaction commits, so spectators never see a state that was rolled back.
-4. **The completion pipeline is one transaction.** Legs, per-player stats, both ratings and tournament progression are all written atomically with the final dart.
-5. **Domain events decouple modules.** `MatchService` publishes `MatchCompleted`, `MatchAbandoned` and `MatchVoided` (`GameService` publishes `GameUpdated` and `GameCompleted`). `TournamentService` listens synchronously in the same transaction, and `AwardService` listens to `MatchVoided` so it can re-decide the affected months. Broadcast events (`MatchUpdated`, `FeedChanged`, `TournamentUpdated`) are handled `AFTER_COMMIT` by `Broadcaster`.
+4. **Finishing and counting are two steps.** With the final dart, legs and per-player stats are written atomically and a normal match becomes `UNCONFIRMED`. It *counts* (status `COMPLETED`, ratings, `MatchCompleted`) only when the other player or an admin confirms it, or when `MatchConfirmationJob` confirms it two days later (every ten minutes, and at start-up because the free server sleeps). Everything that reads matches, legs or stats starts from `COMPLETED` matches, so an unconfirmed match is invisible to ratings, statistics, awards and achievements. A tournament match is finished and counted in the same transaction, so the bracket moves on at once. A match registered with only its result (`POST /api/matches/results`) starts at `UNCONFIRMED` with no darts.
+5. **Domain events decouple modules.** `MatchService` publishes `MatchCompleted`, `MatchAbandoned` and `MatchVoided` (`GameService` publishes `GameUpdated` and `GameCompleted`). `TournamentService` listens synchronously in the same transaction, and `AwardService` listens to `MatchVoided` and to `MatchCompleted` (a match confirmed after its month was decided) so it can re-decide the affected months. Broadcast events (`MatchUpdated`, `FeedChanged`, `TournamentUpdated`) are handled `AFTER_COMMIT` by `Broadcaster`.
 
 ## Backend packages
 
@@ -73,7 +76,8 @@ no.trafondart
 │                 invite codes (hashed, max uses, expiry), admin password reset links, bootstrap admin
 ├── user/         User entity, user & admin controllers, DTOs
 ├── game/         Dart, GameConfig, OutRules, X01Engine, CheckoutCalculator   ← no Spring, pure
-├── match/        Match/darts/legs/stats/disputes entities, MatchService, MatchViewMapper, events
+├── match/        Match/darts/legs/stats/disputes entities, MatchService (scoring, confirmation, results without darts),
+│                 MatchConfirmationJob (confirms after two days), MatchViewMapper, events
 ├── rating/       Glicko2 (pure maths), RatingService (apply + full recompute), RatingHistory
 ├── stats/        StatsService: profile, head-to-head, leaderboard
 ├── analysis/     DartAnalytics (pure) + AnalyticsService: match breakdown, heatmaps, dart-nerd stats

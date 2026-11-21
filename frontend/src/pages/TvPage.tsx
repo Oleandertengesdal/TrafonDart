@@ -153,7 +153,7 @@ function TvMatch({ id }: { id: string }) {
           <CheckoutHint match={match} />
         </div>
       )}
-      {match.status === "COMPLETED" && match.winnerIndex !== null && (
+      {(match.status === "COMPLETED" || match.status === "UNCONFIRMED") && match.winnerIndex !== null && (
         <p className="text-center font-display text-6xl text-brass">{t("match.matchWon", { name: match.players[match.winnerIndex].realName })}</p>
       )}
       <CelebrationOverlay moment={moment} />

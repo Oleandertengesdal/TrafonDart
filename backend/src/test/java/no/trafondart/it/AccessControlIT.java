@@ -174,6 +174,8 @@ class AccessControlIT extends IntegrationTestBase {
         playToEnd(a.client(), id, 0);
         assertThat(outsider.client().post("/api/matches/" + id + "/disputes", Map.of("reason", "I was not there")).code())
                 .isEqualTo("DISPUTE_NOT_ALLOWED");
+        // nor confirm it: that is for the other player or an admin
+        assertThat(outsider.client().post("/api/matches/" + id + "/confirm", null).code()).isEqualTo("MATCH_CONFIRM_NOT_ALLOWED");
     }
 
     @Test

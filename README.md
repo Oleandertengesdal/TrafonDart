@@ -28,6 +28,7 @@ More screens, in Norwegian and English: [docs/SCREENSHOTS.md](docs/SCREENSHOTS.m
 - **Checkout assistant.** The best route for the darts left this turn, for example `120 → T20 20 D20`.
 - **Live spectating.** Every dart is pushed over WebSockets (STOMP). Anyone in the group can open the match link and watch.
 - **Callouts.** A flash, a chime and a spoken *"One hundred and eighty!"* (or *"Hundreåtti!"*) for 180s, 100+ finishes, busts and game shots. There's also an optional "voice caller" that reads out every turn score.
+- **Confirmed results.** A finished match counts only once the other player (or an admin) confirms it, or after two days if nobody disputes it; a disputed one is decided by an admin. Played without scoring the darts? Register just the result, and it counts for wins and rating but not for throwing stats. See [docs/GAME-RULES.md](docs/GAME-RULES.md#match-lifecycle).
 - **Glicko-2 ratings.** Rating, rating deviation and volatility, with a history chart. Ratings stay *provisional* until they settle.
 - **Statistics.** Win/loss, legs, 3-dart and first-9 averages, 180s, 140+ and 100+ turns, highest checkout, checkout percentage, current form and head-to-head records.
 - **Kudos and comments.** Give kudos to a match, comment, reply in threads and like comments. Updates arrive live for everyone on the page.
@@ -108,8 +109,8 @@ The plan (phases, checklists, costs, risks, monitoring, backups and rollback) is
 ## Testing
 
 ```bash
-cd backend  && mvn verify          # 359 tests: unit, property and fuzz tests + end-to-end API and socket tests against Postgres
-cd frontend && npm run i18n:check && npm test && npm run typecheck:test && npm run lint && npm run build   # 131 tests
+cd backend  && mvn verify          # 371 tests: unit, property and fuzz tests + end-to-end API and socket tests against Postgres
+cd frontend && npm run i18n:check && npm test && npm run typecheck:test && npm run lint && npm run build   # 137 tests
 python3 scripts/check-docs.py      # docs match the code: endpoints, env vars, links, images
 ```
 
@@ -145,7 +146,7 @@ Read [docs/SECURITY.md](docs/SECURITY.md) before you deploy.
 | [ACHIEVEMENTS.md](docs/ACHIEVEMENTS.md) | Every lifetime achievement and its rule |
 | [PRIVACY.md](docs/PRIVACY.md) | What is stored, data download and account deletion |
 | [OPERATIONS.md](docs/OPERATIONS.md) | Error alerts with Sentry |
-| [TESTING.md](docs/TESTING.md) | The 490 tests, how to run them, and the flaws they found |
+| [TESTING.md](docs/TESTING.md) | The 508 tests, how to run them, and the flaws they found |
 | [SECURITY.md](docs/SECURITY.md) | Threat model and mitigations |
 | [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Neon + Render + Vercel, step by step |
 | [LOCAL-DEVELOPMENT.md](docs/LOCAL-DEVELOPMENT.md) | Running, testing and seeding locally |

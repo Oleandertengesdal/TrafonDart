@@ -37,6 +37,7 @@ class AchievementsIT extends IntegrationTestBase {
             Response r = throwDart(c, id, d[0], d[1], n++);
             assertThat(r.status()).as("%s", r.body()).isEqualTo(200);
         }
+        confirm(id);
         return id;
     }
 
@@ -91,12 +92,14 @@ class AchievementsIT extends IntegrationTestBase {
         String id = quickMatch(outsider.client(), a.id(), b.id(), false);
         for (int i = 0; i < 3; i++) throwDart(outsider.client(), id, 20, 3, i);
         playToEnd(outsider.client(), id, 0);
+        confirm(id); // even confirmed, it was set up by someone else
         JsonNode list = achievements(a.client(), a.username());
         assertThat(unlocked(list, "FIRST_180")).isFalse();
         assertThat(unlocked(list, "FIRST_WIN")).isFalse();
         // but a casual match a player set up themselves does count
         String own = quickMatch(a.client(), a.id(), b.id(), false);
         playToEnd(a.client(), own, 0);
+        confirm(own);
         assertThat(unlocked(achievements(a.client(), a.username()), "FIRST_WIN")).isTrue();
     }
 

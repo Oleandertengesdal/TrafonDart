@@ -18,9 +18,22 @@ public record PlayerHistory(User user, List<MatchEntry> matches, List<GameEntry>
      * @param me              0 or 1: which side of the match the player was on
      * @param replay          the match replayed from its darts (legs, turns, finishing darts)
      * @param myRatingBefore  null for unrated matches
+     * @param theirs          the opponent's stat row (legs won)
      */
     public record MatchEntry(Match match, int me, User opponent, boolean won, PlayerMatchStats mine, List<LegRecord> legs,
-                             X01Engine.MatchState replay, Double myRatingBefore, Double opponentRatingBefore) {
+                             X01Engine.MatchState replay, Double myRatingBefore, Double opponentRatingBefore,
+                             PlayerMatchStats theirs) {
+
+        /** False for a match registered with only its result: it counts for wins and legs, not for throwing. */
+        public boolean hasDarts() {
+            return !match.isResultOnly() && mine != null && mine.getDartsThrown() > 0;
+        }
+
+        /** Legs in the match; a registered result has no leg records, only legs won on each side. */
+        public int legsPlayed() {
+            if (!legs.isEmpty() || !match.isResultOnly()) return legs.size();
+            return (mine == null ? 0 : mine.getLegsWon()) + (theirs == null ? 0 : theirs.getLegsWon());
+        }
 
         public double average() {
             return mine == null || mine.getDartsThrown() == 0 ? 0 : mine.getPointsScored() * 3.0 / mine.getDartsThrown();

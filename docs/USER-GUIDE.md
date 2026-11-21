@@ -11,21 +11,22 @@ Alt du trenger for å komme i gang med TrafonDart, fra første innlogging til å
 3. [Start en kamp](#3-start-en-kamp)
 4. [Før kampen fra nettbrettet](#4-før-kampen-fra-nettbrettet)
 5. [Se på live fra mobilen](#5-se-på-live-fra-mobilen)
-6. [Etter kampen: analyse, kudos og kommentarer](#6-etter-kampen-analyse-kudos-og-kommentarer)
-7. [Profilen din](#7-profilen-din)
-8. [Ratingtabellen](#8-ratingtabellen)
-9. [Månedens spiller](#9-månedens-spiller)
-10. [Turneringer](#10-turneringer)
-11. [Selskapsspill: flere enn to](#11-selskapsspill-flere-enn-to)
-12. [Øv mot Trafo, dartboten](#12-øv-mot-trafo-dartboten)
-13. [Utfordre en venn](#13-utfordre-en-venn)
-14. [TV-modus](#14-tv-modus)
-15. [Årets spiller og årsoppsummeringen](#15-årets-spiller-og-årsoppsummeringen)
-16. [Prestasjoner](#16-prestasjoner)
-17. [Innstillinger og dine data](#17-innstillinger-og-dine-data)
-18. [Glemt passord](#18-glemt-passord)
-19. [Fant du en feil?](#19-fant-du-en-feil)
-20. [Ord og uttrykk](#20-ord-og-uttrykk)
+6. [Etter kampen: bekreft resultatet](#6-etter-kampen-bekreft-resultatet)
+7. [Etter kampen: analyse, kudos og kommentarer](#7-etter-kampen-analyse-kudos-og-kommentarer)
+8. [Profilen din](#8-profilen-din)
+9. [Ratingtabellen](#9-ratingtabellen)
+10. [Månedens spiller](#10-månedens-spiller)
+11. [Turneringer](#11-turneringer)
+12. [Selskapsspill: flere enn to](#12-selskapsspill-flere-enn-to)
+13. [Øv mot Trafo, dartboten](#13-øv-mot-trafo-dartboten)
+14. [Utfordre en venn](#14-utfordre-en-venn)
+15. [TV-modus](#15-tv-modus)
+16. [Årets spiller og årsoppsummeringen](#16-årets-spiller-og-årsoppsummeringen)
+17. [Prestasjoner](#17-prestasjoner)
+18. [Innstillinger og dine data](#18-innstillinger-og-dine-data)
+19. [Glemt passord](#19-glemt-passord)
+20. [Fant du en feil?](#20-fant-du-en-feil)
+21. [Ord og uttrykk](#21-ord-og-uttrykk)
 
 ---
 
@@ -111,7 +112,28 @@ Alle i gjengen kan åpne kampen og følge med. Hver pil dukker opp med en gang. 
 
 ![Se på live](images/spectate.png)
 
-## 6. Etter kampen: analyse, kudos og kommentarer
+## 6. Etter kampen: bekreft resultatet
+
+En ferdig kamp teller ikke før den er **bekreftet**. Den som ikke førte kampen, får den opp øverst på forsiden under **Bekreft resultater**, og på selve kampen. Trykk **Bekreft** hvis resultatet stemmer. Da teller kampen på rating, tabellen, statistikken, Månedens spiller og prestasjonene.
+
+![Bekreft resultater på forsiden](images/phone-confirm.png)
+
+- Har noen andre ført kampen, kan hvem som helst av dere to bekrefte den.
+- En admin kan alltid bekrefte.
+- Sier ingen fra, **teller kampen automatisk etter to dager**.
+- Er noe feil, trykk **Meld fra om feilføring** i stedet. Da avgjør en admin om resultatet står eller om kampen strykes. Til da teller den ikke.
+
+Turneringskamper trenger ingen bekreftelse. De teller med en gang de er vunnet.
+
+### Bare registrer resultatet
+
+Spilte dere uten å føre pilene? Gå til **Spill** og trykk **Registrer bare resultatet** under startknappen. Velg spillerne, spillet, hvem som vant og hvor mange legg taperen fikk, og hvilken dag dere spilte (i dag eller inntil en uke tilbake). Motstanderen bekrefter det som en vanlig kamp.
+
+Et slikt resultat teller for seier, legg, rating, rekker og innbyrdes oppgjør, men ikke for snitt, checkout, 180 eller andre kast. Det har jo ingen piler. I kamplisten står det **Kun resultat**.
+
+![Registrer et resultat](images/result-register.png)
+
+## 7. Etter kampen: analyse, kudos og kommentarer
 
 En ferdig kamp har fire faner:
 
@@ -140,7 +162,7 @@ Alt oppdateres live for alle som har siden åpen.
 
 **Ble noe ført feil?** Spillerne kan melde fra om feilføring på en ferdig kamp. En admin ser på det og kan annullere kampen. Da regnes alle ratinger og månedens kåringer ut på nytt.
 
-## 7. Profilen din
+## 8. Profilen din
 
 Trykk på navnet ditt øverst, eller på en spiller i en liste.
 
@@ -149,23 +171,23 @@ Trykk på navnet ditt øverst, eller på en spiller i en liste.
 - **Tall:** kamper, legg, 3-pilssnitt, snitt første 9, utgangsprosent, høyeste utgang, 180-ere, 140+, 100+ og høyeste runde.
 - **Grafer:** rating over tid og snittet i de siste kampene.
 - **Dartnerdens hjørne:** varmekart over alle pilene du har kastet, trippel-, dobbel- og bullprosent, bomprosent, beste legg, piler per vunne legg, hold- og breakprosent, vanligste runde, favorittall, rundepoeng, beste utganger og favorittutganger.
-- **Ditt 2026:** årsoppsummeringen din (se [kapittel 15](#15-årets-spiller-og-årsoppsummeringen)).
-- **Utfordre:** på andres profil (se [kapittel 13](#13-utfordre-en-venn)).
+- **Ditt 2026:** årsoppsummeringen din (se [kapittel 16](#16-årets-spiller-og-årsoppsummeringen)).
+- **Utfordre:** på andres profil (se [kapittel 14](#14-utfordre-en-venn)).
 - **Troféskap:** alle månedskåringene og årets spiller-kåringene du har vunnet.
-- **Prestasjoner:** milepælene dine (se [kapittel 16](#16-prestasjoner)).
-- **Mot Trafo:** rekorden din mot dartboten, holdt utenfor all annen statistikk (se [kapittel 12](#12-øv-mot-trafo-dartboten)).
+- **Prestasjoner:** milepælene dine (se [kapittel 17](#17-prestasjoner)).
+- **Mot Trafo:** rekorden din mot dartboten, holdt utenfor all annen statistikk (se [kapittel 13](#13-øv-mot-trafo-dartboten)).
 - **Selskapsspill:** spilt og vunnet per spilltype, og de siste spillene.
 - **Innbyrdes** mot hver motstander, og **siste kamper**.
 
 ![Profil](images/profile.png)
 
-## 8. Ratingtabellen
+## 9. Ratingtabellen
 
 **Spillere** viser alle, sortert etter rating, med kamper, vinnerprosent, snitt, 180-ere og høyeste utgang. Ratingen er Glicko-2: du går mest opp når du slår noen som er bedre enn deg. Mer om det i [RATINGS.md](RATINGS.md).
 
 ![Ratingtabell](images/players.png)
 
-## 9. Månedens spiller
+## 10. Månedens spiller
 
 **Kåringer** i menyen. Her vinner ikke nødvendigvis den beste, men den som har hatt **den beste måneden**: gått mest frem, spilt mye, vunnet kamper og levert de store øyeblikkene.
 
@@ -200,7 +222,7 @@ Vinnerne kåres automatisk den 1. hver måned. De får en utmerkelse i troféska
 
 Alle detaljer står i [AWARDS.md](AWARDS.md).
 
-## 10. Turneringer
+## 11. Turneringer
 
 **Turneringer → Ny turnering.** Velg format og deltakere:
 
@@ -211,7 +233,7 @@ Når turneringen er startet, trykker du **Spill** ved en kamp som er klar. I en 
 
 ![Cup](images/tournament.png)
 
-## 11. Selskapsspill: flere enn to
+## 12. Selskapsspill: flere enn to
 
 Er dere flere enn to? **Spill → Flere enn to? Selskapsspill** (eller knappen på forsiden).
 
@@ -234,7 +256,7 @@ Selskapsspill er **bare for moro skyld**: de teller ikke på rating, månedens s
 
 ![Ferdig Killer-parti](images/game-killer.png)
 
-## 12. Øv mot Trafo, dartboten
+## 13. Øv mot Trafo, dartboten
 
 Ingen å spille mot? **Spill → Mot Trafo** (eller knappen på forsiden når ingen kamper pågår). Trafo er en dartbot som kaster sine egne piler.
 
@@ -255,7 +277,7 @@ Kampene mot Trafo er **øving**: de teller ikke på ratingen, tabellen, innbyrde
 
 ![Rekorden mot Trafo på profilen](images/profile-trafo.png)
 
-## 13. Utfordre en venn
+## 14. Utfordre en venn
 
 Gå til profilen til den du vil utfordre og trykk **Utfordre**. Velg spill (301/401/501/701), avslutning, antall legg, om kampen skal telle på ratingen, og skriv gjerne en melding.
 
@@ -265,7 +287,7 @@ Gå til profilen til den du vil utfordre og trykk **Utfordre**. Velg spill (301/
 - En godtatt utfordring står på forsiden til dere begge som **Klar til å spille**. Trykk **Start** når dere står ved skiva, så opprettes kampen og føringen åpner seg.
 - Du kan **avlyse** din egen utfordring, og begge kan avlyse en godtatt en. Du kan ha fem åpne utfordringer om gangen, og bare én med hver person.
 
-## 14. TV-modus
+## 15. TV-modus
 
 Har dere en storskjerm der dere spiller? Åpne **TV-modus** (TV-ikonet øverst, eller `/tv`) på en PC eller smart-TV koblet til skjermen og trykk på fullskjermknappen.
 
@@ -275,7 +297,7 @@ Har dere en storskjerm der dere spiller? Åpne **TV-modus** (TV-ikonet øverst, 
 
 ![TV-modus](images/tv.png)
 
-## 15. Årets spiller og årsoppsummeringen
+## 16. Årets spiller og årsoppsummeringen
 
 **Årets spiller** kåres 1. januar: månedspoengene for hele året legges sammen. Du må ha minst **10 kamper som teller på ratingen** i løpet av året. Kampen om tittelen og tidligere vinnere står på **Kåringer**, og vinneren får en stjerne i troféskapet.
 
@@ -283,13 +305,13 @@ Har dere en storskjerm der dere spiller? Åpne **TV-modus** (TV-ikonet øverst, 
 
 <img src="images/phone-recap.png" alt="Årsoppsummering på mobil" width="320">
 
-## 16. Prestasjoner
+## 17. Prestasjoner
 
 Under troféskapet på profilen ligger **prestasjonene**: milepæler du har for alltid, som første 180, en utgang på 100+, en nipiler, bull-utgang, 100 kamper og ti tusen piler. Låste prestasjoner viser hvordan du får dem, og de med telling viser hvor langt du har kommet. Trykk på en opplåst prestasjon for å se kampen der det skjedde. Hele lista står i [ACHIEVEMENTS.md](ACHIEVEMENTS.md).
 
 Bare kamper som teller på ratingen, eller som en av spillerne selv satte opp, gir prestasjoner. Blir en kamp annullert, forsvinner det den ga.
 
-## 17. Innstillinger og dine data
+## 18. Innstillinger og dine data
 
 Tannhjulet øverst til høyre.
 
@@ -302,7 +324,7 @@ Tannhjulet øverst til høyre.
 
 ![Innstillinger](images/settings.png)
 
-## 18. Glemt passord
+## 19. Glemt passord
 
 Det sendes ingen e-post. Si fra til en admin, som lager en **passordlenke** til deg og sender den, for eksempel på Messenger.
 
@@ -312,7 +334,7 @@ Det sendes ingen e-post. Si fra til en admin, som lager en **passordlenke** til 
 
 <img src="images/phone-reset.png" alt="Velg nytt passord" width="320">
 
-## 19. Fant du en feil?
+## 20. Fant du en feil?
 
 Krasjer en side, får du opp **«Noe gikk i stykker»**. Feilen blir rapportert automatisk (uten navnet ditt), så adminene får vite om den. Last inn siden på nytt. Står det **«Ny versjon er ute»**, er TrafonDart oppdatert mens siden var åpen: last inn på nytt, så er alt i orden.
 
@@ -326,7 +348,7 @@ Vil du fortelle mer, trykk **Meld fra om feil** nederst på siden. Siden lager e
 
 ![Meld fra om feil](images/feedback.png)
 
-## 20. Ord og uttrykk
+## 21. Ord og uttrykk
 
 | Ord | Betyr |
 |---|---|
@@ -340,6 +362,8 @@ Vil du fortelle mer, trykk **Meld fra om feil** nederst på siden. Siden lager e
 | **Hold / break** | å vinne et legg der du / motstanderen kastet først |
 | **Foreløpig rating** | appen har for få kamper til å være sikker på nivået ditt |
 | **Walkover** | du går rett videre i cupen uten å spille |
+| **Venter på bekreftelse** | kampen er ferdig, men teller ikke før den andre spilleren (eller en admin) har bekreftet den, eller etter to dager |
+| **Kun resultat** | kampen er registrert uten pilene: den teller for seier, legg og rating, men ikke for snitt og kast |
 | **Selskapsspill** | X01 for flere, to mot to, Cricket, Killer og Rundt klokka. Teller ikke på ratingen |
 | **Lukke (Cricket)** | tre treff på et tall. Etter det gir tallet poeng så lenge noen ikke har lukket det |
 | **Killer** | i spillet Killer: den som har truffet sin egen dobbel og kan ta liv fra de andre |

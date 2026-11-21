@@ -28,6 +28,20 @@ The home page shows challenges (one waiting for an answer, one accepted and read
 
 ![Offline](images/offline.png)
 
+## Confirming results
+
+**Waiting for you:** a finished match counts once the other player confirms it. It shows on their home page, with a Confirm button.
+
+![Results to confirm on a phone](images/phone-confirm.png)
+
+**On the match:** who it waits for, and when it counts by itself if nobody objects.
+
+![Confirm the result](images/result-confirm.png)
+
+**Just the result:** for a match played without scoring the darts. Pick the winner and the loser's legs, so the score is always a finished match.
+
+![Register a result](images/result-register.png)
+
 ## Practice against Trafo
 
 **Setting up:** pick Trafo's level (each one says the average it plays at and how you've done against it), who throws first, the game and the rules. Your record against Trafo is underneath.

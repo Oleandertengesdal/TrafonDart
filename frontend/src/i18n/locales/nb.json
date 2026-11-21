@@ -41,7 +41,8 @@
     "never": "Aldri",
     "none": "Ingen",
     "darts": "piler",
-    "dartsHeading": "Piler"
+    "dartsHeading": "Piler",
+    "or": "eller"
   },
   "auth": {
     "loginTitle": "Logg inn",
@@ -152,7 +153,8 @@
       "IN_PROGRESS": "Direkte",
       "COMPLETED": "Ferdig",
       "ABANDONED": "Avbrutt",
-      "VOIDED": "Annullert"
+      "VOIDED": "Annullert",
+      "UNCONFIRMED": "Venter på bekreftelse"
     },
     "connection": {
       "live": "Direkte",
@@ -179,7 +181,9 @@
     "darts": "Piler",
     "dartsAt": "Piler på dobbel",
     "turnScore": "{{score}}",
-    "swap": "Bytt om spillerne"
+    "swap": "Bytt om spillerne",
+    "resultOnly": "Kun resultat",
+    "resultOnlyLead": "Registrert uten piler: kampen teller for seier, legs og rating, men ikke for snitt, checkout eller andre kast."
   },
   "callouts": {
     "oneEighty": "Hundreåtti!",
@@ -518,7 +522,9 @@
       "reload": "Last inn på nytt",
       "report": "Meld fra om feilen"
     },
-    "BOT_MATCH_IN_PROGRESS": "Du har allerede en kamp i gang mot Trafo. Fortsett den eller gi opp først."
+    "BOT_MATCH_IN_PROGRESS": "Du har allerede en kamp i gang mot Trafo. Fortsett den eller gi opp først.",
+    "MATCH_NOT_UNCONFIRMED": "Kampen er allerede bekreftet, eller ikke ferdig.",
+    "MATCH_CONFIRM_NOT_ALLOWED": "Det er den andre spilleren eller en admin som bekrefter kampen."
   },
   "social": {
     "kudos": "Kudos",
@@ -1063,5 +1069,30 @@
       "mine": "Din rekord mot Trafo",
       "seeAll": "Se hele rekorden"
     }
+  },
+  "confirm": {
+    "waitingTitle": "Venter på at {{names}} bekrefter",
+    "waitingLead": "Kampen teller ikke på rating, tabell eller statistikk før den er bekreftet. Sier ingen fra, teller den automatisk {{when}}.",
+    "yoursTitle": "Bekreft resultatet",
+    "yoursLead": "Stemmer det? Da teller kampen. Er noe feil, si fra under, så avgjør en admin.",
+    "button": "Bekreft",
+    "disputedTitle": "Resultatet er bestridt",
+    "disputedLead": "En admin avgjør om resultatet står eller om kampen strykes. Til da teller den ikke.",
+    "adminNote": "Som admin kan du bekrefte den likevel.",
+    "homeTitle": "Bekreft resultater",
+    "homeLead": "Disse kampene teller først når du har bekreftet dem. Sier du ikke fra, teller de automatisk etter to dager."
+  },
+  "result": {
+    "title": "Registrer resultat",
+    "lead": "For en kamp dere spilte uten å føre pilene. Motstanderen må bekrefte den før den teller.",
+    "winner": "Hvem vant?",
+    "loserLegs": "Legs til {{name}}",
+    "score": "Resultat",
+    "playedOn": "Spilt",
+    "playedOnHint": "I dag eller inntil en uke tilbake.",
+    "counts": "Teller for seier, legs, rating og rivaler når den er bekreftet. Snitt og andre kast kommer bare fra kamper med pilene ført.",
+    "submit": "Registrer resultatet",
+    "linkLead": "Spilte dere uten å føre pilene?",
+    "link": "Registrer bare resultatet"
   }
 }

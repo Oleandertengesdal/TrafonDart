@@ -42,9 +42,26 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
     @Query("""
             select m from Match m
             where m.status = no.trafondart.match.Match.Status.COMPLETED and m.rated = true
-            order by m.completedAt asc, m.createdAt asc
+            order by coalesce(m.confirmedAt, m.completedAt) asc, m.completedAt asc, m.createdAt asc
             """)
     List<Match> findRatedCompletedInOrder();
+
+    /** Finished but unconfirmed matches that ended before {@code before} (due to confirm themselves), oldest first. */
+    @Query("""
+            select m.id from Match m
+            where m.status = no.trafondart.match.Match.Status.UNCONFIRMED and m.completedAt < :before
+            order by m.completedAt asc
+            """)
+    List<UUID> findUnconfirmedFinishedBefore(@Param("before") java.time.Instant before);
+
+    /** A player's finished matches that wait for confirmation, newest first. */
+    @Query("""
+            select m from Match m
+            where m.status = no.trafondart.match.Match.Status.UNCONFIRMED
+              and (m.player1Id = :userId or m.player2Id = :userId)
+            order by m.completedAt desc
+            """)
+    List<Match> findUnconfirmedFor(@Param("userId") Long userId);
 
     @Query("""
             select m from Match m

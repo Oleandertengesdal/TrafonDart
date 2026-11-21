@@ -128,6 +128,14 @@ public final class MatchRecords {
             this.checkoutsHit = s.checkoutsHit();
         }
 
+        /** For a match registered with only its result: legs won, and nothing about the throwing. */
+        public static PlayerMatchStats resultOnly(UUID matchId, Long userId, int legsWon) {
+            PlayerMatchStats s = new PlayerMatchStats();
+            s.id = new StatsId(matchId, userId);
+            s.legsWon = legsWon;
+            return s;
+        }
+
         public StatsId getId() { return id; }
         public int getLegsWon() { return legsWon; }
         public int getDartsThrown() { return dartsThrown; }

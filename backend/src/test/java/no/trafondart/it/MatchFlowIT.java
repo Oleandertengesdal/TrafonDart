@@ -101,8 +101,9 @@ class MatchFlowIT extends IntegrationTestBase {
         Response created = a.client().post("/api/matches", matchBody(a.id(), b.id(), true, 501, "DOUBLE", 2));
         String id = created.body().get("id").asString();
         JsonNode end = playToEnd(a.client(), id, 0);
-        assertThat(end.get("status").asString()).isEqualTo("COMPLETED");
+        assertThat(end.get("status").asString()).isEqualTo("UNCONFIRMED");
         assertThat(end.get("winnerIndex").asInt()).isZero();
+        assertThat(b.client().post("/api/matches/" + id + "/confirm", null).body().get("status").asString()).isEqualTo("COMPLETED");
         assertThat(end.get("legsWon").get(0).asInt()).isEqualTo(2);
 
         JsonNode breakdown = a.client().get("/api/matches/" + id + "/breakdown").body();

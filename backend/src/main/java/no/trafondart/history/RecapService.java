@@ -114,13 +114,14 @@ public class RecapService {
                 hiCo = Math.max(hiCo, m.mine().getHighestCheckout());
                 hiTurn = Math.max(hiTurn, m.mine().getHighestTurn());
             }
-            legsPlayed += m.legs().size();
+            legsPlayed += m.legsPlayed();
             PlayerSummary opp = m.opponent() == null ? null : PlayerSummary.of(m.opponent());
             double avg = round1(m.average());
             Integer oppRating = m.opponentRatingBefore() != null ? Integer.valueOf((int) Math.round(m.opponentRatingBefore()))
                     : opp == null ? null : opp.rating();
             MatchHighlight hl = new MatchHighlight(m.match().getId(), opp, m.won(), avg, oppRating, m.at());
-            if (best == null || avg > best.average()) best = hl;
+            // the best match is the best average: only matches with darts have one
+            if (m.hasDarts() && (best == null || avg > best.average())) best = hl;
             if (m.won() && oppRating != null && (biggest == null || biggest.opponentRating() == null || oppRating > biggest.opponentRating())) {
                 biggest = hl;
             }

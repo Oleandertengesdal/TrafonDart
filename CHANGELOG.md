@@ -2,6 +2,29 @@
 
 All notable changes to TrafonDart. Versions follow [semantic versioning](https://semver.org/). Database migrations are listed, because they are the one thing that can't simply be rolled back.
 
+## 1.7.0: Confirmed results, and results without darts
+
+### Added
+
+- **Every normal match is confirmed before it counts.** When the last dart lands (or a result is registered), the match waits for the player who didn't register it to confirm it. If someone else scored it, either player can. An admin can always confirm. Until then it counts for nothing: not the rating, the table, statistics, streaks, head-to-head, Player of the Month or achievements. It shows in the history as "Venter på bekreftelse".
+- **It confirms itself after two days** if nobody confirms or disputes it. The check runs every ten minutes, and at start-up, because the free server sleeps.
+- **A disputed match waits for an admin**, who keeps the result (the match is confirmed) or voids it. An admin confirming a disputed match also settles the dispute.
+- **Register a result without darts** (**Spill → Registrer bare resultatet**): the players, the game, who won and the loser's legs, played today or up to a week back. It's confirmed like any match, then counts for wins, legs, rating, streaks, form and head-to-head, but not for averages or anything else about the throwing. Marked "Kun resultat".
+- **"Bekreft resultater"** at the top of the home page lists the matches waiting for you, with a Confirm button. The match page says whose confirmation it waits for and when it counts by itself.
+- Tournament matches, party games and practice against Trafo are unchanged: they need no confirmation.
+- 18 new tests (508 in all).
+
+### Changed
+
+- Ratings change when a match is confirmed, and a full rating rebuild replays matches in the order they were confirmed, so both give the same numbers.
+- A match counts in the month it was played. Confirming one from a month that has already been decided (played on the 31st, confirmed on the 2nd) decides that month again.
+- The data export says for each match whether it was a result only and when it was confirmed.
+
+### Database
+
+- `V7__match_confirmation.sql`: the `UNCONFIRMED` status, `result_only`, `confirmed_at` and `confirmed_by` on `matches`. **Every match that already counted stays counted.**
+- `V6__lookup_indexes.sql` (from the November security work) is now described in [DATABASE.md](docs/DATABASE.md) too.
+
 ## 1.6.0: Practice against Trafo, and 401
 
 ### Added

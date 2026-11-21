@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Eye, Flag, Link2, Radio, Target, Trophy } from "lucide-react";
+import { ArrowLeft, ClipboardList, Eye, Flag, Link2, Radio, Target, Trophy } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router";
@@ -15,6 +15,7 @@ import { CelebrationOverlay, useMoments } from "../features/match/Celebration";
 import { Keypad } from "../features/match/Keypad";
 import { MatchStatsTable } from "../features/match/MatchStatsTable";
 import { AnalysisTabs, type AnalysisTab } from "../features/match/AnalysisTabs";
+import { ConfirmationPanel } from "../features/match/Confirmation";
 
 // The analysis panels pull in the chart library, so they load only when a tab is opened.
 const TurnByTurn = lazy(() => import("../features/match/MatchAnalysis").then((m) => ({ default: m.TurnByTurn })));
@@ -23,7 +24,8 @@ const MatchHeadToHead = lazy(() => import("../features/match/MatchAnalysis").the
 import { MatchSocial } from "../features/social/MatchSocial";
 import { CheckoutHint, TurnStrip } from "../features/match/TurnStrip";
 import { useScorer } from "../features/match/useScorer";
-import { num, rulesSummary } from "../lib/format";
+import { confirmationState } from "../lib/confirmation";
+import { date, num, rulesSummary } from "../lib/format";
 import { useLiveStatus, useReconnect, useTopic } from "../realtime/useTopic";
 import { OfflineNotice } from "../features/scoring/OfflineNotice";
 import { useWakeLock } from "../lib/wakeLock";
@@ -232,9 +234,12 @@ function WatchView({ match }: { match: LiveMatch }) {
   const bust = match.turnJustEnded && match.lastCompletedTurn?.bust;
   const finishedLegs = match.legs.filter((l) => l.winnerIndex !== null);
   const [tab, setTab] = useState<AnalysisTab>("overview");
+  const decided = match.status === "COMPLETED" || match.status === "UNCONFIRMED";
+  if (match.resultOnly) return <ResultOnlyView match={match} />;
   return (
     <div className="mx-auto max-w-5xl px-4 pb-16 pt-6">
-      {match.status === "COMPLETED" && match.winnerIndex !== null && <WinnerBanner match={match} />}
+      {decided && match.winnerIndex !== null && <WinnerBanner match={match} />}
+      <ConfirmationPanel match={match} />
       <div className="grid grid-cols-2 gap-4 pt-4 sm:gap-8">
         {match.players.map((p, i) => (
           <ArchScore
@@ -289,7 +294,36 @@ function WatchView({ match }: { match: LiveMatch }) {
         )}
       </div>
       )}
-      {match.status === "COMPLETED" && <DisputeAndRematch match={match} />}
+      {decided && <DisputeAndRematch match={match} />}
+      <MatchSocial matchId={match.id} />
+    </div>
+  );
+}
+
+/** A match registered with only its result: who won and the legs. There are no darts to show. */
+function ResultOnlyView({ match }: { match: LiveMatch }) {
+  const { t } = useTranslation();
+  return (
+    <div className="mx-auto max-w-3xl px-4 pb-16 pt-6">
+      {match.winnerIndex !== null && match.status !== "VOIDED" && <WinnerBanner match={match} />}
+      <ConfirmationPanel match={match} />
+      <section className="panel grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4 p-6">
+        {[0, 1].map((i) => (
+          <p key={i} className={`min-w-0 font-display text-2xl leading-tight ${i === 1 ? "order-3 text-right" : ""} ${match.winnerIndex === i ? "text-trim" : "text-trim-dim"}`}>
+            {match.players[i].realName}
+          </p>
+        ))}
+        <p className="numerals order-2 text-score-sm leading-none">
+          {match.legsWon[0]}–{match.legsWon[1]}
+        </p>
+      </section>
+      <p className="mt-4 flex items-start gap-2 text-sm text-trim-faint">
+        <ClipboardList className="mt-0.5 size-4 shrink-0" aria-hidden />
+        <span>
+          {t("match.resultOnlyLead")} {match.completedAt && `${t("result.playedOn")}: ${date(match.completedAt)}.`}
+        </span>
+      </p>
+      {match.status !== "VOIDED" && <DisputeAndRematch match={match} />}
       <MatchSocial matchId={match.id} />
     </div>
   );
@@ -304,7 +338,8 @@ function WinnerBanner({ match }: { match: LiveMatch }) {
       <div className="flex-1">
         <p className="font-display text-3xl leading-none">{t("match.matchWon", { name: match.players[w].realName })}</p>
         <p className="numerals mt-1 text-xl text-trim-dim">
-          {match.legsWon[0]}–{match.legsWon[1]}, {t("match.average")} {num(match.stats[w].average, 2)}
+          {match.legsWon[0]}–{match.legsWon[1]}
+          {!match.resultOnly && `, ${t("match.average")} ${num(match.stats[w].average, 2)}`}
         </p>
       </div>
       {match.disputed && <span className="rounded bg-salmon/20 px-2 py-1 text-xs font-bold text-salmon">{t("match.disputed")}</span>}
@@ -323,6 +358,7 @@ function DisputeAndRematch({ match }: { match: LiveMatch }) {
   const [sent, setSent] = useState(false);
   const qc = useQueryClient();
   const isPlayer = !!me && match.players.some((p) => p.id === me.id);
+  const { canDispute } = confirmationState(match, me);
   if (!isPlayer) return null;
 
   const rematch = () => {
@@ -337,7 +373,7 @@ function DisputeAndRematch({ match }: { match: LiveMatch }) {
       <Button size="lg" onClick={rematch}>
         {t("match.rematch")}
       </Button>
-      {!match.disputed && !sent && (
+      {canDispute && !sent && (
         <Button variant="ghost" onClick={() => setOpen(true)}>
           <Flag className="size-4" aria-hidden />
           {t("match.dispute")}

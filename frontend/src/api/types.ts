@@ -3,7 +3,20 @@
 export type Role = "USER" | "ADMIN";
 export type InRule = "STRAIGHT" | "DOUBLE";
 export type OutRule = "STRAIGHT" | "DOUBLE" | "MASTER";
-export type MatchStatus = "IN_PROGRESS" | "COMPLETED" | "ABANDONED" | "VOIDED";
+/** UNCONFIRMED: finished (or registered as a result) but not counted until the other player or an admin confirms it. */
+export type MatchStatus = "IN_PROGRESS" | "UNCONFIRMED" | "COMPLETED" | "ABANDONED" | "VOIDED";
+
+/** Who registered a finished normal match and who may confirm it. Null for tournament matches and matches being played. */
+export interface ConfirmationView {
+  registeredBy: string | null;
+  /** The players who may confirm it; admins always may. */
+  confirmerIds: number[];
+  confirmedAt: string | null;
+  /** Null when it confirmed itself (or counted before confirmation existed). */
+  confirmedBy: string | null;
+  /** When it confirms itself if nobody acts; null once confirmed or voided. */
+  autoConfirmAt: string | null;
+}
 export type Locale = "nb" | "en";
 
 export interface PlayerSummary {
@@ -103,6 +116,9 @@ export interface LiveMatch {
   createdAt: string;
   completedAt: string | null;
   disputed: boolean;
+  /** Registered with only the result: no darts. */
+  resultOnly: boolean;
+  confirmation: ConfirmationView | null;
 }
 
 export interface MatchSummary {
@@ -119,6 +135,7 @@ export interface MatchSummary {
   tournament: { id: string; name: string } | null;
   kudos: number;
   comments: number;
+  resultOnly: boolean;
 }
 
 export interface RatingPoint {
@@ -700,4 +717,17 @@ export interface BotRecord {
   }[];
   /** Your own unfinished match against Trafo; always null on someone else's record. */
   openMatchId: string | null;
+}
+
+export interface RecordResultRequest {
+  player1Id: number;
+  player2Id: number;
+  startScore: number;
+  inRule: InRule;
+  outRule: OutRule;
+  legsToWin: number;
+  legsWon: [number, number];
+  rated: boolean;
+  /** YYYY-MM-DD, Norwegian time; today or up to 7 days back. */
+  playedOn: string;
 }

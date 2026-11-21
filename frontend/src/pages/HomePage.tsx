@@ -16,6 +16,7 @@ import { ChallengesCard } from "../features/challenges/Challenges";
 import { sideLabel } from "../features/games/gameLogic";
 import { recapPromo } from "../features/recap/recapMath";
 import { usePageTitle } from "../lib/pageTitle";
+import { ToConfirmCard } from "../features/match/Confirmation";
 
 export function HomePage() {
   const { t } = useTranslation();
@@ -35,6 +36,7 @@ export function HomePage() {
     void qc.invalidateQueries({ queryKey: keys.liveMatches });
     void qc.invalidateQueries({ queryKey: keys.liveGames });
     void qc.invalidateQueries({ queryKey: ["matches", "recent"] });
+    void qc.invalidateQueries({ queryKey: keys.toConfirm });
     void qc.invalidateQueries({ queryKey: keys.leaderboard });
     void qc.invalidateQueries({ queryKey: keys.awardRace });
   });
@@ -45,6 +47,7 @@ export function HomePage() {
   const gameList = liveGames.data ?? [];
   return (
     <div className="flex flex-col gap-12">
+      <ToConfirmCard />
       <ChallengesCard />
       {live.isLoading ? <Spinner /> : liveList.length > 0 ? <LiveNow matches={liveList} /> : gameList.length === 0 && <QuietHero />}
       {gameList.length > 0 && <LiveGames games={gameList} />}

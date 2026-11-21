@@ -41,7 +41,8 @@
     "never": "Never",
     "none": "None",
     "darts": "darts",
-    "dartsHeading": "Darts"
+    "dartsHeading": "Darts",
+    "or": "or"
   },
   "auth": {
     "loginTitle": "Log in",
@@ -152,7 +153,8 @@
       "IN_PROGRESS": "Live",
       "COMPLETED": "Finished",
       "ABANDONED": "Abandoned",
-      "VOIDED": "Voided"
+      "VOIDED": "Voided",
+      "UNCONFIRMED": "Awaiting confirmation"
     },
     "connection": {
       "live": "Live",
@@ -179,7 +181,9 @@
     "darts": "Darts",
     "dartsAt": "Darts at double",
     "turnScore": "{{score}}",
-    "swap": "Swap players"
+    "swap": "Swap players",
+    "resultOnly": "Result only",
+    "resultOnlyLead": "Registered without darts: the match counts for wins, legs and rating, but not for averages, checkouts or other throwing."
   },
   "callouts": {
     "oneEighty": "One hundred and eighty!",
@@ -518,7 +522,9 @@
       "reload": "Reload",
       "report": "Report the bug"
     },
-    "BOT_MATCH_IN_PROGRESS": "You already have a match going against Trafo. Carry on with it, or give up first."
+    "BOT_MATCH_IN_PROGRESS": "You already have a match going against Trafo. Carry on with it, or give up first.",
+    "MATCH_NOT_UNCONFIRMED": "The match is already confirmed, or not finished.",
+    "MATCH_CONFIRM_NOT_ALLOWED": "The other player or an admin confirms the match."
   },
   "social": {
     "kudos": "Kudos",
@@ -1063,5 +1069,30 @@
       "mine": "Your record against Trafo",
       "seeAll": "See the whole record"
     }
+  },
+  "confirm": {
+    "waitingTitle": "Waiting for {{names}} to confirm",
+    "waitingLead": "The match doesn't count for rating, the table or statistics until it's confirmed. If nobody objects, it counts by itself {{when}}.",
+    "yoursTitle": "Confirm the result",
+    "yoursLead": "Is it right? Then the match counts. If something's wrong, say so below and an admin decides.",
+    "button": "Confirm",
+    "disputedTitle": "The result is disputed",
+    "disputedLead": "An admin decides whether the result stands or the match is voided. Until then it doesn't count.",
+    "adminNote": "As an admin you can confirm it anyway.",
+    "homeTitle": "Confirm results",
+    "homeLead": "These matches count once you've confirmed them. If you don't object, they count by themselves after two days."
+  },
+  "result": {
+    "title": "Register a result",
+    "lead": "For a match you played without scoring the darts. Your opponent confirms it before it counts.",
+    "winner": "Who won?",
+    "loserLegs": "Legs for {{name}}",
+    "score": "Result",
+    "playedOn": "Played on",
+    "playedOnHint": "Today or up to a week back.",
+    "counts": "Counts for wins, legs, rating and rivals once confirmed. Averages and other throwing only come from matches with the darts scored.",
+    "submit": "Register the result",
+    "linkLead": "Played without scoring the darts?",
+    "link": "Just register the result"
   }
 }

@@ -83,7 +83,8 @@ If you scale to more than one backend instance, move the buckets to a shared sto
 - `/api/admin/**` requires `ROLE_ADMIN` at the filter-chain level. Everything else under `/api/**` requires login, and anything not explicitly routed is denied.
 - Scoring is allowed only for the match's players, its creator or an admin. Rated matches must include the creator (admins excepted), which stops people inventing results for others.
 - Rated tournament fixtures can only be started by their players or an admin, so an organiser can't start and score a rated match between two others. Casual tournament fixtures can also be started by the organiser.
-- Casual (unrated) matches can be set up by anyone, but they never count towards ratings or Player of the Month. They do appear in profile statistics; a player who didn't play one can dispute it.
+- **Confirmation:** a finished normal match, scored or registered as a result only, counts for nothing until the player who didn't register it (or an admin) confirms it, or two days have passed without a dispute. Nobody can confirm their own registration unless they're an admin. So a result someone invents never counts as long as the other player disputes it within two days.
+- Casual (unrated) matches can be set up by anyone, but they never count towards ratings or Player of the Month. They do appear in profile statistics once confirmed; a player who didn't play one can dispute it.
 - Admins cannot demote or disable themselves, and the last active admin can't be removed (nor delete their own account).
 - **Party games:** only players, the creator or an admin can score; the creator must play (admins excepted). Games are never rated.
 - **Challenges:** only the two players can see or act on a challenge (anyone else gets 404, so ids reveal nothing). Only the opponent accepts or declines. Limits: one open challenge per pair, five open per sender, 48 h expiry.

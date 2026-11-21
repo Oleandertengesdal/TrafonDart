@@ -91,7 +91,10 @@ public class StatsService {
             double avg = s.getDartsThrown() == 0 ? 0 : s.getPointsScored() * 3.0 / s.getDartsThrown();
             double f9 = s.getFirst9Darts() == 0 ? 0 : s.getFirst9Points() * 3.0 / s.getFirst9Darts();
             bestAvg = Math.max(bestAvg, avg);
-            trend.add(new StatsViews.AveragePoint(p.match().getCompletedAt(), p.match().getId(), round2(avg), round2(f9), p.won()));
+            // a result registered without darts has no average: leave it off the chart instead of plotting a 0
+            if (s.getDartsThrown() > 0) {
+                trend.add(new StatsViews.AveragePoint(p.match().getCompletedAt(), p.match().getId(), round2(avg), round2(f9), p.won()));
+            }
         }
         int n = games.size();
 

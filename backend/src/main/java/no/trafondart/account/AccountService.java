@@ -79,7 +79,7 @@ public class AccountService {
 
     public record MatchRow(UUID id, String status, boolean rated, Instant createdAt, Instant completedAt, String opponent,
                            Boolean won, int startScore, String inRule, String outRule, int legsToWin, Stats myStats,
-                           List<String> myDarts) {
+                           List<String> myDarts, boolean resultOnly, Instant confirmedAt) {
     }
 
     public record Stats(int legsWon, int dartsThrown, int pointsScored, int count180, int count140, int count100, int highestTurn,
@@ -196,7 +196,8 @@ public class AccountService {
             Boolean won = m.getWinnerId() == null ? null : m.getWinnerId().equals(userId);
             matchRows.add(new MatchRow(m.getId(), m.getStatus().name(), m.isRated(), m.getCreatedAt(), m.getCompletedAt(),
                     opp == null ? null : opp.getUsername(), won, m.config().startScore(), m.config().inRule().name(),
-                    m.config().outRule().name(), m.config().legsToWin(), Stats.of(statsByMatch.get(m.getId().toString())), myDarts));
+                    m.config().outRule().name(), m.config().legsToWin(), Stats.of(statsByMatch.get(m.getId().toString())), myDarts,
+                    m.isResultOnly(), m.getConfirmedAt()));
         }
 
         List<GameRow> gameRows = gameResults.findEntriesForUser(userId).stream()

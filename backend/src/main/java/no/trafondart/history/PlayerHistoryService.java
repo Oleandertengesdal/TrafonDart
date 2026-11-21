@@ -88,7 +88,8 @@ public class PlayerHistoryService {
             X01Engine.MatchState replay = X01Engine.replay(m.config(), m.getStartingPlayer(), d);
             entries.add(new PlayerHistory.MatchEntry(m, side, opponents.get(oppId), me.equals(m.getWinnerId()),
                     statsByKey.get(m.getId() + ":" + me), legsByMatch.getOrDefault(m.getId(), List.of()), replay,
-                    ratingBefore.get(m.getId() + ":" + me), ratingBefore.get(m.getId() + ":" + oppId)));
+                    ratingBefore.get(m.getId() + ":" + me), ratingBefore.get(m.getId() + ":" + oppId),
+                    statsByKey.get(m.getId() + ":" + oppId)));
         }
 
         List<PlayerHistory.GameEntry> games = new ArrayList<>();
